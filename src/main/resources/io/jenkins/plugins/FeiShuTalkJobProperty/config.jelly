@@ -1,0 +1,26 @@
+<?jelly escape-by-default='true'?>
+<j:jelly
+        xmlns:j="jelly:core"
+        xmlns:st="jelly:stapler"
+        xmlns:f="/lib/form">
+    <j:set var="notifierConfigDescriptor"
+           value="${descriptor.getFeiShuTalkNotifierConfigDescriptor()}"/>
+    <j:set var="notifierConfigs"
+           value="${instance == null ? descriptor.getDefaultNotifierConfigs() : instance.getNotifierConfigs()}"/>
+
+    <f:entry title="飞书机器人">
+        <f:repeatable
+                header=""
+                name="notifierConfigs"
+                noAddButton="true"
+                var="instance"
+                items="${notifierConfigs}">
+            <j:scope>
+                <j:set var="descriptor" value="${notifierConfigDescriptor}"/>
+                <st:include page="config.jelly" class="${descriptor.clazz}"/>
+            </j:scope>
+        </f:repeatable>
+    </f:entry>
+
+
+</j:jelly>
