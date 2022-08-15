@@ -24,6 +24,21 @@
     <description>飞书 Jenkins 插件</description>
     <url>https://github.com/721806280/feishu-talk-plugin</url>
 
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/licenses/MIT</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>xm</id>
+            <name>xm.z</name>
+            <email>721806280@qq.com</email>
+        </developer>
+    </developers>
+
     <dependencies>
         <dependency>
             <groupId>org.projectlombok</groupId>
