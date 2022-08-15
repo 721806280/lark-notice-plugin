@@ -136,9 +136,6 @@ public class FeiShuTalkRobotConfig implements Describable<FeiShuTalkRobotConfig>
          * @return 是否校验成功
          */
         public FormValidation doCheckId(@QueryParameter String value) {
-            if (StringUtils.isBlank(value)) {
-                return FormValidation.error(Messages.RobotConfigFormValidation_id());
-            }
             return FormValidation.ok();
         }
 
