@@ -23,10 +23,7 @@ mvn hpi:run -Djetty.port=8080
    校验代码规范。
 2. 使用 [Google Style Guide](https://github.com/google/styleguide) 统一代码风格。
 
-> `IDEA`
->
-下可以下载 [intellij-java-google-style.xml](https://github.com/google/styleguide/blob/gh-pages/intellij-java-google-style.xml)
-> ，然后在 `Settings` -> `Editor` -> `Code Style` 进行导入。
+> `IDEA`下可以下载 [intellij-java-google-style.xml](https://github.com/google/styleguide/blob/gh-pages/intellij-java-google-style.xml) ，然后在 `Settings` -> `Editor` `Code Style` 进行导入。
 
 ## 参考文档
 
