@@ -215,11 +215,13 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
                     .executorMobile(executorMobile).content(envVars.expand(content).replaceAll("\\\\n", "\n"))
                     .build();
 
+            String statusLabel = statusType == null ? "unknown" : statusType.getLabel();
+
             MessageModel message = MessageModel.builder()
                     .type(MsgTypeEnum.INTERACTIVE)
                     .atAll(atAll)
                     .atOpenIds(atOpenIds)
-                    .title(envVars.expand(job.getName() + " " + statusType.getLabel()))
+                    .title(String.format("%s %s", projectName, statusLabel))
                     .buildJobModel(buildJobModel).text(buildJobModel.toMarkdown()).btns(btns).build();
 
             log(listener, "当前机器人信息，%s", Utils.toJson(item));
