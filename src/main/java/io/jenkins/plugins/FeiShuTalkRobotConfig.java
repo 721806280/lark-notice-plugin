@@ -130,16 +130,6 @@ public class FeiShuTalkRobotConfig implements Describable<FeiShuTalkRobotConfig>
         }
 
         /**
-         * id 字段必填
-         *
-         * @param value id
-         * @return 是否校验成功
-         */
-        public FormValidation doCheckId(@QueryParameter String value) {
-            return FormValidation.ok();
-        }
-
-        /**
          * name 字段必填
          *
          * @param value name
@@ -182,7 +172,7 @@ public class FeiShuTalkRobotConfig implements Describable<FeiShuTalkRobotConfig>
                 @QueryParameter("securityPolicyConfigs") String securityPolicyConfigStr,
                 @QueryParameter("proxy") String proxyStr) {
             ArrayList<FeiShuTalkSecurityPolicyConfig> securityPolicyConfigs =
-                    getSecurityPolicyConfigs(securityPolicyConfigStr);
+                    parseSecurityPolicyConfigs(securityPolicyConfigStr);
 
             FeiShuTalkRobotConfig robotConfig =
                     new FeiShuTalkRobotConfig(id, name, webhook, securityPolicyConfigs);
@@ -193,22 +183,16 @@ public class FeiShuTalkRobotConfig implements Describable<FeiShuTalkRobotConfig>
 
             MessageModel msg = getMsg();
 
-            String message = sender.sendText(msg);
+            String message = sender.sendInteractive(msg);
 
             if (message == null) {
                 String rootUrl = Jenkins.get().getRootUrl();
-                return FormValidation.respond(
-                        Kind.OK,
-                        "<img src='"
-                                + rootUrl
-                                + "/images/16x16/accept.png'>"
-                                + "<span style='padding-left:4px;color:#52c41a;font-weight:bold;'>测试成功</span>");
+                return FormValidation.respond(Kind.OK, "<span style='padding-left:4px;color:#52c41a;font-weight:bold;'>测试成功</span>");
             }
             return FormValidation.error(message);
         }
 
-        private ArrayList<FeiShuTalkSecurityPolicyConfig> getSecurityPolicyConfigs(
-                String param) {
+        private ArrayList<FeiShuTalkSecurityPolicyConfig> parseSecurityPolicyConfigs(String param) {
             ArrayList<FeiShuTalkSecurityPolicyConfig> securityPolicyConfigs =
                     new ArrayList<>();
             JSONArray array = (JSONArray) JSONSerializer.toJSON(param);
@@ -242,7 +226,7 @@ public class FeiShuTalkRobotConfig implements Describable<FeiShuTalkRobotConfig>
 
         private MessageModel getMsg() {
             return MessageModel.builder()
-                    .type(MsgTypeEnum.TEXT)
+                    .type(MsgTypeEnum.INTERACTIVE)
                     .title("飞书机器人测试成功")
                     .text(getText())
                     .atAll(false)

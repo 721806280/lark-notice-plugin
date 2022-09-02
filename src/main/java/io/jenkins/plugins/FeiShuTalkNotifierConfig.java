@@ -16,6 +16,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
+ * FeiShuTalkNotifierConfig
+ *
  * @author xm.z
  */
 @Getter

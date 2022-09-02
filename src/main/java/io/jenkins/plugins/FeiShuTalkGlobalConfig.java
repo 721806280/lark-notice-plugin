@@ -1,15 +1,17 @@
 package io.jenkins.plugins;
 
 import hudson.Extension;
+import hudson.model.Describable;
+import hudson.model.Descriptor;
 import io.jenkins.plugins.FeiShuTalkRobotConfig.FeiShuTalkRobotConfigDescriptor;
 import io.jenkins.plugins.enums.NoticeOccasionEnum;
-import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
 import lombok.Getter;
 import lombok.ToString;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.StaplerRequest;
@@ -27,9 +29,12 @@ import java.util.stream.Collectors;
  */
 @Getter
 @ToString
-@Extension(ordinal = 100)
+@Extension
+@Symbol("fsTalk")
 @SuppressWarnings("unused")
-public class FeiShuTalkGlobalConfig extends GlobalConfiguration {
+public class FeiShuTalkGlobalConfig extends Descriptor<FeiShuTalkGlobalConfig> implements
+        Describable<FeiShuTalkGlobalConfig> {
+
     private static volatile FeiShuTalkGlobalConfig instance;
 
     /**
@@ -45,8 +50,7 @@ public class FeiShuTalkGlobalConfig extends GlobalConfiguration {
     /**
      * 通知时机
      */
-    private Set<String> noticeOccasions =
-            Arrays.stream(NoticeOccasionEnum.values()).map(Enum::name).collect(Collectors.toSet());
+    private Set<String> noticeOccasions = Arrays.stream(NoticeOccasionEnum.values()).map(Enum::name).collect(Collectors.toSet());
 
     /**
      * 机器人配置列表
@@ -54,11 +58,8 @@ public class FeiShuTalkGlobalConfig extends GlobalConfiguration {
     private ArrayList<FeiShuTalkRobotConfig> robotConfigs = new ArrayList<>();
 
     @DataBoundConstructor
-    public FeiShuTalkGlobalConfig(
-            FeiShuTalkProxyConfig proxyConfig,
-            boolean verbose,
-            Set<String> noticeOccasions,
-            ArrayList<FeiShuTalkRobotConfig> robotConfigs) {
+    public FeiShuTalkGlobalConfig(FeiShuTalkProxyConfig proxyConfig, boolean verbose,
+                                  Set<String> noticeOccasions, ArrayList<FeiShuTalkRobotConfig> robotConfigs) {
         this.proxyConfig = proxyConfig;
         this.verbose = verbose;
         this.noticeOccasions = noticeOccasions;
@@ -66,6 +67,7 @@ public class FeiShuTalkGlobalConfig extends GlobalConfiguration {
     }
 
     public FeiShuTalkGlobalConfig() {
+        super(self());
         this.load();
     }
 
@@ -75,23 +77,7 @@ public class FeiShuTalkGlobalConfig extends GlobalConfiguration {
      * @return 全局配置信息
      */
     public static FeiShuTalkGlobalConfig getInstance() {
-        if (instance == null) {
-            synchronized (FeiShuTalkGlobalConfig.class) {
-                if (instance == null) {
-                    instance = GlobalConfiguration.all().getInstance(FeiShuTalkGlobalConfig.class);
-                }
-            }
-        }
-        return instance;
-    }
-
-    /**
-     * 通知时机列表
-     *
-     * @return 通知时机
-     */
-    public NoticeOccasionEnum[] getNoticeOccasionTypes() {
-        return NoticeOccasionEnum.values();
+        return Jenkins.get().getDescriptorByType(FeiShuTalkGlobalConfig.class);
     }
 
     /**
@@ -133,17 +119,30 @@ public class FeiShuTalkGlobalConfig extends GlobalConfiguration {
             json.put("robotConfigs", new JSONArray());
         } else {
             JSONArray robotConfigs = JSONArray.fromObject(robotConfigObj);
-            robotConfigs.removeIf(
-                    item -> {
-                        JSONObject jsonObject = JSONObject.fromObject(item);
-                        String webhook = jsonObject.getString("webhook");
-                        return StringUtils.isEmpty(webhook);
-                    });
+            robotConfigs.removeIf(item -> {
+                JSONObject jsonObject = JSONObject.fromObject(item);
+                String webhook = jsonObject.getString("webhook");
+                return StringUtils.isEmpty(webhook);
+            });
         }
-        //    System.out.println(json.toString());
+        // System.out.println(json);
         req.bindJSON(this, json);
         this.save();
         return super.configure(req, json);
+    }
+
+    /**
+     * 通知时机列表
+     *
+     * @return 通知时机
+     */
+    public NoticeOccasionEnum[] getAllNoticeOccasions() {
+        return NoticeOccasionEnum.values();
+    }
+
+    @Override
+    public Descriptor<FeiShuTalkGlobalConfig> getDescriptor() {
+        return this;
     }
 
     /**

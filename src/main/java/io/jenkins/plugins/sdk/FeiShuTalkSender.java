@@ -11,6 +11,7 @@ import io.jenkins.plugins.tools.Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.net.Proxy;
@@ -108,8 +109,13 @@ public class FeiShuTalkSender {
 
         ActionCard.Card.Hr hr = new ActionCard.Card.Hr();
         ActionCard.Card.Element element = new ActionCard.Card.Element("div", new ActionCard.Card.Text("lark_md", addAtInfo(msg.getText(), at, true)));
-        JSONObject actions = JSONObject.of("actions", JSONArray.of(msg.getBtns().toArray()), "tag", "action");
-        card.setElements(JSONArray.of(hr, element, hr, actions));
+
+        if (CollectionUtils.isEmpty(msg.getBtns())) {
+            card.setElements(JSONArray.of(hr, element, hr));
+        } else {
+            JSONObject actions = JSONObject.of("actions", JSONArray.of(msg.getBtns().toArray()), "tag", "action");
+            card.setElements(JSONArray.of(hr, element, hr, actions));
+        }
 
         actioncard.setCard(card);
         return call(actioncard);
