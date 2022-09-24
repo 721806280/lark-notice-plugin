@@ -187,7 +187,7 @@ public class FeiShuTalkRobotConfig implements Describable<FeiShuTalkRobotConfig>
 
             if (message == null) {
                 String rootUrl = Jenkins.get().getRootUrl();
-                return FormValidation.respond(Kind.OK, "<span style='padding-left:4px;color:#52c41a;font-weight:bold;'>测试成功</span>");
+                return FormValidation.respond(Kind.OK, "<span style='color:#52c41a;font-weight:bold;'>测试成功</span>");
             }
             return FormValidation.error(message);
         }
