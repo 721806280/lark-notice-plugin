@@ -4,6 +4,8 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.model.*;
+import hudson.model.Cause.RemoteCause;
+import hudson.model.Cause.UpstreamCause;
 import hudson.model.Cause.UserIdCause;
 import hudson.model.listeners.RunListener;
 import io.jenkins.plugins.enums.BuildStatusEnum;
@@ -116,16 +118,25 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
         UserIdCause userIdCause = run.getCause(UserIdCause.class);
         // 执行人信息
         User user = null;
-        String executorName;
+        String executorName = null;
         String executorMobile = null;
         if (userIdCause != null && userIdCause.getUserId() != null) {
             user = User.getById(userIdCause.getUserId(), false);
         }
 
         if (user == null) {
-            log(listener, "未获取到构建人信息，将尝试从构建信息中模糊匹配。");
-            executorName = run.getCauses().stream().map(Cause::getShortDescription)
-                    .collect(Collectors.joining());
+            RemoteCause remoteCause = run.getCause(RemoteCause.class);
+            UpstreamCause streamCause = run.getCause(UpstreamCause.class);
+            if (remoteCause != null) {
+                executorName = "remote " + remoteCause.getAddr();
+            } else if (streamCause != null) {
+                executorName = "project " + streamCause.getUpstreamProject();
+            }
+            if (executorName == null) {
+                log(listener, "未获取到构建人信息，将尝试从构建信息中模糊匹配。");
+                executorName = run.getCauses().stream().map(Cause::getShortDescription)
+                        .collect(Collectors.joining());
+            }
         } else {
             executorName = user.getDisplayName();
             executorMobile = user.getProperty(FeiShuTalkUserProperty.class).getMobile();
