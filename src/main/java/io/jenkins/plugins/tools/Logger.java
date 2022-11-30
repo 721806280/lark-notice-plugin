@@ -50,7 +50,7 @@ public class Logger {
      * @param msg      消息
      */
     public static void error(TaskListener listener, String msg, Object... args) {
-        listener.error("钉钉机器人发生错误：%s", String.format(msg, args));
+        listener.error("飞书机器人发生错误：%s", String.format(msg, args));
     }
 
     /**
