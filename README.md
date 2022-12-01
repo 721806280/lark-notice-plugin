@@ -171,7 +171,7 @@ pipeline {
                             '🕐 **构建用时**:  2 ms and counting',
                             '👤 **执  行 者**:  Started by user anonymous'
                         ],
-                        btns: [
+                        buttons: [
                             [
                               title: '更改记录',
                               actionUrl: 'https://www.dingtalk.com/'
