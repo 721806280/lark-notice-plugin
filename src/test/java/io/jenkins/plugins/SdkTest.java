@@ -23,21 +23,15 @@ public class SdkTest {
                         "https://open.feishu.cn/open-apis/bot/v2/hook/xxx"));
         robot.setSecurityPolicyConfigs(securityPolicyConfigs);
 
+
+        BuildJobModel buildJobModel = BuildJobModel.builder().projectName("欢迎使用飞书机器人插件~").projectUrl("/")
+                .jobName("系统配置").jobUrl("/configure").statusType(BuildStatusEnum.SUCCESS)
+                .duration("-").executorName("test").executorMobile("test").build();
+
+        MessageModel msg = MessageModel.builder().title("飞书机器人测试成功").text(buildJobModel.toMarkdown())
+                .atAll(false).build();
+
         FeiShuTalkSender sender = new FeiShuTalkSender(robot, null);
-        String text =
-                BuildJobModel.builder()
-                        .projectName("欢迎使用飞书机器人插件~")
-                        .projectUrl("/")
-                        .jobName("系统配置")
-                        .jobUrl("/configure")
-                        .statusType(BuildStatusEnum.SUCCESS)
-                        .duration("-")
-                        .executorName("test")
-                        .executorMobile("test")
-                        .build()
-                        .toMarkdown();
-        MessageModel msg =
-                MessageModel.builder().title("飞书机器人测试成功").text(text).messageUrl("/").atAll(false).build();
         sender.sendText(msg);
     }
 }

@@ -1,5 +1,6 @@
 package io.jenkins.plugins.sdk;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import io.jenkins.plugins.FeiShuTalkRobotConfig;
@@ -60,7 +61,7 @@ public class FeiShuTalkSender {
         At at = msg.getAt();
         Image image = new Image();
         image.setAt(at);
-        image.setImageKey(msg.getTitle());
+        image.setImageKey(msg.getText());
         return call(image);
     }
 
@@ -74,7 +75,7 @@ public class FeiShuTalkSender {
         At at = msg.getAt();
         ShareChat shareChat = new ShareChat();
         shareChat.setAt(at);
-        shareChat.setShareChatId(msg.getTitle());
+        shareChat.setShareChatId(msg.getText());
         return call(shareChat);
     }
 
@@ -88,7 +89,8 @@ public class FeiShuTalkSender {
         At at = msg.getAt();
         Post post = new Post();
         post.setAt(at);
-        post.setPost(new Post.RichText(new Post.RichText.Content(addKeyWord(msg.getTitle()), msg.getBuildJobModel().toPost())));
+        post.setPost(new Post.RichText(new Post.RichText.Content(addKeyWord(msg.getTitle()),
+                JSONArray.of(JSON.parseArray(msg.getText())))));
         return call(post);
     }
 
@@ -110,10 +112,10 @@ public class FeiShuTalkSender {
         ActionCard.Card.Hr hr = new ActionCard.Card.Hr();
         ActionCard.Card.Element element = new ActionCard.Card.Element("div", new ActionCard.Card.Text("lark_md", addAtInfo(msg.getText(), at, true)));
 
-        if (CollectionUtils.isEmpty(msg.getBtns())) {
+        if (CollectionUtils.isEmpty(msg.getButtons())) {
             card.setElements(JSONArray.of(hr, element, hr));
         } else {
-            JSONObject actions = JSONObject.of("actions", JSONArray.of(msg.getBtns().toArray()), "tag", "action");
+            JSONObject actions = JSONObject.of("actions", JSONArray.of(msg.getButtons().toArray()), "tag", "action");
             card.setElements(JSONArray.of(hr, element, hr, actions));
         }
 

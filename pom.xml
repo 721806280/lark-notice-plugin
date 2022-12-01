@@ -68,15 +68,12 @@
                 <artifactId>bom-2.319.x</artifactId>
                 <version>1654.vcb_69d035fa_20</version>
                 <type>pom</type>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
 
     <repositories>
-        <repository>
-            <id>AliYun-Public</id>
-            <url>https://maven.aliyun.com/repository/public</url>
-        </repository>
         <repository>
             <id>repo.jenkins-ci.org</id>
             <url>https://repo.jenkins-ci.org/public</url>
@@ -87,10 +84,6 @@
         <pluginRepository>
             <id>repo.jenkins-ci.org</id>
             <url>https://repo.jenkins-ci.org/public</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>AliYun-Public</id>
-            <url>https://maven.aliyun.com/repository/public</url>
         </pluginRepository>
     </pluginRepositories>
 

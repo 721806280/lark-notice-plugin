@@ -1,5 +1,6 @@
 package io.jenkins.plugins;
 
+import com.alibaba.fastjson2.JSON;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.EnvVars;
 import hudson.Extension;
@@ -10,7 +11,6 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
-import io.jenkins.plugins.enums.BtnLayoutEnum;
 import io.jenkins.plugins.enums.MsgTypeEnum;
 import io.jenkins.plugins.model.ButtonModel;
 import io.jenkins.plugins.model.MessageModel;
@@ -26,10 +26,7 @@ import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 支持 pipeline 中使用
@@ -51,29 +48,50 @@ public class FeiShuTalkPipeline extends Builder implements SimpleBuildStep {
      */
     private String robot;
 
+    /**
+     * 消息类型
+     */
     private MsgTypeEnum type;
 
-    private Set<String> at;
+    /**
+     * At列表
+     */
+    private Set<String> atOpenIds;
 
+    /**
+     * At全部
+     */
     private boolean atAll;
 
+    /**
+     * 消息标题
+     */
     private String title;
 
+    /**
+     * 文本字符串
+     */
     private List<String> text;
 
-    private String messageUrl;
+    /**
+     * 群名片ID
+     */
+    private String shareChatId;
 
-    private String picUrl;
+    /**
+     * 图片KEY
+     */
+    private String imageKey;
 
-    private String singleTitle;
+    /**
+     * 富文本消息体
+     */
+    private List<Map<String, String>> post;
 
-    private String singleUrl;
-
-    private List<ButtonModel> btns;
-
-    private BtnLayoutEnum btnLayout;
-
-    private boolean hideAvatar;
+    /**
+     * 按钮列表
+     */
+    private List<ButtonModel> buttons;
 
     private String rootPath = Jenkins.get().getRootUrl();
 
@@ -93,9 +111,9 @@ public class FeiShuTalkPipeline extends Builder implements SimpleBuildStep {
     }
 
     @DataBoundSetter
-    public void setAt(List<String> at) {
-        if (!(at == null || at.isEmpty())) {
-            this.at = new HashSet<>(at);
+    public void setAtOpenIds(List<String> atOpenIds) {
+        if (!(atOpenIds == null || atOpenIds.isEmpty())) {
+            this.atOpenIds = new HashSet<>(atOpenIds);
         }
     }
 
@@ -115,101 +133,65 @@ public class FeiShuTalkPipeline extends Builder implements SimpleBuildStep {
     }
 
     @DataBoundSetter
-    public void setMessageUrl(String messageUrl) {
-        this.messageUrl = messageUrl;
+    public void setShareChatId(String shareChatId) {
+        this.shareChatId = shareChatId;
     }
 
     @DataBoundSetter
-    public void setPicUrl(String picUrl) {
-        this.picUrl = picUrl;
+    public void setImageKey(String imageKey) {
+        this.imageKey = imageKey;
     }
 
     @DataBoundSetter
-    public void setSingleTitle(String singleTitle) {
-        this.singleTitle = singleTitle;
+    public void setPost(List<Map<String, String>> post) {
+        this.post = post;
     }
 
     @DataBoundSetter
-    public void setSingleUrl(String singleUrl) {
-        this.singleUrl = singleUrl;
-    }
-
-    @DataBoundSetter
-    public void setBtns(List<ButtonModel> btns) {
-        this.btns = btns;
-    }
-
-    @DataBoundSetter
-    public void setHideAvatar(boolean hideAvatar) {
-        this.hideAvatar = hideAvatar;
-    }
-
-    /**
-     * 获取按钮排列方向
-     *
-     * @return 水平或则垂直
-     */
-    public String getBtnLayout() {
-        return BtnLayoutEnum.V.equals(btnLayout) ? "0" : "1";
-    }
-
-    @DataBoundSetter
-    public void setBtnLayout(BtnLayoutEnum btnLayout) {
-        this.btnLayout = btnLayout;
-    }
-
-    public String isHideAvatar() {
-        return hideAvatar ? "1" : "0";
+    public void setButtons(List<ButtonModel> buttons) {
+        this.buttons = buttons;
     }
 
     @Override
-    public void perform(
-            @NonNull Run<?, ?> run,
-            @NonNull FilePath workspace,
-            @NonNull EnvVars envVars,
-            @NonNull Launcher launcher,
-            @NonNull TaskListener listener) {
+    public void perform(@NonNull Run<?, ?> run, @NonNull FilePath workspace,
+                        @NonNull EnvVars envVars, @NonNull Launcher launcher, @NonNull TaskListener listener) {
 
-        boolean defaultBtns = MsgTypeEnum.INTERACTIVE.equals(type)
-                && StringUtils.isEmpty(singleTitle)
-                && (btns == null || btns.isEmpty());
+        boolean defaultBtns = MsgTypeEnum.INTERACTIVE.equals(type) && (buttons == null || buttons.isEmpty());
 
         if (defaultBtns) {
             String jobUrl = rootPath + run.getUrl();
-            this.btns = Utils.createDefaultBtns(jobUrl);
-        } else if (btns != null) {
-            btns.forEach(
-                    item -> {
-                        item.setTitle(envVars.expand(item.getTitle()));
-                        item.setUrl(envVars.expand(item.getUrl()));
-                    });
+            this.buttons = Utils.createDefaultBtns(jobUrl);
+        } else if (buttons != null) {
+            buttons.forEach(item -> {
+                item.setTitle(envVars.expand(item.getTitle()));
+                item.setUrl(envVars.expand(item.getUrl()));
+            });
         }
 
-        if (at != null) {
-            String atStr = envVars.expand(Utils.join(at));
-
-            this.at = new HashSet<>(Arrays.asList(Utils.split(atStr)));
+        if (atOpenIds != null) {
+            String atStr = envVars.expand(Utils.join(atOpenIds));
+            this.atOpenIds = new HashSet<>(Arrays.asList(Utils.split(atStr)));
         }
 
-        String result =
-                service.send(
-                        envVars.expand(robot),
-                        MessageModel.builder()
-                                .type(type)
-                                .atOpenIds(at)
-                                .atAll(atAll)
-                                .title(envVars.expand(title))
-                                .text(envVars.expand(Utils.join(text)))
-                                .messageUrl(envVars.expand(messageUrl))
-                                .picUrl(envVars.expand(picUrl))
-                                .singleTitle(envVars.expand(singleTitle))
-                                .singleUrl(envVars.expand(singleUrl))
-                                .btns(btns)
-                                .btnOrientation(getBtnLayout())
-                                .hideAvatar(isHideAvatar())
-                                .build());
+        MessageModel messageModel = MessageModel.builder().type(type).atOpenIds(atOpenIds).atAll(atAll)
+                .title(envVars.expand(title)).text(envVars.expand(buildText())).buttons(buttons).build();
+
+        String result = service.send(envVars.expand(robot), messageModel);
         if (!StringUtils.isEmpty(result)) {
             Logger.error(listener, result);
+        }
+    }
+
+    private String buildText() {
+        switch (type) {
+            case IMAGE:
+                return imageKey;
+            case SHARE_CHAT:
+                return shareChatId;
+            case POST:
+                return JSON.toJSONString(post);
+            default:
+                return Utils.join(text);
         }
     }
 
@@ -228,4 +210,5 @@ public class FeiShuTalkPipeline extends Builder implements SimpleBuildStep {
             return false;
         }
     }
+
 }

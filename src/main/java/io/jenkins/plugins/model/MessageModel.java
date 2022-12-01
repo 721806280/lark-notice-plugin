@@ -56,44 +56,9 @@ public class MessageModel {
     private String text;
 
     /**
-     * 点击消息跳转的URL
-     */
-    private String messageUrl;
-
-    /**
-     * 图片URL
-     */
-    private String picUrl;
-
-    /**
-     * 单个按钮的方案。(设置此项和singleURL后btns无效)
-     */
-    private String singleTitle;
-
-    /**
-     * 点击singleTitle按钮触发的URL
-     */
-    private String singleUrl;
-
-    /**
      * 按钮的信息：title-按钮方案，actionURL-点击按钮触发的URL
      */
-    private List<ButtonModel> btns;
-
-    /**
-     * 0-按钮竖直排列，1-按钮横向排列
-     */
-    private String btnOrientation;
-
-    /**
-     * 0-正常发消息者头像，1-隐藏发消息者头像
-     */
-    private String hideAvatar;
-
-    /**
-     * 构建任务信息
-     */
-    private BuildJobModel buildJobModel;
+    private List<ButtonModel> buttons;
 
     /**
      * title 不能为空

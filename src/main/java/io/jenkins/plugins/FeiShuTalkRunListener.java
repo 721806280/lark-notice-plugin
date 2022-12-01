@@ -198,7 +198,7 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
         String jobName = run.getDisplayName();
         String jobUrl = rootPath + run.getUrl();
         String duration = run.getDurationString();
-        List<ButtonModel> btns = Utils.createDefaultBtns(jobUrl);
+        List<ButtonModel> buttons = Utils.createDefaultBtns(jobUrl);
         List<String> result = new ArrayList<>();
         List<FeiShuTalkNotifierConfig> notifierConfigs = property.getCheckedNotifierConfigs();
 
@@ -220,20 +220,17 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
                 atOpenIds.add(executorMobile);
             }
 
-            BuildJobModel buildJobModel = BuildJobModel.builder().projectName(projectName).projectUrl(projectUrl)
-                    .jobName(jobName)
-                    .jobUrl(jobUrl).statusType(statusType).duration(duration).executorName(executorName)
+            BuildJobModel buildJobModel = BuildJobModel.builder().projectName(projectName)
+                    .projectUrl(projectUrl).jobName(jobName).jobUrl(jobUrl)
+                    .statusType(statusType).duration(duration).executorName(executorName)
                     .executorMobile(executorMobile).content(envVars.expand(content).replaceAll("\\\\n", "\n"))
                     .build();
 
             String statusLabel = statusType == null ? "unknown" : statusType.getLabel();
 
-            MessageModel message = MessageModel.builder()
-                    .type(MsgTypeEnum.INTERACTIVE)
-                    .atAll(atAll)
-                    .atOpenIds(atOpenIds)
-                    .title(String.format("%s %s", projectName, statusLabel))
-                    .buildJobModel(buildJobModel).text(buildJobModel.toMarkdown()).btns(btns).build();
+            MessageModel message = MessageModel.builder().type(MsgTypeEnum.INTERACTIVE)
+                    .atAll(atAll).atOpenIds(atOpenIds).title(String.format("%s %s", projectName, statusLabel))
+                    .text(buildJobModel.toMarkdown()).buttons(buttons).build();
 
             log(listener, "当前机器人信息，%s", Utils.toJson(item));
             log(listener, "发送的消息详情，%s", Utils.toJson(message));
