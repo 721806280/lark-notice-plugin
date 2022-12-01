@@ -163,7 +163,7 @@ pipeline {
                     feishutalk (
                         robot: 'f72aa1bb-0f0b-47c7-8387-272d266dc25c',
                         type: 'INTERACTIVE',
-                        title: '今日旅游推荐',
+                        title: 'Demo服务构建',
                         text: [
                             '📋 **任务名称**：[demo](http://127.0.0.1:8080/jenkins/job/demo/)',
                             '🔢 **任务编号**：[#9](http://127.0.0.1:8080/jenkins/job/demo/9/)',
