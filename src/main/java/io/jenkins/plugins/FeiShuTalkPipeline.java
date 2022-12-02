@@ -26,7 +26,8 @@ import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 支持 pipeline 中使用
@@ -52,16 +53,6 @@ public class FeiShuTalkPipeline extends Builder implements SimpleBuildStep {
      * 消息类型
      */
     private MsgTypeEnum type;
-
-    /**
-     * At列表
-     */
-    private Set<String> atOpenIds;
-
-    /**
-     * At全部
-     */
-    private boolean atAll;
 
     /**
      * 消息标题
@@ -111,18 +102,6 @@ public class FeiShuTalkPipeline extends Builder implements SimpleBuildStep {
     }
 
     @DataBoundSetter
-    public void setAtOpenIds(List<String> atOpenIds) {
-        if (!(atOpenIds == null || atOpenIds.isEmpty())) {
-            this.atOpenIds = new HashSet<>(atOpenIds);
-        }
-    }
-
-    @DataBoundSetter
-    public void setAtAll(boolean atAll) {
-        this.atAll = atAll;
-    }
-
-    @DataBoundSetter
     public void setTitle(String title) {
         this.title = title;
     }
@@ -168,13 +147,8 @@ public class FeiShuTalkPipeline extends Builder implements SimpleBuildStep {
             });
         }
 
-        if (atOpenIds != null) {
-            String atStr = envVars.expand(Utils.join(atOpenIds));
-            this.atOpenIds = new HashSet<>(Arrays.asList(Utils.split(atStr)));
-        }
-
-        MessageModel messageModel = MessageModel.builder().type(type).atOpenIds(atOpenIds).atAll(atAll)
-                .title(envVars.expand(title)).text(envVars.expand(buildText())).buttons(buttons).build();
+        MessageModel messageModel = MessageModel.builder().type(type).title(envVars.expand(title))
+                .text(envVars.expand(buildText())).buttons(buttons).build();
 
         String result = service.send(envVars.expand(robot), messageModel);
         if (!StringUtils.isEmpty(result)) {

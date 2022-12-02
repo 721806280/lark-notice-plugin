@@ -44,10 +44,8 @@ public class FeiShuTalkSender {
      * @return 异常信息
      */
     public String sendText(MessageModel msg) {
-        At at = msg.getAt();
         Text text = new Text();
-        text.setAt(at);
-        text.setText(addKeyWord(addAtInfo(msg.getText(), at, false)));
+        text.setText(addKeyWord(msg.getText()));
         return call(text);
     }
 
@@ -58,9 +56,7 @@ public class FeiShuTalkSender {
      * @return 异常信息
      */
     public String sendImage(MessageModel msg) {
-        At at = msg.getAt();
         Image image = new Image();
-        image.setAt(at);
         image.setImageKey(msg.getText());
         return call(image);
     }
@@ -72,9 +68,7 @@ public class FeiShuTalkSender {
      * @return 异常信息
      */
     public String sendShareChat(MessageModel msg) {
-        At at = msg.getAt();
         ShareChat shareChat = new ShareChat();
-        shareChat.setAt(at);
         shareChat.setShareChatId(msg.getText());
         return call(shareChat);
     }
@@ -86,9 +80,7 @@ public class FeiShuTalkSender {
      * @return 异常信息
      */
     public String sendPost(MessageModel msg) {
-        At at = msg.getAt();
         Post post = new Post();
-        post.setAt(at);
         post.setPost(new Post.RichText(new Post.RichText.Content(addKeyWord(msg.getTitle()),
                 JSONArray.of(JSON.parseArray(msg.getText())))));
         return call(post);
@@ -110,7 +102,7 @@ public class FeiShuTalkSender {
         card.setHeader(new ActionCard.Card.Header("BLUE", new ActionCard.Card.Text("plain_text", addKeyWord(msg.getTitle()))));
 
         ActionCard.Card.Hr hr = new ActionCard.Card.Hr();
-        ActionCard.Card.Element element = new ActionCard.Card.Element("div", new ActionCard.Card.Text("lark_md", addAtInfo(msg.getText(), at, true)));
+        ActionCard.Card.Element element = new ActionCard.Card.Element("div", new ActionCard.Card.Text("lark_md", addAtInfo(msg.getText(), at)));
 
         if (CollectionUtils.isEmpty(msg.getButtons())) {
             card.setElements(JSONArray.of(hr, element, hr));
@@ -167,12 +159,11 @@ public class FeiShuTalkSender {
     /**
      * 添加 at 信息
      *
-     * @param content  原始内容
-     * @param at       at 配置
-     * @param markdown 是否是 markdown 格式的内容
+     * @param content 原始内容
+     * @param at      at 配置
      * @return 包含 at 信息的内容
      */
-    private String addAtInfo(String content, At at, boolean markdown) {
+    private String addAtInfo(String content, At at) {
         String atTemplate = "<at id=%s></at>";
         if (at.getIsAtAll()) {
             return content + String.format(atTemplate, "all");
@@ -185,9 +176,6 @@ public class FeiShuTalkSender {
 
         List<String> atContents = atOpenIds.stream().map(v -> String.format(atTemplate, v)).collect(Collectors.toList());
         String atContent = StringUtils.join(atContents, "");
-        if (markdown) {
-            return content + "\n\n" + Utils.dye(atContent, AntdColor.BLUE.toString()) + "\n";
-        }
-        return content + atContent;
+        return content + "\n\n" + Utils.dye(atContent, AntdColor.BLUE.toString()) + "\n";
     }
 }
