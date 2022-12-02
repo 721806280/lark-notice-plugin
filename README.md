@@ -123,22 +123,35 @@ pipeline {
                     feiShuTalk (
                         robot: 'f72aa1bb-0f0b-47c7-8387-272d266dc25c',
                         type: 'POST',
-                        title: 'ceshi',
-                        post:  [
-                           [
-                              "tag": "text",
-                              "text": "项目有更新"    
-                           ],
-                           [
-                              "tag": "a",
-                              "text": "请查看",
-                              "href": "http://www.example.com/"
-                           ],
-                           [
-                              "tag": "at",
-                              "user_id": "all",
-                              "user_name": "所有人"
-                           ]
+                        title: '项目更新通知',
+                        post: [
+                            [
+                                [
+                                    "tag": "text",
+                                    "text": "项目有更新: "
+                                ],
+                                [
+                                    "tag": "a",
+                                    "text": "请查看",
+                                    "href": "https://www.example.com/"  
+                                ],
+                                [
+                                    "tag": "at",
+                                    "user_id": "ou_xxxxxx",
+                                    "user_name": "tom"
+                                ]
+                            ],
+                            [
+                                [
+                                    "tag": "text",
+                                    "text": "项目有更新:"
+                                ],
+                                [
+                                    "tag": "at",
+                                    "user_id": "all",
+                                    "user_name": "所有人"
+                                ]
+                            ]
                         ]
                     )
                 }

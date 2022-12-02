@@ -77,7 +77,7 @@ public class FeiShuTalkPipeline extends Builder implements SimpleBuildStep {
     /**
      * 富文本消息体
      */
-    private List<Map<String, String>> post;
+    private List<List<Map<String, String>>> post;
 
     /**
      * 按钮列表
@@ -122,7 +122,7 @@ public class FeiShuTalkPipeline extends Builder implements SimpleBuildStep {
     }
 
     @DataBoundSetter
-    public void setPost(List<Map<String, String>> post) {
+    public void setPost(List<List<Map<String, String>>> post) {
         this.post = post;
     }
 

@@ -81,8 +81,7 @@ public class FeiShuTalkSender {
      */
     public String sendPost(MessageModel msg) {
         Post post = new Post();
-        post.setPost(new Post.RichText(new Post.RichText.Content(addKeyWord(msg.getTitle()),
-                JSONArray.of(JSON.parseArray(msg.getText())))));
+        post.setPost(new Post.RichText(new Post.RichText.Content(addKeyWord(msg.getTitle()), JSON.parseArray(msg.getText()))));
         return call(post);
     }
 
