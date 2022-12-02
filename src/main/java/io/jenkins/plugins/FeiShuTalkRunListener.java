@@ -198,7 +198,7 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
         String jobName = run.getDisplayName();
         String jobUrl = rootPath + run.getUrl();
         String duration = run.getDurationString();
-        List<ButtonModel> buttons = Utils.createDefaultBtns(jobUrl);
+        List<ButtonModel> buttons = Utils.createDefaultButtons(jobUrl);
         List<String> result = new ArrayList<>();
         List<FeiShuTalkNotifierConfig> notifierConfigs = property.getCheckedNotifierConfigs();
 
