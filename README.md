@@ -41,16 +41,16 @@ pipeline {
     stages {
         stage('text'){
             steps {
-                echo '测试 TEXT 消息...'
+                echo '发送文本消息...'
             }
             post {
                 success {
-                    feishutalk (
+                    feiShuTalk (
                         robot: 'f72aa1bb-0f0b-47c7-8387-272d266dc25c',
                         type: 'TEXT',
                         text: [
                             "新更新提醒",
-                            '新更新提醒'
+                            '<at user_id="all">所有人</at>'
                         ]
                     )
                 }
@@ -68,11 +68,11 @@ pipeline {
     stages {
         stage('text'){
             steps {
-                echo '测试 SHARE_CHAT 消息...'
+                echo '发送群名片消息...'
             }
             post {
                 success {
-                    feishutalk (
+                    feiShuTalk (
                         robot: 'f72aa1bb-0f0b-47c7-8387-272d266dc25c',
                         type: 'SHARE_CHAT',
                         shareChatId: 'oc_f5b1a7eb27ae2c7b6adc2a74faf339ff'
@@ -92,11 +92,11 @@ pipeline {
     stages {
         stage('text'){
             steps {
-                echo '测试 IMAGE 消息...'
+                echo '发送图片消息...'
             }
             post {
                 success {
-                    feishutalk (
+                    feiShuTalk (
                         robot: 'f72aa1bb-0f0b-47c7-8387-272d266dc25c',
                         type: 'IMAGE',
                         imageKey: 'img_ecffc3b9-8f14-400f-a014-05eca1a4310g'
@@ -116,11 +116,11 @@ pipeline {
     stages {
         stage('text'){
             steps {
-                echo '测试 POST 消息...'
+                echo '发送富文本消息...'
             }
             post {
                 success {
-                    feishutalk (
+                    feiShuTalk (
                         robot: 'f72aa1bb-0f0b-47c7-8387-272d266dc25c',
                         type: 'POST',
                         title: 'ceshi',
@@ -136,7 +136,8 @@ pipeline {
                            ],
                            [
                               "tag": "at",
-                              "user_id": "ou_18eac8********17ad4f02e8bbbb"
+                              "user_id": "all",
+                              "user_name": "所有人"
                            ]
                         ]
                     )
@@ -156,30 +157,21 @@ pipeline {
     stages {
         stage('text'){
             steps {
-                echo '测试 INTERACTIVE 消息...'
+                echo '发送卡片消息...'
             }
             post {
                 success {
-                    feishutalk (
+                    feiShuTalk (
                         robot: 'f72aa1bb-0f0b-47c7-8387-272d266dc25c',
                         type: 'INTERACTIVE',
-                        title: 'Demo服务构建',
+                        title: '📢 Jenkins 构建通知',
                         text: [
                             '📋 **任务名称**：[demo](http://127.0.0.1:8080/jenkins/job/demo/)',
                             '🔢 **任务编号**：[#9](http://127.0.0.1:8080/jenkins/job/demo/9/)',
                             '🌟 **构建状态**:  开始',
                             '🕐 **构建用时**:  2 ms and counting',
-                            '👤 **执  行 者**:  Started by user anonymous'
-                        ],
-                        buttons: [
-                            [
-                              title: '更改记录',
-                              actionUrl: 'http://127.0.0.1:8080/jenkins/job/pipeline/1/changes'
-                            ],
-                            [
-                                title: '控制台',
-                                actionUrl: 'http://127.0.0.1:8080/jenkins/job/pipeline/1/console'
-                            ]
+                            '👤 **执  行 者**:  Started by user anonymous',
+                            '<at id=all></at>'
                         ]
                     )
                 }
