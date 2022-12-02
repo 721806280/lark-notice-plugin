@@ -185,6 +185,16 @@ pipeline {
                             '🕐 **构建用时**:  2 ms and counting',
                             '👤 **执  行 者**:  Started by user anonymous',
                             '<at id=all></at>'
+                        ],
+                        buttons: [
+                           [
+                              title: '更改记录',
+                              actionUrl: 'http://127.0.0.1:8080/jenkins/job/pipeline/1/changes'
+                           ],
+                           [
+                              title: '控制台',
+                              actionUrl: 'http://127.0.0.1:8080/jenkins/job/pipeline/1/console'
+                           ]
                         ]
                     )
                 }
