@@ -156,11 +156,11 @@ public class FeiShuTalkPipeline extends Builder implements SimpleBuildStep {
     public void perform(@NonNull Run<?, ?> run, @NonNull FilePath workspace,
                         @NonNull EnvVars envVars, @NonNull Launcher launcher, @NonNull TaskListener listener) {
 
-        boolean defaultBtns = MsgTypeEnum.INTERACTIVE.equals(type) && (buttons == null || buttons.isEmpty());
+        boolean defaultButtons = MsgTypeEnum.INTERACTIVE.equals(type) && (buttons == null || buttons.isEmpty());
 
-        if (defaultBtns) {
+        if (defaultButtons) {
             String jobUrl = rootPath + run.getUrl();
-            this.buttons = Utils.createDefaultBtns(jobUrl);
+            this.buttons = Utils.createDefaultButtons(jobUrl);
         } else if (buttons != null) {
             buttons.forEach(item -> {
                 item.setTitle(envVars.expand(item.getTitle()));
