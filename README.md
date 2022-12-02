@@ -125,20 +125,20 @@ pipeline {
                         type: 'POST',
                         title: 'ceshi',
                         post:  [
-                                [
-                                    "tag": "text",
-                                    "text": "项目有更新"    
-                                ],
-                                [
-                                    "tag": "a",
-                                    "text": "请查看",
-                                    "href": "http://www.example.com/"
-                                ],
-                                [
-                                    "tag": "at",
-                                    "user_id": "ou_18eac8********17ad4f02e8bbbb"
-                                ]
-                            ]
+                           [
+                              "tag": "text",
+                              "text": "项目有更新"    
+                           ],
+                           [
+                              "tag": "a",
+                              "text": "请查看",
+                              "href": "http://www.example.com/"
+                           ],
+                           [
+                              "tag": "at",
+                              "user_id": "ou_18eac8********17ad4f02e8bbbb"
+                           ]
+                        ]
                     )
                 }
             }
@@ -174,11 +174,11 @@ pipeline {
                         buttons: [
                             [
                               title: '更改记录',
-                              actionUrl: 'https://www.dingtalk.com/'
+                              actionUrl: 'http://127.0.0.1:8080/jenkins/job/pipeline/1/changes'
                             ],
                             [
                                 title: '控制台',
-                                actionUrl: 'https://www.dingtalk.com/'
+                                actionUrl: 'http://127.0.0.1:8080/jenkins/job/pipeline/1/console'
                             ]
                         ]
                     )
