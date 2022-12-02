@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @Builder
 public class MessageModel {
 
-    public static final String DEFAULT_TITLE = "Jenkins 构建通知";
+    public static final String DEFAULT_TITLE = "\uD83D\uDCE2 Jenkins 构建通知";
 
     /**
      * 消息类型
@@ -66,7 +66,7 @@ public class MessageModel {
      * @return 带默认值的标题
      */
     public String getTitle() {
-        return "\uD83D\uDCE2 " + (title == null ? DEFAULT_TITLE : title);
+        return StringUtils.defaultIfBlank(title, DEFAULT_TITLE);
     }
 
     /**
@@ -77,11 +77,9 @@ public class MessageModel {
     public At getAt() {
         At at = new At();
         if (atOpenIds != null) {
-            at.setAtOpenIds(
-                    atOpenIds.stream()
-                            .map(String::trim)
-                            .filter(item -> !StringUtils.isEmpty(item))
-                            .collect(Collectors.toList()));
+            at.setAtOpenIds(atOpenIds.stream().map(String::trim)
+                    .filter(item -> !StringUtils.isEmpty(item))
+                    .collect(Collectors.toList()));
         }
         at.setIsAtAll(atAll);
         return at;
