@@ -227,7 +227,7 @@ public class FeiShuTalkRobotConfig implements Describable<FeiShuTalkRobotConfig>
         private MessageModel getMsg() {
             return MessageModel.builder()
                     .type(MsgTypeEnum.INTERACTIVE)
-                    .title("飞书机器人测试成功")
+                    .title("\uD83D\uDCE2 飞书机器人测试成功")
                     .text(getText())
                     .atAll(false)
                     .build();

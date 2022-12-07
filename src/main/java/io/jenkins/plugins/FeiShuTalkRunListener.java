@@ -229,7 +229,7 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
             String statusLabel = statusType == null ? "unknown" : statusType.getLabel();
 
             MessageModel message = MessageModel.builder().type(MsgTypeEnum.INTERACTIVE)
-                    .atAll(atAll).atOpenIds(atOpenIds).title(String.format("%s %s", projectName, statusLabel))
+                    .atAll(atAll).atOpenIds(atOpenIds).title(String.format("%s %s %s", "\uD83D\uDCE2", projectName, statusLabel))
                     .text(buildJobModel.toMarkdown()).buttons(buttons).build();
 
             log(listener, "当前机器人信息，%s", Utils.toJson(item));
