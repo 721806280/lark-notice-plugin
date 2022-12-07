@@ -14,7 +14,8 @@
     <version>0.0.2-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <properties>
-        <jenkins.version>2.361.1</jenkins.version>
+        <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
+        <jenkins.version>2.361.4</jenkins.version>
         <hpi.compatibleSinceVersion>2.0.0</hpi.compatibleSinceVersion>
     </properties>
 
