@@ -27,10 +27,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 
 import java.net.Proxy;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -60,10 +57,10 @@ public class FeiShuTalkRobotConfig implements Describable<FeiShuTalkRobotConfig>
     /**
      * 安全策略配置
      */
-    private ArrayList<FeiShuTalkSecurityPolicyConfig> securityPolicyConfigs;
+    private List<FeiShuTalkSecurityPolicyConfig> securityPolicyConfigs;
 
     @DataBoundConstructor
-    public FeiShuTalkRobotConfig(String id, String name, String webhook, ArrayList<FeiShuTalkSecurityPolicyConfig> securityPolicyConfigs) {
+    public FeiShuTalkRobotConfig(String id, String name, String webhook, List<FeiShuTalkSecurityPolicyConfig> securityPolicyConfigs) {
         this.id = StringUtils.isBlank(id) ? UUID.randomUUID().toString() : id;
         this.name = name;
         this.webhook = Secret.fromString(webhook);
@@ -84,21 +81,16 @@ public class FeiShuTalkRobotConfig implements Describable<FeiShuTalkRobotConfig>
         return webhook.getPlainText();
     }
 
-    public ArrayList<FeiShuTalkSecurityPolicyConfig> getSecurityPolicyConfigs() {
-        return Arrays.stream(SecurityPolicyEnum.values())
-                .map(
-                        enumItem -> {
-                            FeiShuTalkSecurityPolicyConfig newItem = FeiShuTalkSecurityPolicyConfig.of(enumItem);
-                            if (securityPolicyConfigs != null) {
-                                Optional<FeiShuTalkSecurityPolicyConfig> config =
-                                        securityPolicyConfigs.stream()
-                                                .filter(configItem -> enumItem.name().equals(configItem.getType()))
-                                                .findAny();
-                                config.ifPresent(t -> newItem.setValue(t.getValue()));
-                            }
-                            return newItem;
-                        })
-                .collect(Collectors.toCollection(ArrayList::new));
+    public List<FeiShuTalkSecurityPolicyConfig> getSecurityPolicyConfigs() {
+        return Arrays.stream(SecurityPolicyEnum.values()).map(enumItem -> {
+            FeiShuTalkSecurityPolicyConfig policyConfig = FeiShuTalkSecurityPolicyConfig.of(enumItem);
+            if (securityPolicyConfigs != null) {
+                Optional<FeiShuTalkSecurityPolicyConfig> config = securityPolicyConfigs.stream()
+                        .filter(configItem -> enumItem.name().equals(configItem.getType())).findAny();
+                config.ifPresent(t -> policyConfig.setValue(t.getValue()));
+            }
+            return policyConfig;
+        }).collect(Collectors.toList());
     }
 
     @Override
@@ -136,10 +128,8 @@ public class FeiShuTalkRobotConfig implements Describable<FeiShuTalkRobotConfig>
          * @return 是否校验成功
          */
         public FormValidation doCheckName(@QueryParameter String value) {
-            if (StringUtils.isBlank(value)) {
-                return FormValidation.error(Messages.RobotConfigFormValidation_name());
-            }
-            return FormValidation.ok();
+            return StringUtils.isNotBlank(value) ? FormValidation.ok() :
+                    FormValidation.error(Messages.RobotConfigFormValidation_name());
         }
 
         /**
@@ -149,100 +139,71 @@ public class FeiShuTalkRobotConfig implements Describable<FeiShuTalkRobotConfig>
          * @return 是否校验成功
          */
         public FormValidation doCheckWebhook(@QueryParameter String value) {
-            if (StringUtils.isBlank(value)) {
-                return FormValidation.error(Messages.RobotConfigFormValidation_webhook());
-            }
-            return FormValidation.ok();
+            return StringUtils.isNotBlank(value) ? FormValidation.ok() :
+                    FormValidation.error(Messages.RobotConfigFormValidation_webhook());
         }
 
         /**
          * 测试配置信息
          *
-         * @param id                      id
-         * @param name                    名称
-         * @param webhook                 webhook
-         * @param securityPolicyConfigStr 安全策略
-         * @param proxyStr                代理
+         * @param id                   id
+         * @param name                 名称
+         * @param webhook              webhook
+         * @param securityPolicyConfig 安全策略
+         * @param proxy                代理
          * @return 机器人配置是否正确
          */
-        public FormValidation doTest(
-                @QueryParameter("id") String id,
-                @QueryParameter("name") String name,
-                @QueryParameter("webhook") String webhook,
-                @QueryParameter("securityPolicyConfigs") String securityPolicyConfigStr,
-                @QueryParameter("proxy") String proxyStr) {
-            ArrayList<FeiShuTalkSecurityPolicyConfig> securityPolicyConfigs =
-                    parseSecurityPolicyConfigs(securityPolicyConfigStr);
+        public FormValidation doTest(@QueryParameter("id") String id, @QueryParameter("name") String name,
+                                     @QueryParameter("webhook") String webhook, @QueryParameter("proxy") String proxy,
+                                     @QueryParameter("securityPolicyConfigs") String securityPolicyConfig) {
+            List<FeiShuTalkSecurityPolicyConfig> securityPolicyConfigs = parseSecurityPolicyConfigs(securityPolicyConfig);
 
-            FeiShuTalkRobotConfig robotConfig =
-                    new FeiShuTalkRobotConfig(id, name, webhook, securityPolicyConfigs);
+            FeiShuTalkRobotConfig robotConfig = new FeiShuTalkRobotConfig(id, name, webhook, securityPolicyConfigs);
 
-            Proxy proxy = getProxy(proxyStr);
+            FeiShuTalkSender sender = new FeiShuTalkSender(robotConfig, getProxy(proxy));
 
-            FeiShuTalkSender sender = new FeiShuTalkSender(robotConfig, proxy);
+            String message = sender.sendInteractive(buildTestMessage());
 
-            MessageModel msg = getMsg();
-
-            String message = sender.sendInteractive(msg);
-
-            if (message == null) {
-                String rootUrl = Jenkins.get().getRootUrl();
-                return FormValidation.respond(Kind.OK, "<span style='color:#52c41a;font-weight:bold;'>测试成功</span>");
-            }
-            return FormValidation.error(message);
+            return StringUtils.isNotBlank(message) ? FormValidation.error(message) :
+                    FormValidation.respond(Kind.OK, "<span style='color:#52c41a;font-weight:bold;'>测试成功</span>");
         }
 
-        private ArrayList<FeiShuTalkSecurityPolicyConfig> parseSecurityPolicyConfigs(String param) {
-            ArrayList<FeiShuTalkSecurityPolicyConfig> securityPolicyConfigs =
-                    new ArrayList<>();
+        private List<FeiShuTalkSecurityPolicyConfig> parseSecurityPolicyConfigs(String param) {
+            List<FeiShuTalkSecurityPolicyConfig> securityPolicyConfigs = new ArrayList<>();
             JSONArray array = (JSONArray) JSONSerializer.toJSON(param);
             for (Object item : array) {
                 JSONObject json = (JSONObject) item;
-                securityPolicyConfigs.add(
-                        new FeiShuTalkSecurityPolicyConfig(
-                                (String) json.get("type"), (String) json.get("value"), ""));
+                securityPolicyConfigs.add(new FeiShuTalkSecurityPolicyConfig(
+                        (String) json.get("type"), (String) json.get("value"), ""));
             }
             return securityPolicyConfigs;
         }
 
-        private String getText() {
+        private MessageModel buildTestMessage() {
             String rootUrl = Jenkins.get().getRootUrl();
-            User user = User.current();
-            if (user == null) {
-                user = User.getUnknown();
-            }
-            return BuildJobModel.builder()
-                    .projectName("欢迎使用飞书机器人插件~")
-                    .projectUrl(rootUrl)
-                    .jobName("系统配置")
-                    .jobUrl(rootUrl + "/configure")
-                    .statusType(BuildStatusEnum.SUCCESS)
-                    .duration("-")
-                    .executorName(user.getDisplayName())
-                    .executorMobile(user.getDescription())
-                    .build()
-                    .toMarkdown();
-        }
+            User user = Optional.ofNullable(User.current()).orElse(User.getUnknown());
 
-        private MessageModel getMsg() {
-            return MessageModel.builder()
-                    .type(MsgTypeEnum.INTERACTIVE)
-                    .title("\uD83D\uDCE2 飞书机器人测试成功")
-                    .text(getText())
-                    .atAll(false)
+            BuildJobModel buildJobModel = BuildJobModel.builder().projectName("欢迎使用飞书机器人插件~")
+                    .projectUrl(rootUrl).jobName("系统配置").jobUrl(rootUrl + "/configure")
+                    .statusType(BuildStatusEnum.SUCCESS).duration("-")
+                    .executorName(user.getDisplayName()).executorMobile(user.getDescription())
                     .build();
+
+            return MessageModel.builder().type(MsgTypeEnum.INTERACTIVE)
+                    .title("\uD83D\uDCE2 飞书机器人测试成功")
+                    .text(buildJobModel.toMarkdown())
+                    .atAll(false).build();
         }
 
         private Proxy getProxy(String param) {
             Proxy proxy = null;
             try {
                 JSONObject proxyObj = (JSONObject) JSONSerializer.toJSON(param);
-                FeiShuTalkProxyConfig netProxy =
-                        new FeiShuTalkProxyConfig(
-                                Proxy.Type.valueOf(proxyObj.getString("type")),
-                                proxyObj.getString("host"),
-                                proxyObj.getInt("port"));
-                proxy = netProxy.getProxy();
+                Proxy.Type type = Proxy.Type.valueOf(proxyObj.getString("type"));
+                String host = proxyObj.getString("host");
+                int port = proxyObj.getInt("port");
+                FeiShuTalkProxyConfig proxyConfig = new FeiShuTalkProxyConfig(type, host, port);
+                proxy = proxyConfig.getProxy();
             } catch (Exception ignored) {
 
             }

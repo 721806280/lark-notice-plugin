@@ -53,12 +53,11 @@ public class FeiShuTalkProxyConfig extends Descriptor<FeiShuTalkProxyConfig>
     }
 
     public Proxy getProxy() {
-
         // {@link Proxy#Proxy(Type, SocketAddress)} 防止抛异常
         if (type == Type.DIRECT || StringUtils.isEmpty(host) || port == null) {
             return Proxy.NO_PROXY;
         }
-        InetSocketAddress sa = new InetSocketAddress(host, port);
-        return new Proxy(type, sa);
+        InetSocketAddress inetSocketAddress = new InetSocketAddress(host, port);
+        return new Proxy(type, inetSocketAddress);
     }
 }
