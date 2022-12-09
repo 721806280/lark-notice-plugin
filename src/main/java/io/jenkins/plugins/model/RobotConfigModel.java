@@ -13,7 +13,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -47,16 +47,13 @@ public class RobotConfigModel {
      * @return 机器人配置
      */
     public static RobotConfigModel of(FeiShuTalkRobotConfig robotConfig) {
-        ArrayList<FeiShuTalkSecurityPolicyConfig> securityPolicyConfigs =
-                robotConfig.getSecurityPolicyConfigs();
+        List<FeiShuTalkSecurityPolicyConfig> securityPolicyConfigs = robotConfig.getSecurityPolicyConfigs();
         RobotConfigModel meta = new RobotConfigModel();
         meta.setWebhook(robotConfig.getWebhook());
         // 解析安全策略
-        securityPolicyConfigs.forEach(
-                config -> {
-                    if (StringUtils.isEmpty(config.getValue())) {
-                        return;
-                    }
+        securityPolicyConfigs.stream()
+                .filter(config -> StringUtils.isNotBlank(config.getValue()))
+                .forEach(config -> {
                     String type = config.getType();
                     SecurityPolicyEnum securityPolicyEnum = SecurityPolicyEnum.valueOf(type);
                     switch (securityPolicyEnum) {

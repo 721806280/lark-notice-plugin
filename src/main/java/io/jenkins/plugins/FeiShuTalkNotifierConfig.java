@@ -5,6 +5,7 @@ import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
 import io.jenkins.plugins.enums.NoticeOccasionEnum;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.apache.commons.lang.StringUtils;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
 public class FeiShuTalkNotifierConfig extends AbstractDescribableImpl<FeiShuTalkNotifierConfig> {
 
     private boolean checked;
@@ -40,14 +42,8 @@ public class FeiShuTalkNotifierConfig extends AbstractDescribableImpl<FeiShuTalk
     private Set<String> noticeOccasions;
 
     @DataBoundConstructor
-    public FeiShuTalkNotifierConfig(
-            boolean checked,
-            String robotId,
-            String robotName,
-            boolean atAll,
-            String atOpenId,
-            String content,
-            Set<String> noticeOccasions) {
+    public FeiShuTalkNotifierConfig(boolean checked, String robotId, String robotName,
+                                    boolean atAll, String atOpenId, String content, Set<String> noticeOccasions) {
         this.checked = checked;
         this.robotId = robotId;
         this.robotName = robotName;
@@ -58,14 +54,7 @@ public class FeiShuTalkNotifierConfig extends AbstractDescribableImpl<FeiShuTalk
     }
 
     public FeiShuTalkNotifierConfig(FeiShuTalkRobotConfig robotConfig) {
-        this(
-                false,
-                robotConfig.getId(),
-                robotConfig.getName(),
-                false,
-                null,
-                null,
-                getDefaultNoticeOccasions());
+        this(false, robotConfig.getId(), robotConfig.getName(), false, null, null, getDefaultNoticeOccasions());
     }
 
     private static Set<String> getDefaultNoticeOccasions() {

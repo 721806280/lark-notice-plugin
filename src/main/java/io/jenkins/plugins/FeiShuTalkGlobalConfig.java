@@ -125,7 +125,6 @@ public class FeiShuTalkGlobalConfig extends Descriptor<FeiShuTalkGlobalConfig> i
                 return StringUtils.isEmpty(webhook);
             });
         }
-        // System.out.println(json);
         req.bindJSON(this, json);
         this.save();
         return super.configure(req, json);

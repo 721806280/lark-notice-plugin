@@ -1,6 +1,5 @@
 package io.jenkins.plugins;
 
-import com.alibaba.fastjson2.JSON;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.EnvVars;
 import hudson.Extension;
@@ -14,7 +13,9 @@ import hudson.tasks.Builder;
 import io.jenkins.plugins.enums.MsgTypeEnum;
 import io.jenkins.plugins.model.ButtonModel;
 import io.jenkins.plugins.model.MessageModel;
+import io.jenkins.plugins.sdk.entity.support.Button;
 import io.jenkins.plugins.service.impl.FeiShuTalkServiceImpl;
+import io.jenkins.plugins.tools.JsonUtils;
 import io.jenkins.plugins.tools.Logger;
 import io.jenkins.plugins.tools.Utils;
 import jenkins.model.Jenkins;
@@ -25,9 +26,11 @@ import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 支持 pipeline 中使用
@@ -135,25 +138,26 @@ public class FeiShuTalkPipeline extends Builder implements SimpleBuildStep {
     public void perform(@NonNull Run<?, ?> run, @NonNull FilePath workspace,
                         @NonNull EnvVars envVars, @NonNull Launcher launcher, @NonNull TaskListener listener) {
 
-        boolean defaultButtons = MsgTypeEnum.INTERACTIVE.equals(type) && (buttons == null || buttons.isEmpty());
-
-        if (defaultButtons) {
-            String jobUrl = rootPath + run.getUrl();
-            this.buttons = Utils.createDefaultButtons(jobUrl);
-        } else if (buttons != null) {
-            buttons.forEach(item -> {
-                item.setTitle(envVars.expand(item.getTitle()));
-                item.setUrl(envVars.expand(item.getUrl()));
-            });
-        }
-
         MessageModel messageModel = MessageModel.builder().type(type).title(envVars.expand(title))
-                .text(envVars.expand(buildText())).buttons(buttons).build();
+                .text(envVars.expand(buildText())).buttons(buildButtons(run, envVars)).build();
 
         String result = service.send(envVars.expand(robot), messageModel);
-        if (!StringUtils.isEmpty(result)) {
+
+        if (StringUtils.isNotBlank(result)) {
             Logger.error(listener, result);
         }
+    }
+
+    private List<Button> buildButtons(Run<?, ?> run, EnvVars envVars) {
+        if (MsgTypeEnum.INTERACTIVE.equals(type) && CollectionUtils.isEmpty(buttons)) {
+            String jobUrl = rootPath + run.getUrl();
+            return Utils.createDefaultButtons(jobUrl);
+        } else if (!CollectionUtils.isEmpty(buttons)) {
+            return buttons.stream().map(item ->
+                    new Button(envVars.expand(item.getTitle()), envVars.expand(item.getUrl()))
+            ).collect(Collectors.toList());
+        }
+        return null;
     }
 
     private String buildText() {
@@ -163,7 +167,7 @@ public class FeiShuTalkPipeline extends Builder implements SimpleBuildStep {
             case SHARE_CHAT:
                 return shareChatId;
             case POST:
-                return JSON.toJSONString(post);
+                return JsonUtils.toJsonStr(post);
             default:
                 return Utils.join(text);
         }

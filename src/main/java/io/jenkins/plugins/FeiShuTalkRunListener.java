@@ -12,18 +12,21 @@ import io.jenkins.plugins.enums.BuildStatusEnum;
 import io.jenkins.plugins.enums.MsgTypeEnum;
 import io.jenkins.plugins.enums.NoticeOccasionEnum;
 import io.jenkins.plugins.model.BuildJobModel;
-import io.jenkins.plugins.model.ButtonModel;
 import io.jenkins.plugins.model.MessageModel;
+import io.jenkins.plugins.model.RunUser;
+import io.jenkins.plugins.sdk.entity.support.Button;
 import io.jenkins.plugins.service.impl.FeiShuTalkServiceImpl;
+import io.jenkins.plugins.tools.JsonUtils;
 import io.jenkins.plugins.tools.Logger;
 import io.jenkins.plugins.tools.Utils;
 import jenkins.model.Jenkins;
 import lombok.extern.log4j.Log4j;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -41,8 +44,6 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
 
     @Override
     public void onStarted(Run<?, ?> run, TaskListener listener) {
-        FeiShuTalkGlobalConfig globalConfig = FeiShuTalkGlobalConfig.getInstance();
-        log(listener, "全局配置信息，%s", Utils.toJson(globalConfig));
         this.send(run, listener, NoticeOccasionEnum.START);
     }
 
@@ -114,7 +115,7 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
         }
     }
 
-    private Map<String, String> getUser(Run<?, ?> run, TaskListener listener) {
+    private RunUser getUser(Run<?, ?> run, TaskListener listener) {
         UserIdCause userIdCause = run.getCause(UserIdCause.class);
         // 执行人信息
         User user = null;
@@ -145,10 +146,7 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
                         user.getAbsoluteUrl() + "/configure");
             }
         }
-        Map<String, String> result = new HashMap<>(16);
-        result.put("name", executorName);
-        result.put("mobile", executorMobile);
-        return result;
+        return RunUser.builder().name(executorName).mobile(executorMobile).build();
     }
 
     private EnvVars getEnvVars(Run<?, ?> run, TaskListener listener) {
@@ -185,9 +183,7 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
         }
 
         // 执行人信息
-        Map<String, String> user = getUser(run, listener);
-        String executorName = user.get("name");
-        String executorMobile = user.get("mobile");
+        RunUser user = getUser(run, listener);
 
         // 项目信息
         String projectName = job.getFullDisplayName();
@@ -198,7 +194,7 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
         String jobName = run.getDisplayName();
         String jobUrl = rootPath + run.getUrl();
         String duration = run.getDurationString();
-        List<ButtonModel> buttons = Utils.createDefaultButtons(jobUrl);
+        List<Button> buttons = Utils.createDefaultButtons(jobUrl);
         List<String> result = new ArrayList<>();
         List<FeiShuTalkNotifierConfig> notifierConfigs = property.getCheckedNotifierConfigs();
 
@@ -216,14 +212,10 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
             boolean atAll = item.isAtAll();
             Set<String> atOpenIds = item.getAtOpenIds();
 
-            if (StringUtils.isNotEmpty(executorMobile)) {
-                atOpenIds.add(executorMobile);
-            }
-
             BuildJobModel buildJobModel = BuildJobModel.builder().projectName(projectName)
                     .projectUrl(projectUrl).jobName(jobName).jobUrl(jobUrl)
-                    .statusType(statusType).duration(duration).executorName(executorName)
-                    .executorMobile(executorMobile).content(envVars.expand(content).replaceAll("\\\\n", "\n"))
+                    .statusType(statusType).duration(duration).executorName(user.getName())
+                    .executorMobile(user.getMobile()).content(envVars.expand(content).replaceAll("\\\\n", "\n"))
                     .build();
 
             String statusLabel = statusType == null ? "unknown" : statusType.getLabel();
@@ -232,8 +224,8 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
                     .atAll(atAll).atOpenIds(atOpenIds).title(String.format("%s %s %s", "\uD83D\uDCE2", projectName, statusLabel))
                     .text(buildJobModel.toMarkdown()).buttons(buttons).build();
 
-            log(listener, "当前机器人信息，%s", Utils.toJson(item));
-            log(listener, "发送的消息详情，%s", Utils.toJson(message));
+            log(listener, "当前机器人信息: %s", item.getRobotName());
+            log(listener, "发送的消息详情: %s", JsonUtils.toJsonStr(message));
 
             String msg = service.send(robotId, message);
 

@@ -1,7 +1,6 @@
 package io.jenkins.plugins.tools;
 
-import com.google.gson.Gson;
-import io.jenkins.plugins.model.ButtonModel;
+import io.jenkins.plugins.sdk.entity.support.Button;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,13 +23,13 @@ public class Utils {
      * @param jobUrl 任务地址
      * @return 按钮列表
      */
-    public static List<ButtonModel> createDefaultButtons(String jobUrl) {
+    public static List<Button> createDefaultButtons(String jobUrl) {
         String changeLog = jobUrl + "/changes";
         String console = jobUrl + "/console";
 
-        List<ButtonModel> buttons = new ArrayList<>();
-        buttons.add(ButtonModel.of("更改记录", changeLog));
-        buttons.add(ButtonModel.of("控制台", console));
+        List<Button> buttons = new ArrayList<>();
+        buttons.add(Button.of("更改记录", changeLog));
+        buttons.add(Button.of("控制台", console));
 
         return buttons;
     }
@@ -57,37 +56,5 @@ public class Utils {
             return "";
         }
         return String.join(DELIMITER, list);
-    }
-
-    /**
-     * 字符串转数组
-     *
-     * @param str 字符串
-     * @return 数组
-     */
-    public static String[] split(String str) {
-        return str.split(DELIMITER);
-    }
-
-    /**
-     * class to json string
-     *
-     * @param obj 实体类
-     * @return json 字符串
-     */
-    public static String toJson(Object obj) {
-        return new Gson().toJson(obj);
-    }
-
-    /**
-     * json string to class
-     *
-     * @param json  json 字符串
-     * @param clazz 类
-     * @param <T>   泛型
-     * @return clazz 实体类
-     */
-    public static <T> T fromJson(String json, Class<T> clazz) {
-        return new Gson().fromJson(json, clazz);
     }
 }

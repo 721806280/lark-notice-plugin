@@ -7,6 +7,7 @@ import hudson.util.Secret;
 import io.jenkins.plugins.enums.SecurityPolicyEnum;
 import jenkins.model.Jenkins;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -19,6 +20,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
 public class FeiShuTalkSecurityPolicyConfig implements Describable<FeiShuTalkSecurityPolicyConfig> {
 
     private String type;

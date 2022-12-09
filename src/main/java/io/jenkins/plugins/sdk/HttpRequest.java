@@ -1,6 +1,6 @@
 package io.jenkins.plugins.sdk;
 
-import com.google.gson.Gson;
+import io.jenkins.plugins.tools.JsonUtils;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
@@ -64,8 +64,7 @@ public class HttpRequest {
 
     private Proxy proxy;
 
-    private static HttpURLConnection getConnection(
-            URL url, String method, String contentType, Map<String, String> headerMap, Proxy proxy)
+    private static HttpURLConnection getConnection(URL url, String method, String contentType, Map<String, String> headerMap, Proxy proxy)
             throws IOException {
         HttpURLConnection conn;
         if (proxy == null) {
@@ -108,12 +107,7 @@ public class HttpRequest {
         if (data == null) {
             return new byte[]{};
         }
-        String body;
-        if (data instanceof String) {
-            body = (String) data;
-        } else {
-            body = new Gson().toJson(data);
-        }
+        String body = data instanceof String ? (String) data : JsonUtils.toJsonStr(data);
         return body.getBytes(charset);
     }
 

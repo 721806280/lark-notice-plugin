@@ -1,7 +1,8 @@
 package io.jenkins.plugins.model;
 
 import io.jenkins.plugins.enums.MsgTypeEnum;
-import io.jenkins.plugins.sdk.FeiShuTalkRobotRequest.At;
+import io.jenkins.plugins.sdk.entity.support.At;
+import io.jenkins.plugins.sdk.entity.support.Button;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -56,9 +57,9 @@ public class MessageModel {
     private String text;
 
     /**
-     * 按钮的信息：title-按钮方案，actionURL-点击按钮触发的URL
+     * 按钮信息
      */
-    private List<ButtonModel> buttons;
+    private List<Button> buttons;
 
     /**
      * title 不能为空

@@ -1,13 +1,13 @@
 package io.jenkins.plugins.sdk;
 
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONArray;
-import com.alibaba.fastjson2.JSONObject;
 import io.jenkins.plugins.FeiShuTalkRobotConfig;
+import io.jenkins.plugins.enums.MsgTypeEnum;
 import io.jenkins.plugins.model.MessageModel;
 import io.jenkins.plugins.model.RobotConfigModel;
-import io.jenkins.plugins.sdk.FeiShuTalkRobotRequest.*;
+import io.jenkins.plugins.sdk.entity.*;
+import io.jenkins.plugins.sdk.entity.support.*;
 import io.jenkins.plugins.tools.AntdColor;
+import io.jenkins.plugins.tools.JsonUtils;
 import io.jenkins.plugins.tools.Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -16,9 +16,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.net.Proxy;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -46,7 +44,7 @@ public class FeiShuTalkSender {
     public String sendText(MessageModel msg) {
         Text text = new Text();
         text.setText(addKeyWord(msg.getText()));
-        return call(text);
+        return call(buildParams(MsgTypeEnum.TEXT, text));
     }
 
     /**
@@ -58,7 +56,7 @@ public class FeiShuTalkSender {
     public String sendImage(MessageModel msg) {
         Image image = new Image();
         image.setImageKey(msg.getText());
-        return call(image);
+        return call(buildParams(MsgTypeEnum.IMAGE, image));
     }
 
     /**
@@ -70,7 +68,7 @@ public class FeiShuTalkSender {
     public String sendShareChat(MessageModel msg) {
         ShareChat shareChat = new ShareChat();
         shareChat.setShareChatId(msg.getText());
-        return call(shareChat);
+        return call(buildParams(MsgTypeEnum.SHARE_CHAT, shareChat));
     }
 
     /**
@@ -80,9 +78,14 @@ public class FeiShuTalkSender {
      * @return 异常信息
      */
     public String sendPost(MessageModel msg) {
+        Content content = new Content();
+        content.setTitle(addKeyWord(msg.getTitle()));
+        content.setContent(JsonUtils.readTree(msg.getText()));
+
         Post post = new Post();
-        post.setPost(new Post.RichText(new Post.RichText.Content(addKeyWord(msg.getTitle()), JSON.parseArray(msg.getText()))));
-        return call(post);
+        post.setPost(new RichText(content));
+
+        return call(buildParams(MsgTypeEnum.POST, post));
     }
 
     /**
@@ -92,45 +95,57 @@ public class FeiShuTalkSender {
      * @return 异常信息
      */
     public String sendInteractive(MessageModel msg) {
-        At at = msg.getAt();
-        ActionCard actioncard = new ActionCard();
-        actioncard.setAt(at);
+        Card card = new Card();
+        card.setConfig(new Config(true, true));
+        card.setHeader(new Header("BLUE", new LarkMdText("plain_text", addKeyWord(msg.getTitle()))));
 
-        ActionCard.Card card = new ActionCard.Card();
-        card.setConfig(new ActionCard.Card.Config(true, true));
-        card.setHeader(new ActionCard.Card.Header("BLUE", new ActionCard.Card.Text("plain_text", addKeyWord(msg.getTitle()))));
+        Hr hr = new Hr();
+        LarkMdElement element = new LarkMdElement("div", new LarkMdText("lark_md", addAtInfo(msg.getText(), msg.getAt())));
 
-        ActionCard.Card.Hr hr = new ActionCard.Card.Hr();
-        ActionCard.Card.Element element = new ActionCard.Card.Element("div", new ActionCard.Card.Text("lark_md", addAtInfo(msg.getText(), at)));
+        List<Object> elements = new ArrayList<>();
+        elements.add(hr);
+        elements.add(element);
+        elements.add(hr);
 
-        if (CollectionUtils.isEmpty(msg.getButtons())) {
-            card.setElements(JSONArray.of(hr, element, hr));
-        } else {
-            JSONObject actions = JSONObject.of("actions", JSONArray.of(msg.getButtons().toArray()), "tag", "action");
-            card.setElements(JSONArray.of(hr, element, hr, actions));
+        if (!CollectionUtils.isEmpty(msg.getButtons())) {
+            Map<String, Object> actions = new HashMap<>(8);
+            actions.put("actions", msg.getButtons());
+            actions.put("tag", "action");
+            elements.add(actions);
         }
 
-        actioncard.setCard(card);
-        return call(actioncard);
+        card.setElements(JsonUtils.readTree(JsonUtils.toJsonStr(elements)));
+        return call(buildParams(MsgTypeEnum.INTERACTIVE, new ActionCard(card)));
+    }
+
+
+    private Map<String, Object> buildParams(MsgTypeEnum msgType, Object obj) {
+        Map<String, Object> params = new HashMap<>(8);
+        params.put("msg_type", msgType.name().toLowerCase());
+        if (MsgTypeEnum.INTERACTIVE.equals(msgType)) {
+            params.put("card", ((ActionCard) obj).getCard());
+        } else {
+            params.put("content", obj);
+        }
+        return params;
     }
 
     /**
      * 统一处理请求
      *
-     * @param request 请求
+     * @param params 请求参数
      * @return 异常信息
      */
-    private String call(FeiShuTalkRobotRequest request) {
+    private String call(Map<String, Object> params) {
         try {
-            Map<String, Object> content = robotConfigModel.buildSign(request.getParams());
-
-            HttpResponse response = HttpRequest.builder()
-                    .server(robotConfigModel.getWebhook()).data(content)
+            String body = HttpRequest.builder()
+                    .server(robotConfigModel.getWebhook())
+                    .data(robotConfigModel.buildSign(params))
                     .method(Constants.METHOD_POST).proxy(proxy)
-                    .build().request();
-            String body = response.getBody();
-            FeiShuRobotResponse data = Utils.fromJson(body, FeiShuRobotResponse.class);
-            if (Objects.nonNull(data.getCode())) {
+                    .build().request().getBody();
+
+            FeiShuRobotResponse data = JsonUtils.toBean(body, FeiShuRobotResponse.class);
+            if (Objects.isNull(data) || Objects.nonNull(data.getCode())) {
                 log.error("飞书消息发送失败：{}", body);
                 return body;
             }

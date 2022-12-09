@@ -1,5 +1,6 @@
 package io.jenkins.plugins;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import hudson.Extension;
 import hudson.model.Describable;
 import hudson.model.Descriptor;
@@ -14,14 +15,12 @@ import io.jenkins.plugins.enums.SecurityPolicyEnum;
 import io.jenkins.plugins.model.BuildJobModel;
 import io.jenkins.plugins.model.MessageModel;
 import io.jenkins.plugins.sdk.FeiShuTalkSender;
+import io.jenkins.plugins.tools.JsonUtils;
 import jenkins.model.Jenkins;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
@@ -156,27 +155,19 @@ public class FeiShuTalkRobotConfig implements Describable<FeiShuTalkRobotConfig>
         public FormValidation doTest(@QueryParameter("id") String id, @QueryParameter("name") String name,
                                      @QueryParameter("webhook") String webhook, @QueryParameter("proxy") String proxy,
                                      @QueryParameter("securityPolicyConfigs") String securityPolicyConfig) {
-            List<FeiShuTalkSecurityPolicyConfig> securityPolicyConfigs = parseSecurityPolicyConfigs(securityPolicyConfig);
+            List<FeiShuTalkSecurityPolicyConfig> securityPolicyConfigs = JsonUtils.toBean(securityPolicyConfig, new TypeReference<>() {
+            });
 
             FeiShuTalkRobotConfig robotConfig = new FeiShuTalkRobotConfig(id, name, webhook, securityPolicyConfigs);
 
-            FeiShuTalkSender sender = new FeiShuTalkSender(robotConfig, getProxy(proxy));
+            Proxy proxyVar = JsonUtils.toBean(proxy, FeiShuTalkProxyConfig.class).getProxy();
+
+            FeiShuTalkSender sender = new FeiShuTalkSender(robotConfig, proxyVar);
 
             String message = sender.sendInteractive(buildTestMessage());
 
             return StringUtils.isNotBlank(message) ? FormValidation.error(message) :
                     FormValidation.respond(Kind.OK, "<span style='color:#52c41a;font-weight:bold;'>测试成功</span>");
-        }
-
-        private List<FeiShuTalkSecurityPolicyConfig> parseSecurityPolicyConfigs(String param) {
-            List<FeiShuTalkSecurityPolicyConfig> securityPolicyConfigs = new ArrayList<>();
-            JSONArray array = (JSONArray) JSONSerializer.toJSON(param);
-            for (Object item : array) {
-                JSONObject json = (JSONObject) item;
-                securityPolicyConfigs.add(new FeiShuTalkSecurityPolicyConfig(
-                        (String) json.get("type"), (String) json.get("value"), ""));
-            }
-            return securityPolicyConfigs;
         }
 
         private MessageModel buildTestMessage() {
@@ -193,21 +184,6 @@ public class FeiShuTalkRobotConfig implements Describable<FeiShuTalkRobotConfig>
                     .title("\uD83D\uDCE2 飞书机器人测试成功")
                     .text(buildJobModel.toMarkdown())
                     .atAll(false).build();
-        }
-
-        private Proxy getProxy(String param) {
-            Proxy proxy = null;
-            try {
-                JSONObject proxyObj = (JSONObject) JSONSerializer.toJSON(param);
-                Proxy.Type type = Proxy.Type.valueOf(proxyObj.getString("type"));
-                String host = proxyObj.getString("host");
-                int port = proxyObj.getInt("port");
-                FeiShuTalkProxyConfig proxyConfig = new FeiShuTalkProxyConfig(type, host, port);
-                proxy = proxyConfig.getProxy();
-            } catch (Exception ignored) {
-
-            }
-            return proxy;
         }
     }
 }
