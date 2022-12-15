@@ -25,7 +25,7 @@ public class ButtonModel extends AbstractDescribableImpl<ButtonModel> {
     private String url;
 
     /**
-     * 按钮类型 primary | danger
+     * 按钮类型 primary | danger | default
      */
     private String type;
 

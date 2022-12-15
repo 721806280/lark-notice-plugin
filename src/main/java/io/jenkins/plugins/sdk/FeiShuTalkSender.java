@@ -6,9 +6,7 @@ import io.jenkins.plugins.model.MessageModel;
 import io.jenkins.plugins.model.RobotConfigModel;
 import io.jenkins.plugins.sdk.entity.*;
 import io.jenkins.plugins.sdk.entity.support.*;
-import io.jenkins.plugins.tools.AntdColor;
 import io.jenkins.plugins.tools.JsonUtils;
-import io.jenkins.plugins.tools.Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -190,6 +188,6 @@ public class FeiShuTalkSender {
 
         List<String> atContents = atOpenIds.stream().map(v -> String.format(atTemplate, v)).collect(Collectors.toList());
         String atContent = StringUtils.join(atContents, "");
-        return content + "\n\n" + Utils.dye(atContent, AntdColor.BLUE.toString()) + "\n";
+        return content + "\n\n" + atContent + "\n";
     }
 }

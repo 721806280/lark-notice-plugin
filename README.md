@@ -164,6 +164,8 @@ pipeline {
 
 #### 卡片消息
 
+> 1. 按钮颜色 `type` 的取值范围:  primary | danger | default
+
 ```
 pipeline {
     agent any
@@ -181,7 +183,7 @@ pipeline {
                         text: [
                             '📋 **任务名称**：[demo](http://127.0.0.1:8080/jenkins/job/demo/)',
                             '🔢 **任务编号**：[#9](http://127.0.0.1:8080/jenkins/job/demo/9/)',
-                            '🌟 **构建状态**:  开始',
+                            '🌟 **构建状态**: <font color="green">成功</font>',
                             '🕐 **构建用时**:  2 ms and counting',
                             '👤 **执  行 者**:  Started by user anonymous',
                             '<at id=all></at>'
@@ -193,6 +195,7 @@ pipeline {
                            ],
                            [
                               title: '控制台',
+                              type: 'danger',
                               actionUrl: 'http://127.0.0.1:8080/jenkins/job/pipeline/1/console'
                            ]
                         ]

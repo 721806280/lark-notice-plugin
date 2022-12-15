@@ -1,7 +1,6 @@
 package io.jenkins.plugins.enums;
 
 import io.jenkins.plugins.Messages;
-import io.jenkins.plugins.tools.AntdColor;
 import lombok.Getter;
 
 /**
@@ -15,37 +14,37 @@ public enum BuildStatusEnum {
     /**
      * 开始
      */
-    START(Messages.BuildStatusType_start(), AntdColor.GEEK_BLUE.toString()),
+    START(Messages.BuildStatusType_start(), "green"),
 
     /**
      * 失败
      */
-    FAILURE(Messages.BuildStatusType_failure(), AntdColor.RED.toString()),
+    FAILURE(Messages.BuildStatusType_failure(), "red"),
 
     /**
      * 成功
      */
-    SUCCESS(Messages.BuildStatusType_success(), AntdColor.GREEN.toString()),
+    SUCCESS(Messages.BuildStatusType_success(), "green"),
 
     /**
      * 取消
      */
-    ABORTED(Messages.BuildStatusType_aborted(), AntdColor.CYAN.toString()),
+    ABORTED(Messages.BuildStatusType_aborted(), "grey"),
 
     /**
      * 不稳定
      */
-    UNSTABLE(Messages.BuildStatusType_unstable(), AntdColor.CYAN.toString()),
+    UNSTABLE(Messages.BuildStatusType_unstable(), "grey"),
 
     /**
      * 未构建
      */
-    NOT_BUILT(Messages.BuildStatusType_not_built(), AntdColor.CYAN.toString()),
+    NOT_BUILT(Messages.BuildStatusType_not_built(), "grey"),
 
     /**
      * 未知
      */
-    UNKNOWN(Messages.BuildStatusType_unknown(), AntdColor.PURPLE.toString());
+    UNKNOWN(Messages.BuildStatusType_unknown(), "default");
 
 
     private final String label;
