@@ -7,6 +7,7 @@ import io.jenkins.plugins.model.MessageModel;
 import io.jenkins.plugins.sdk.FeiShuTalkSender;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author xm.z
@@ -14,15 +15,11 @@ import java.util.ArrayList;
 public class SdkTest {
 
     public static void main(String... args) {
-        ArrayList<FeiShuTalkSecurityPolicyConfig> securityPolicyConfigs =
-                new ArrayList<>();
+        List<FeiShuTalkSecurityPolicyConfig> securityPolicyConfigs = new ArrayList<>();
         securityPolicyConfigs.add(new FeiShuTalkSecurityPolicyConfig("KEY", "jenkins", ""));
         FeiShuTalkRobotConfig robot = new FeiShuTalkRobotConfig();
-        robot.setWebhook(
-                Secret.fromString(
-                        "https://open.feishu.cn/open-apis/bot/v2/hook/xxx"));
+        robot.setWebhook(Secret.fromString("https://open.feishu.cn/open-apis/bot/v2/hook/xxx"));
         robot.setSecurityPolicyConfigs(securityPolicyConfigs);
-
 
         BuildJobModel buildJobModel = BuildJobModel.builder().projectName("欢迎使用飞书机器人插件~").projectUrl("/")
                 .jobName("系统配置").jobUrl("/configure").statusType(BuildStatusEnum.SUCCESS)

@@ -14,14 +14,26 @@ import org.kohsuke.stapler.DataBoundConstructor;
 @EqualsAndHashCode(callSuper = false)
 public class ButtonModel extends AbstractDescribableImpl<ButtonModel> {
 
+    /**
+     * 按钮名称
+     */
     private String title;
 
+    /**
+     * 点击按钮请求的地址
+     */
     private String url;
 
+    /**
+     * 按钮类型 primary | danger
+     */
+    private String type;
+
     @DataBoundConstructor
-    public ButtonModel(String title, String actionUrl) {
+    public ButtonModel(String title, String actionUrl, String type) {
         this.title = title;
         this.url = actionUrl;
+        this.type = type;
     }
 
     @Extension

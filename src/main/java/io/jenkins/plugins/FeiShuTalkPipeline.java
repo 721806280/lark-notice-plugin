@@ -154,7 +154,7 @@ public class FeiShuTalkPipeline extends Builder implements SimpleBuildStep {
             return Utils.createDefaultButtons(jobUrl);
         } else if (!CollectionUtils.isEmpty(buttons)) {
             return buttons.stream().map(item ->
-                    new Button(envVars.expand(item.getTitle()), envVars.expand(item.getUrl()))
+                    new Button(envVars.expand(item.getTitle()), envVars.expand(item.getUrl()), item.getType())
             ).collect(Collectors.toList());
         }
         return null;
