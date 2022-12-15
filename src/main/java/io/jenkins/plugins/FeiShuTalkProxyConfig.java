@@ -20,8 +20,7 @@ import java.net.Proxy.Type;
 @Setter
 @ToString
 @Extension
-public class FeiShuTalkProxyConfig extends Descriptor<FeiShuTalkProxyConfig>
-        implements Describable<FeiShuTalkProxyConfig> {
+public class FeiShuTalkProxyConfig extends Descriptor<FeiShuTalkProxyConfig> implements Describable<FeiShuTalkProxyConfig> {
 
     private Type type;
 

@@ -173,8 +173,8 @@ public class FeiShuTalkPipeline extends Builder implements SimpleBuildStep {
         }
     }
 
-    @Symbol({"feishutalk", "feiShuTalk"})
     @Extension
+    @Symbol({"feiShuTalk"})
     public static class DescriptorImpl extends BuildStepDescriptor<Builder> {
 
         @NonNull

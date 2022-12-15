@@ -10,6 +10,11 @@ import lombok.Getter;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.StaplerRequest;
 
+/**
+ * 飞书用户信息配置
+ *
+ * @author xm.z
+ */
 public class FeiShuTalkUserProperty extends UserProperty {
 
     @Getter

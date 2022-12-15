@@ -9,6 +9,13 @@ import io.jenkins.plugins.model.MessageModel;
  */
 public interface FeiShuTalkService {
 
+    /**
+     * 发送消息
+     *
+     * @param robot 机器人ID
+     * @param msg   消息体
+     * @return 响应结果
+     */
     String send(String robot, MessageModel msg);
 
 }

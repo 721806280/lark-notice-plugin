@@ -9,6 +9,7 @@ import jenkins.model.Jenkins;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,10 +24,10 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 public class FeiShuTalkJobProperty extends JobProperty<Job<?, ?>> {
 
-    private ArrayList<FeiShuTalkNotifierConfig> notifierConfigs;
+    private List<FeiShuTalkNotifierConfig> notifierConfigs;
 
     @DataBoundConstructor
-    public FeiShuTalkJobProperty(ArrayList<FeiShuTalkNotifierConfig> notifierConfigs) {
+    public FeiShuTalkJobProperty(List<FeiShuTalkNotifierConfig> notifierConfigs) {
         this.notifierConfigs = notifierConfigs;
     }
 
@@ -35,16 +36,14 @@ public class FeiShuTalkJobProperty extends JobProperty<Job<?, ?>> {
      *
      * @return 机器人配置列表
      */
-    public ArrayList<FeiShuTalkNotifierConfig> getNotifierConfigs() {
-
-        ArrayList<FeiShuTalkNotifierConfig> notifierConfigsList = new ArrayList<>();
-        ArrayList<FeiShuTalkRobotConfig> robotConfigs = FeiShuTalkGlobalConfig.getInstance().getRobotConfigs();
+    public List<FeiShuTalkNotifierConfig> getNotifierConfigs() {
+        List<FeiShuTalkNotifierConfig> notifierConfigsList = new ArrayList<>();
+        List<FeiShuTalkRobotConfig> robotConfigs = FeiShuTalkGlobalConfig.getInstance().getRobotConfigs();
 
         for (FeiShuTalkRobotConfig robotConfig : robotConfigs) {
             String id = robotConfig.getId();
             FeiShuTalkNotifierConfig newNotifierConfig = new FeiShuTalkNotifierConfig(robotConfig);
-
-            if (notifierConfigs != null && !notifierConfigs.isEmpty()) {
+            if (!CollectionUtils.isEmpty(notifierConfigs)) {
                 for (FeiShuTalkNotifierConfig notifierConfig : notifierConfigs) {
                     String robotId = notifierConfig.getRobotId();
                     if (id.equals(robotId)) {
@@ -52,7 +51,6 @@ public class FeiShuTalkJobProperty extends JobProperty<Job<?, ?>> {
                     }
                 }
             }
-
             notifierConfigsList.add(newNotifierConfig);
         }
 
@@ -65,9 +63,8 @@ public class FeiShuTalkJobProperty extends JobProperty<Job<?, ?>> {
      * @return 用户设置的通知配置
      */
     public List<FeiShuTalkNotifierConfig> getCheckedNotifierConfigs() {
-        ArrayList<FeiShuTalkNotifierConfig> notifierConfigs = this.getNotifierConfigs();
-
-        return notifierConfigs.stream().filter(FeiShuTalkNotifierConfig::isChecked).collect(Collectors.toList());
+        return this.getNotifierConfigs().stream()
+                .filter(FeiShuTalkNotifierConfig::isChecked).collect(Collectors.toList());
     }
 
     @Extension
