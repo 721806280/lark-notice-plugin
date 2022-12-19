@@ -30,9 +30,9 @@ public class ButtonModel extends AbstractDescribableImpl<ButtonModel> {
     private String type;
 
     @DataBoundConstructor
-    public ButtonModel(String title, String actionUrl, String type) {
+    public ButtonModel(String title, String url, String type) {
         this.title = title;
-        this.url = actionUrl;
+        this.url = url;
         this.type = type;
     }
 

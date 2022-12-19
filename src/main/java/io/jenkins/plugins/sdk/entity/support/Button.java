@@ -21,15 +21,15 @@ public class Button {
 
     private LarkMdText text;
 
-    public Button(String title, String actionUrl, String type) {
+    public Button(String title, String url, String type) {
         this.title = title;
-        this.url = actionUrl;
+        this.url = url;
         this.text = new LarkMdText("plain_text", title);
         this.type = StringUtils.defaultIfBlank(type, "primary");
     }
 
-    public static Button of(String title, String actionUrl) {
-        return new Button(title, actionUrl, null);
+    public static Button of(String title, String url) {
+        return new Button(title, url, null);
     }
 
 }
