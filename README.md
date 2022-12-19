@@ -164,7 +164,8 @@ pipeline {
 
 #### 卡片消息
 
-> 1. 按钮颜色 `type` 的取值范围:  primary | danger | default
+> 1. 按钮颜色 `type` 的取值范围： primary | danger | default
+> 2. 字体颜色 `color` 的取值范围： green：绿色文本 | red：红色文本 | grey：灰色文本 | default：白底黑字样式
 
 ```
 pipeline {
