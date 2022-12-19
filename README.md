@@ -182,22 +182,22 @@ pipeline {
                         type: 'INTERACTIVE',
                         title: '📢 Jenkins 构建通知',
                         text: [
-                            '📋 **任务名称**：[demo](http://127.0.0.1:8080/jenkins/job/demo/)',
-                            '🔢 **任务编号**：[#9](http://127.0.0.1:8080/jenkins/job/demo/9/)',
+                            '📋 **任务名称**：[${JOB_NAME}](${JOB_URL})',
+                            '🔢 **任务编号**：[${BUILD_DISPLAY_NAME}](${BUILD_URL})',
                             '🌟 **构建状态**: <font color="green">成功</font>',
-                            '🕐 **构建用时**:  2 ms and counting',
-                            '👤 **执  行 者**:  Started by user anonymous',
+                            '🕐 **构建用时**: 2 ms and counting',
+                            '👤 **执  行 者**: Started by user anonymous',
                             '<at id=all></at>'
                         ],
                         buttons: [
                            [
                               title: '更改记录',
-                              actionUrl: 'http://127.0.0.1:8080/jenkins/job/pipeline/1/changes'
+                              url: '${BUILD_URL}changes'
                            ],
                            [
                               title: '控制台',
                               type: 'danger',
-                              actionUrl: 'http://127.0.0.1:8080/jenkins/job/pipeline/1/console'
+                              url: '${BUILD_URL}console'
                            ]
                         ]
                     )
