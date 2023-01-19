@@ -1,5 +1,6 @@
 package io.jenkins.plugins;
 
+import hudson.EnvVars;
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
@@ -65,11 +66,12 @@ public class FeiShuTalkNotifierConfig extends AbstractDescribableImpl<FeiShuTalk
         return noticeOccasions == null ? getDefaultNoticeOccasions() : noticeOccasions;
     }
 
-    public Set<String> getAtOpenIds() {
+    public Set<String> resolveAtOpenIds(EnvVars envVars) {
         if (StringUtils.isEmpty(atOpenId)) {
             return new HashSet<>(16);
         }
-        return Arrays.stream(StringUtils.split(atOpenId.replace("\n", ","), ","))
+        String realOpenId = envVars.expand(atOpenId);
+        return Arrays.stream(StringUtils.split(realOpenId.replace("\n", ","), ","))
                 .collect(Collectors.toSet());
     }
 

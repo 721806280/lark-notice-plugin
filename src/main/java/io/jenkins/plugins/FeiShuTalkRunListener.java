@@ -56,82 +56,72 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
 
     private NoticeOccasionEnum getNoticeOccasion(Result result) {
         if (Result.SUCCESS.equals(result)) {
-
             return NoticeOccasionEnum.SUCCESS;
         }
         if (Result.FAILURE.equals(result)) {
-
             return NoticeOccasionEnum.FAILURE;
         }
         if (Result.ABORTED.equals(result)) {
-
             return NoticeOccasionEnum.ABORTED;
         }
         if (Result.UNSTABLE.equals(result)) {
-
             return NoticeOccasionEnum.UNSTABLE;
         }
         if (Result.NOT_BUILT.equals(result)) {
-
             return NoticeOccasionEnum.NOT_BUILT;
         }
         return null;
     }
 
     private BuildStatusEnum getBuildStatus(NoticeOccasionEnum noticeOccasion) {
-        if (NoticeOccasionEnum.START.equals(noticeOccasion)) {
-            return BuildStatusEnum.START;
-        }
-
-        if (NoticeOccasionEnum.SUCCESS.equals(noticeOccasion)) {
-            return BuildStatusEnum.SUCCESS;
-        }
-
-        if (NoticeOccasionEnum.FAILURE.equals(noticeOccasion)) {
-            return BuildStatusEnum.FAILURE;
-        }
-        if (NoticeOccasionEnum.ABORTED.equals(noticeOccasion)) {
-
-            return BuildStatusEnum.ABORTED;
-        }
-        if (NoticeOccasionEnum.UNSTABLE.equals(noticeOccasion)) {
-
-            return BuildStatusEnum.UNSTABLE;
-        }
-        if (NoticeOccasionEnum.NOT_BUILT.equals(noticeOccasion)) {
-
-            return BuildStatusEnum.NOT_BUILT;
-        }
-        return null;
-    }
-
-    private void log(TaskListener listener, String formatMsg, Object... args) {
-        FeiShuTalkGlobalConfig globalConfig = FeiShuTalkGlobalConfig.getInstance();
-        boolean verbose = globalConfig.isVerbose();
-        if (verbose) {
-            // Logger.line(listener, LineType.START);
-            Logger.debug(listener, "飞书插件：" + formatMsg, args);
-            // Logger.line(listener, LineType.END);
+        switch (noticeOccasion) {
+            case START:
+                return BuildStatusEnum.START;
+            case SUCCESS:
+                return BuildStatusEnum.SUCCESS;
+            case FAILURE:
+                return BuildStatusEnum.FAILURE;
+            case ABORTED:
+                return BuildStatusEnum.ABORTED;
+            case UNSTABLE:
+                return BuildStatusEnum.UNSTABLE;
+            case NOT_BUILT:
+                return BuildStatusEnum.NOT_BUILT;
+            default:
+                return null;
         }
     }
 
+    /**
+     * @see <a href="https://github.com/jenkinsci/build-user-vars-plugin/blob/master/src/main/java/org/jenkinsci/plugins/builduser/BuildUser.java">...</a>
+     */
     private RunUser getUser(Run<?, ?> run, TaskListener listener) {
-        UserIdCause userIdCause = run.getCause(UserIdCause.class);
         // 执行人信息
         User user = null;
         String executorName = null;
         String executorMobile = null;
+
+        UserIdCause userIdCause = run.getCause(UserIdCause.class);
         if (userIdCause != null && userIdCause.getUserId() != null) {
             user = User.getById(userIdCause.getUserId(), false);
         }
 
         if (user == null) {
             RemoteCause remoteCause = run.getCause(RemoteCause.class);
-            UpstreamCause streamCause = run.getCause(UpstreamCause.class);
             if (remoteCause != null) {
-                executorName = "remote " + remoteCause.getAddr();
-            } else if (streamCause != null) {
-                executorName = "project " + streamCause.getUpstreamProject();
+                executorName = String.format("%s %s", remoteCause.getAddr(), remoteCause.getNote());
+            } else {
+                UpstreamCause upstreamCause = run.getCause(UpstreamCause.class);
+                if (upstreamCause != null) {
+                    Job<?, ?> job = Jenkins.get().getItemByFullName(upstreamCause.getUpstreamProject(), Job.class);
+                    if (job != null) {
+                        Run<?, ?> upstream = job.getBuildByNumber(upstreamCause.getUpstreamBuild());
+                        if (upstream != null) {
+                            return getUser(run, listener);
+                        }
+                    }
+                    executorName = upstreamCause.getUpstreamProject();
+                }
             }
             if (executorName == null) {
                 log(listener, "未获取到构建人信息，将尝试从构建信息中模糊匹配。");
@@ -147,6 +137,16 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
             }
         }
         return RunUser.builder().name(executorName).mobile(executorMobile).build();
+    }
+
+    private void log(TaskListener listener, String formatMsg, Object... args) {
+        FeiShuTalkGlobalConfig globalConfig = FeiShuTalkGlobalConfig.getInstance();
+        boolean verbose = globalConfig.isVerbose();
+        if (verbose) {
+            // Logger.line(listener, LineType.START);
+            Logger.debug(listener, "飞书插件：" + formatMsg, args);
+            // Logger.line(listener, LineType.END);
+        }
     }
 
     private EnvVars getEnvVars(Run<?, ?> run, TaskListener listener) {
@@ -210,12 +210,12 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
             String robotId = item.getRobotId();
             String content = item.getContent();
             boolean atAll = item.isAtAll();
-            Set<String> atOpenIds = item.getAtOpenIds();
+            Set<String> atOpenIds = item.resolveAtOpenIds(envVars);
 
             BuildJobModel buildJobModel = BuildJobModel.builder().projectName(projectName)
                     .projectUrl(projectUrl).jobName(jobName).jobUrl(jobUrl)
-                    .statusType(statusType).duration(duration).executorName(user.getName())
-                    .executorMobile(user.getMobile()).content(envVars.expand(content).replaceAll("\\\\n", "\n"))
+                    .statusType(statusType).duration(duration).executorName(envVars.get("EXECUTOR_NAME", user.getName()))
+                    .executorMobile(envVars.get("EXECUTOR_MOBILE", user.getMobile())).content(envVars.expand(content).replaceAll("\\\\n", "\n"))
                     .build();
 
             String statusLabel = statusType == null ? "unknown" : statusType.getLabel();

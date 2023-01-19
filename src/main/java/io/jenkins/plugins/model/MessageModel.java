@@ -79,7 +79,7 @@ public class MessageModel {
         At at = new At();
         if (atOpenIds != null) {
             at.setAtOpenIds(atOpenIds.stream().map(String::trim)
-                    .filter(item -> !StringUtils.isEmpty(item))
+                    .filter(StringUtils::isNotBlank)
                     .collect(Collectors.toList()));
         }
         at.setIsAtAll(atAll);
