@@ -4,8 +4,6 @@ import hudson.Extension;
 import hudson.model.Job;
 import hudson.model.JobProperty;
 import hudson.model.JobPropertyDescriptor;
-import io.jenkins.plugins.FeiShuTalkNotifierConfig.FeiShuTalkNotifierConfigDescriptor;
-import jenkins.model.Jenkins;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -37,7 +35,7 @@ public class FeiShuTalkJobProperty extends JobProperty<Job<?, ?>> {
      * @return 机器人配置列表
      */
     public List<FeiShuTalkNotifierConfig> getNotifierConfigs() {
-        List<FeiShuTalkNotifierConfig> notifierConfigsList = new ArrayList<>();
+        List<FeiShuTalkNotifierConfig> notifierConfigList = new ArrayList<>();
         List<FeiShuTalkRobotConfig> robotConfigs = FeiShuTalkGlobalConfig.getInstance().getRobotConfigs();
 
         for (FeiShuTalkRobotConfig robotConfig : robotConfigs) {
@@ -51,10 +49,10 @@ public class FeiShuTalkJobProperty extends JobProperty<Job<?, ?>> {
                     }
                 }
             }
-            notifierConfigsList.add(newNotifierConfig);
+            notifierConfigList.add(newNotifierConfig);
         }
 
-        return notifierConfigsList;
+        return notifierConfigList;
     }
 
     /**
@@ -73,13 +71,6 @@ public class FeiShuTalkJobProperty extends JobProperty<Job<?, ?>> {
         @Override
         public boolean isApplicable(Class<? extends Job> jobType) {
             return super.isApplicable(jobType);
-        }
-
-        /**
-         * 通知配置页面
-         */
-        public FeiShuTalkNotifierConfigDescriptor getFeiShuTalkNotifierConfigDescriptor() {
-            return Jenkins.get().getDescriptorByType(FeiShuTalkNotifierConfigDescriptor.class);
         }
 
         /**
