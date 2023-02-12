@@ -50,46 +50,8 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
     @Override
     public void onCompleted(Run<?, ?> run, @NonNull TaskListener listener) {
         Result result = run.getResult();
-        NoticeOccasionEnum noticeOccasion = getNoticeOccasion(result);
+        NoticeOccasionEnum noticeOccasion = NoticeOccasionEnum.getNoticeOccasion(result);
         this.send(run, listener, noticeOccasion);
-    }
-
-    private NoticeOccasionEnum getNoticeOccasion(Result result) {
-        if (Result.SUCCESS.equals(result)) {
-            return NoticeOccasionEnum.SUCCESS;
-        }
-        if (Result.FAILURE.equals(result)) {
-            return NoticeOccasionEnum.FAILURE;
-        }
-        if (Result.ABORTED.equals(result)) {
-            return NoticeOccasionEnum.ABORTED;
-        }
-        if (Result.UNSTABLE.equals(result)) {
-            return NoticeOccasionEnum.UNSTABLE;
-        }
-        if (Result.NOT_BUILT.equals(result)) {
-            return NoticeOccasionEnum.NOT_BUILT;
-        }
-        return null;
-    }
-
-    private BuildStatusEnum getBuildStatus(NoticeOccasionEnum noticeOccasion) {
-        switch (noticeOccasion) {
-            case START:
-                return BuildStatusEnum.START;
-            case SUCCESS:
-                return BuildStatusEnum.SUCCESS;
-            case FAILURE:
-                return BuildStatusEnum.FAILURE;
-            case ABORTED:
-                return BuildStatusEnum.ABORTED;
-            case UNSTABLE:
-                return BuildStatusEnum.UNSTABLE;
-            case NOT_BUILT:
-                return BuildStatusEnum.NOT_BUILT;
-            default:
-                return null;
-        }
     }
 
     /**
@@ -124,7 +86,7 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
                 }
             }
             if (executorName == null) {
-                log(listener, "未获取到构建人信息，将尝试从构建信息中模糊匹配。");
+                Logger.log(listener, "未获取到构建人信息，将尝试从构建信息中模糊匹配。");
                 executorName = run.getCauses().stream().map(Cause::getShortDescription)
                         .collect(Collectors.joining());
             }
@@ -132,21 +94,11 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
             executorName = user.getDisplayName();
             executorMobile = user.getProperty(FeiShuTalkUserProperty.class).getMobile();
             if (executorMobile == null) {
-                log(listener, "用户【%s】暂未设置手机号码，请前往 %s 添加。", executorName,
+                Logger.log(listener, "用户【%s】暂未设置手机号码，请前往 %s 添加。", executorName,
                         user.getAbsoluteUrl() + "/configure");
             }
         }
         return RunUser.builder().name(executorName).mobile(executorMobile).build();
-    }
-
-    private void log(TaskListener listener, String formatMsg, Object... args) {
-        FeiShuTalkGlobalConfig globalConfig = FeiShuTalkGlobalConfig.getInstance();
-        boolean verbose = globalConfig.isVerbose();
-        if (verbose) {
-            // Logger.line(listener, LineType.START);
-            Logger.debug(listener, "飞书插件：" + formatMsg, args);
-            // Logger.line(listener, LineType.END);
-        }
     }
 
     private EnvVars getEnvVars(Run<?, ?> run, TaskListener listener) {
@@ -156,8 +108,8 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
         } catch (InterruptedException | IOException e) {
             envVars = new EnvVars();
             log.error(e);
-            log(listener, "获取环境变量时发生异常，将只使用 jenkins 默认的环境变量。");
-            log(listener, ExceptionUtils.getStackTrace(e));
+            Logger.log(listener, "获取环境变量时发生异常，将只使用 jenkins 默认的环境变量。");
+            Logger.log(listener, ExceptionUtils.getStackTrace(e));
         }
         return envVars;
     }
@@ -169,7 +121,7 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
         if (noticeOccasions.contains(stage)) {
             return false;
         }
-        log(listener, "机器人 %s 已跳过 %s 环节", notifierConfig.getRobotName(), stage);
+        Logger.log(listener, "机器人 %s 已跳过 %s 环节", notifierConfig.getRobotName(), stage);
         return true;
     }
 
@@ -178,7 +130,7 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
         FeiShuTalkJobProperty property = job.getProperty(FeiShuTalkJobProperty.class);
 
         if (property == null) {
-            this.log(listener, "不支持的项目类型，已跳过");
+            Logger.log(listener, "当前任务未配置机器人，已跳过");
             return;
         }
 
@@ -190,7 +142,7 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
         String projectUrl = job.getAbsoluteUrl();
 
         // 构建信息
-        BuildStatusEnum statusType = getBuildStatus(noticeOccasion);
+        BuildStatusEnum statusType = noticeOccasion.buildStatus();
         String jobName = run.getDisplayName();
         String jobUrl = rootPath + run.getUrl();
         String duration = run.getDurationString();
@@ -224,8 +176,8 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
                     .atAll(atAll).atOpenIds(atOpenIds).title(String.format("%s %s %s", "\uD83D\uDCE2", projectName, statusLabel))
                     .text(buildJobModel.toMarkdown()).buttons(buttons).build();
 
-            log(listener, "当前机器人信息: %s", item.getRobotName());
-            log(listener, "发送的消息详情: %s", JsonUtils.toJsonStr(message));
+            Logger.log(listener, "当前机器人信息: %s", item.getRobotName());
+            Logger.log(listener, "发送的消息详情: %s", JsonUtils.toJsonStr(message));
 
             String msg = service.send(robotId, message);
 

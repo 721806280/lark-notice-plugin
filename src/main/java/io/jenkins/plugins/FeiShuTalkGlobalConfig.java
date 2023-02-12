@@ -17,9 +17,7 @@ import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.StaplerRequest;
 
 import java.net.Proxy;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -34,8 +32,6 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unused")
 public class FeiShuTalkGlobalConfig extends Descriptor<FeiShuTalkGlobalConfig> implements
         Describable<FeiShuTalkGlobalConfig> {
-
-    private static volatile FeiShuTalkGlobalConfig instance;
 
     /**
      * 网络代理
@@ -78,6 +74,16 @@ public class FeiShuTalkGlobalConfig extends Descriptor<FeiShuTalkGlobalConfig> i
      */
     public static FeiShuTalkGlobalConfig getInstance() {
         return Jenkins.get().getDescriptorByType(FeiShuTalkGlobalConfig.class);
+    }
+
+    /**
+     * 获取机器人配置信息
+     *
+     * @param robotId 机器人ID
+     * @return 机器人配置信息
+     */
+    public static Optional<FeiShuTalkRobotConfig> getRobot(String robotId) {
+        return getInstance().robotConfigs.stream().filter(item -> Objects.equals(item.getId(), robotId)).findAny();
     }
 
     /**

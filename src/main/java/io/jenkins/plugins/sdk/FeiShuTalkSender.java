@@ -143,12 +143,12 @@ public class FeiShuTalkSender {
                     .build().request().getBody();
 
             FeiShuRobotResponse data = JsonUtils.toBean(body, FeiShuRobotResponse.class);
-            if (Objects.isNull(data) || Objects.nonNull(data.getCode())) {
+            if (Objects.isNull(data) || Objects.isNull(data.getCode())) {
                 log.error("飞书消息发送失败：{}", body);
                 return body;
             }
         } catch (IOException e) {
-            log.error("飞书消息发送失败：", e);
+            log.error("飞书消息发送失败", e);
             return ExceptionUtils.getStackTrace(e);
         }
         return null;

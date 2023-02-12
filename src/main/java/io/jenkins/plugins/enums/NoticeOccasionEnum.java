@@ -1,5 +1,6 @@
 package io.jenkins.plugins.enums;
 
+import hudson.model.Result;
 import io.jenkins.plugins.Messages;
 import lombok.Getter;
 
@@ -45,4 +46,44 @@ public enum NoticeOccasionEnum {
     NoticeOccasionEnum(String desc) {
         this.desc = desc;
     }
+
+    public static NoticeOccasionEnum getNoticeOccasion(Result result) {
+        if (Result.SUCCESS.equals(result)) {
+            return NoticeOccasionEnum.SUCCESS;
+        }
+        if (Result.FAILURE.equals(result)) {
+            return NoticeOccasionEnum.FAILURE;
+        }
+        if (Result.ABORTED.equals(result)) {
+            return NoticeOccasionEnum.ABORTED;
+        }
+        if (Result.UNSTABLE.equals(result)) {
+            return NoticeOccasionEnum.UNSTABLE;
+        }
+        if (Result.NOT_BUILT.equals(result)) {
+            return NoticeOccasionEnum.NOT_BUILT;
+        }
+        return null;
+    }
+
+    public BuildStatusEnum buildStatus() {
+        switch (this) {
+            case START:
+                return BuildStatusEnum.START;
+            case SUCCESS:
+                return BuildStatusEnum.SUCCESS;
+            case FAILURE:
+                return BuildStatusEnum.FAILURE;
+            case ABORTED:
+                return BuildStatusEnum.ABORTED;
+            case UNSTABLE:
+                return BuildStatusEnum.UNSTABLE;
+            case NOT_BUILT:
+                return BuildStatusEnum.NOT_BUILT;
+            default:
+                return null;
+        }
+    }
+
+
 }

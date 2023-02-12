@@ -64,7 +64,7 @@ public class RobotConfigModel {
                             meta.setSign(config.getValue());
                             break;
                         default:
-                            log.error("对应的安全策略不存在：" + type);
+                            log.error("对应的安全策略不存在：{}", type);
                     }
                 });
         return meta;
@@ -84,7 +84,7 @@ public class RobotConfigModel {
             byte[] signData = mac.doFinal(seed.getBytes(StandardCharsets.UTF_8));
             result = Base64.encodeBase64String(signData);
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-            log.error("飞书插件设置签名失败：", e);
+            log.error("飞书插件设置签名失败", e);
         }
         return result;
     }

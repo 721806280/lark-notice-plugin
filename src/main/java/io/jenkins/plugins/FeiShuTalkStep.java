@@ -3,13 +3,8 @@ package io.jenkins.plugins;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.EnvVars;
 import hudson.Extension;
-import hudson.FilePath;
-import hudson.Launcher;
-import hudson.model.AbstractProject;
 import hudson.model.Run;
 import hudson.model.TaskListener;
-import hudson.tasks.BuildStepDescriptor;
-import hudson.tasks.Builder;
 import io.jenkins.plugins.enums.MsgTypeEnum;
 import io.jenkins.plugins.model.ButtonModel;
 import io.jenkins.plugins.model.MessageModel;
@@ -19,17 +14,21 @@ import io.jenkins.plugins.tools.JsonUtils;
 import io.jenkins.plugins.tools.Logger;
 import io.jenkins.plugins.tools.Utils;
 import jenkins.model.Jenkins;
-import jenkins.tasks.SimpleBuildStep;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
-import org.jenkinsci.Symbol;
+import org.jenkinsci.plugins.workflow.steps.Step;
+import org.jenkinsci.plugins.workflow.steps.StepContext;
+import org.jenkinsci.plugins.workflow.steps.StepDescriptor;
+import org.jenkinsci.plugins.workflow.steps.StepExecution;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.springframework.util.CollectionUtils;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -45,7 +44,7 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @SuppressWarnings("unused")
-public class FeiShuTalkPipeline extends Builder implements SimpleBuildStep {
+public class FeiShuTalkStep extends Step {
 
     /**
      * 机器人 id
@@ -92,16 +91,13 @@ public class FeiShuTalkPipeline extends Builder implements SimpleBuildStep {
     private FeiShuTalkServiceImpl service = new FeiShuTalkServiceImpl();
 
     @DataBoundConstructor
-    public FeiShuTalkPipeline(String robot) {
+    public FeiShuTalkStep(String robot) {
         this.robot = robot;
     }
 
     @DataBoundSetter
     public void setType(MsgTypeEnum type) {
-        if (type == null) {
-            type = MsgTypeEnum.TEXT;
-        }
-        this.type = type;
+        this.type = type == null ? MsgTypeEnum.TEXT : type;
     }
 
     @DataBoundSetter
@@ -134,18 +130,14 @@ public class FeiShuTalkPipeline extends Builder implements SimpleBuildStep {
         this.buttons = buttons;
     }
 
-    @Override
-    public void perform(@NonNull Run<?, ?> run, @NonNull FilePath workspace,
-                        @NonNull EnvVars envVars, @NonNull Launcher launcher, @NonNull TaskListener listener) {
-
-        MessageModel messageModel = MessageModel.builder().type(type).title(envVars.expand(title))
+    public String send(Run<?, ?> run, EnvVars envVars, TaskListener listener) {
+        MessageModel message = MessageModel.builder().type(type).title(envVars.expand(title))
                 .text(envVars.expand(buildText())).buttons(buildButtons(run, envVars)).build();
 
-        String result = service.send(envVars.expand(robot), messageModel);
+        Logger.log(listener, "当前机器人信息: %s", FeiShuTalkGlobalConfig.getRobot(robot).map(FeiShuTalkRobotConfig::getName));
+        Logger.log(listener, "发送的消息详情: %s", JsonUtils.toJsonStr(message));
 
-        if (StringUtils.isNotBlank(result)) {
-            Logger.error(listener, result);
-        }
+        return service.send(envVars.expand(robot), message);
     }
 
     private List<Button> buildButtons(Run<?, ?> run, EnvVars envVars) {
@@ -173,19 +165,62 @@ public class FeiShuTalkPipeline extends Builder implements SimpleBuildStep {
         }
     }
 
+    @Override
+    public StepExecution start(StepContext context) throws Exception {
+        return new FeiShuTalkStepExecution(this, context);
+    }
+
+    private static class FeiShuTalkStepExecution extends StepExecution {
+        private static final long serialVersionUID = 1L;
+        private final transient FeiShuTalkStep step;
+
+        private FeiShuTalkStepExecution(FeiShuTalkStep step, StepContext context) {
+            super(context);
+            this.step = step;
+        }
+
+        @Override
+        public boolean start() throws Exception {
+            StepContext context = this.getContext();
+            Run<?, ?> run = context.get(Run.class);
+            EnvVars envVars = context.get(EnvVars.class);
+            TaskListener listener = context.get(TaskListener.class);
+            try {
+                assert envVars != null;
+                String result = this.step.send(run, envVars, listener);
+                if (StringUtils.isEmpty(result)) {
+                    context.onSuccess(result);
+                } else {
+                    context.onFailure(new Throwable(Logger.format(result)));
+                }
+                return true;
+            } catch (Exception e) {
+                context.onFailure(e);
+                return false;
+            }
+        }
+    }
+
     @Extension
-    @Symbol({"feiShuTalk"})
-    public static class DescriptorImpl extends BuildStepDescriptor<Builder> {
+    public static class DescriptorImpl extends StepDescriptor {
+
+        @Override
+        public Set<? extends Class<?>> getRequiredContext() {
+            return new HashSet<>() {{
+                add(Run.class);
+                add(TaskListener.class);
+            }};
+        }
+
+        @Override
+        public String getFunctionName() {
+            return "feiShuTalk";
+        }
 
         @NonNull
         @Override
         public String getDisplayName() {
-            return "FeiShuTalk";
-        }
-
-        @Override
-        public boolean isApplicable(Class<? extends AbstractProject> t) {
-            return false;
+            return "Send FeiShuTalk Message";
         }
     }
 
