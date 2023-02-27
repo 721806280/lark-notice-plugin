@@ -8,6 +8,7 @@ import hudson.model.Cause.RemoteCause;
 import hudson.model.Cause.UpstreamCause;
 import hudson.model.Cause.UserIdCause;
 import hudson.model.listeners.RunListener;
+import io.jenkins.plugins.context.PipelineEnvContext;
 import io.jenkins.plugins.enums.BuildStatusEnum;
 import io.jenkins.plugins.enums.MsgTypeEnum;
 import io.jenkins.plugins.enums.NoticeOccasionEnum;
@@ -23,7 +24,6 @@ import jenkins.model.Jenkins;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -51,7 +51,14 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
     public void onCompleted(Run<?, ?> run, @NonNull TaskListener listener) {
         Result result = run.getResult();
         NoticeOccasionEnum noticeOccasion = NoticeOccasionEnum.getNoticeOccasion(result);
-        this.send(run, listener, noticeOccasion);
+        try {
+            this.send(run, listener, noticeOccasion);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Logger.log(listener, "发送消息时报错: %s", e);
+        } finally {
+            PipelineEnvContext.reset();
+        }
     }
 
     /**
@@ -105,12 +112,23 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
         EnvVars envVars;
         try {
             envVars = run.getEnvironment(listener);
-        } catch (InterruptedException | IOException e) {
+        } catch (Exception e) {
             envVars = new EnvVars();
             log.error(e);
-            Logger.log(listener, "获取环境变量时发生异常，将只使用 jenkins 默认的环境变量。");
+            Logger.log(listener, "获取 Job 任务的环境变量时发生异常");
+            Logger.log(listener, ExceptionUtils.getStackTrace(e));
+            Thread.currentThread().interrupt();
+        }
+
+        try {
+            EnvVars pipelineEnvVars = PipelineEnvContext.get();
+            envVars.overrideAll(pipelineEnvVars);
+        } catch (Exception e) {
+            log.error(e);
+            Logger.log(listener, "获取 Pipeline 环境变量时发生异常");
             Logger.log(listener, ExceptionUtils.getStackTrace(e));
         }
+
         return envVars;
     }
 

@@ -45,6 +45,7 @@
             <j:set var="robotConfigDescriptor"
                    value="${descriptor.getFeiShuTalkRobotConfigDescriptor()}"/>
             <f:repeatable
+                    enableTopButton="true"
                     field="robotConfigs"
                     var="item"
                     items="robotConfigs">
