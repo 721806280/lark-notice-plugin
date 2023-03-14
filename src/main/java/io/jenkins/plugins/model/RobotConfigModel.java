@@ -81,7 +81,7 @@ public class RobotConfigModel {
             String seed = timestamp + "\n" + secret;
             Mac mac = Mac.getInstance("HmacSHA256");
             mac.init(new SecretKeySpec(seed.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
-            byte[] signData = mac.doFinal(seed.getBytes(StandardCharsets.UTF_8));
+            byte[] signData = mac.doFinal(new byte[]{});
             result = Base64.encodeBase64String(signData);
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
             log.error("飞书插件设置签名失败", e);

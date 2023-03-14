@@ -143,9 +143,9 @@ public class FeiShuTalkSender {
                     .build().request().getBody();
 
             FeiShuRobotResponse data = JsonUtils.toBean(body, FeiShuRobotResponse.class);
-            if (Objects.isNull(data) || Objects.isNull(data.getCode())) {
+            if (Objects.isNull(data) || Objects.isNull(data.getCode()) || data.getCode() != 0) {
                 log.error("飞书消息发送失败：{}", body);
-                return body;
+                return Objects.isNull(data) ? body : data.getMsg();
             }
         } catch (IOException e) {
             log.error("飞书消息发送失败", e);
