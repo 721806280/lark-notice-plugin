@@ -184,31 +184,31 @@ pipeline {
     stages {
         stage('text'){
             steps {
-                echo '发送卡片消息...'
+                echo "发送卡片消息..."
             }
             post {
                 success {
                     feiShuTalk (
-                        robot: 'f72aa1bb-0f0b-47c7-8387-272d266dc25c',
-                        type: 'INTERACTIVE',
-                        title: '📢 Jenkins 构建通知',
+                        robot: "f72aa1bb-0f0b-47c7-8387-272d266dc25c",
+                        type: "INTERACTIVE",
+                        title: "📢 Jenkins 构建通知",
                         text: [
-                            '📋 **任务名称**：[${JOB_NAME}](${JOB_URL})',
-                            '🔢 **任务编号**：[${BUILD_DISPLAY_NAME}](${BUILD_URL})',
-                            '🌟 **构建状态**: <font color="green">成功</font>',
-                            '🕐 **构建用时**: 2 ms and counting',
-                            '👤 **执  行 者**: Started by user anonymous',
-                            '<at id=all></at>'
+                            "📋 **任务名称**：[${JOB_NAME}](${JOB_URL})",
+                            "🔢 **任务编号**：[${BUILD_DISPLAY_NAME}](${BUILD_URL})",
+                            "🌟 **构建状态**: <font color='green'>成功</font>",
+                            "🕐 **构建用时**: ${currentBuild.duration} ms",
+                            "👤 **执  行 者**: Started by user anonymous",
+                            "<at id=all></at>"
                         ],
                         buttons: [
                            [
-                              title: '更改记录',
-                              url: '${BUILD_URL}changes'
+                              title: "更改记录",
+                              url: "${BUILD_URL}changes"
                            ],
                            [
-                              title: '控制台',
-                              type: 'danger',
-                              url: '${BUILD_URL}console'
+                              title: "控制台",
+                              type: "danger",
+                              url: "${BUILD_URL}console"
                            ]
                         ]
                     )
