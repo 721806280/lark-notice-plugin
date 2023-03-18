@@ -28,6 +28,8 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 public class FeiShuTalkNotifierConfig extends AbstractDescribableImpl<FeiShuTalkNotifierConfig> {
 
+    private boolean raw;
+
     private boolean disabled;
 
     private boolean checked;
@@ -42,11 +44,14 @@ public class FeiShuTalkNotifierConfig extends AbstractDescribableImpl<FeiShuTalk
 
     private String content;
 
+    private String message;
+
     private Set<String> noticeOccasions;
 
     @DataBoundConstructor
-    public FeiShuTalkNotifierConfig(boolean disabled, boolean checked, String robotId, String robotName,
-                                    boolean atAll, String atOpenId, String content, Set<String> noticeOccasions) {
+    public FeiShuTalkNotifierConfig(boolean raw, boolean disabled, boolean checked, String robotId, String robotName,
+                                    boolean atAll, String atOpenId, String content, String message, Set<String> noticeOccasions) {
+        this.raw = raw;
         this.disabled = disabled;
         this.checked = checked;
         this.robotId = robotId;
@@ -54,11 +59,13 @@ public class FeiShuTalkNotifierConfig extends AbstractDescribableImpl<FeiShuTalk
         this.atAll = atAll;
         this.atOpenId = atOpenId;
         this.content = content;
+        this.message = message;
         this.noticeOccasions = noticeOccasions;
     }
 
     public FeiShuTalkNotifierConfig(FeiShuTalkRobotConfig robotConfig) {
-        this(false, false, robotConfig.getId(), robotConfig.getName(), false, null, null, getDefaultNoticeOccasions());
+        this(false, false, false, robotConfig.getId(), robotConfig.getName(), false,
+                null, null, null, getDefaultNoticeOccasions());
     }
 
     private static Set<String> getDefaultNoticeOccasions() {
@@ -83,11 +90,13 @@ public class FeiShuTalkNotifierConfig extends AbstractDescribableImpl<FeiShuTalk
     }
 
     public void copy(FeiShuTalkNotifierConfig notifierConfig) {
+        this.setRaw(notifierConfig.isRaw());
         this.setDisabled(notifierConfig.isDisabled());
         this.setChecked(notifierConfig.isChecked());
         this.setAtAll(notifierConfig.isAtAll());
         this.setAtOpenId(notifierConfig.getAtOpenId());
         this.setContent(notifierConfig.getContent());
+        this.setMessage(notifierConfig.getMessage());
         this.setNoticeOccasions(notifierConfig.getNoticeOccasions());
     }
 

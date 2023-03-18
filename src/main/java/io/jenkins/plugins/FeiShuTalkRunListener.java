@@ -22,6 +22,7 @@ import io.jenkins.plugins.tools.Logger;
 import io.jenkins.plugins.tools.Utils;
 import jenkins.model.Jenkins;
 import lombok.extern.log4j.Log4j;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
 import java.util.ArrayList;
@@ -82,10 +83,20 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
         String projectUrl = job.getAbsoluteUrl();
 
         // 构建信息
+        String jobName = run.getDisplayName(), jobUrl = rootPath + run.getUrl(), duration = run.getDurationString();
+        // 构建状态
         BuildStatusEnum statusType = noticeOccasion.buildStatus();
-        String jobName = run.getDisplayName();
-        String jobUrl = rootPath + run.getUrl();
-        String duration = run.getDurationString();
+        // 设置环境变量
+        envVars.put("EXECUTOR_NAME", StringUtils.defaultIfBlank(executorName, ""));
+        envVars.put("EXECUTOR_MOBILE", StringUtils.defaultIfBlank(executorMobile, ""));
+        envVars.put("PROJECT_NAME", projectName);
+        envVars.put("PROJECT_URL", projectUrl);
+        envVars.put("JOB_NAME", jobName);
+        envVars.put("JOB_URL", jobUrl);
+        envVars.put("JOB_DURATION", duration);
+        envVars.put("JOB_STATUS", statusType.getLabel());
+
+        // 默认按钮
         List<Button> buttons = Utils.createDefaultButtons(jobUrl);
         List<String> result = new ArrayList<>();
         List<FeiShuTalkNotifierConfig> notifierConfigs = property.getAvailableNotifierConfigs();
@@ -96,27 +107,31 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
                 continue;
             }
 
-            String robotId = item.getRobotId();
-            String content = item.getContent();
+            String robotId = item.getRobotId(), content = item.getContent();
             boolean atAll = item.isAtAll();
             Set<String> atOpenIds = item.resolveAtOpenIds(envVars);
 
-            BuildJobModel buildJobModel = BuildJobModel.builder().projectName(projectName)
-                    .projectUrl(projectUrl).jobName(jobName).jobUrl(jobUrl)
-                    .statusType(statusType).duration(duration).executorName(executorName)
-                    .executorMobile(executorMobile).content(envVars.expand(content).replaceAll("\\\\n", "\n"))
+            String text;
+            if (item.isRaw()) {
+                text = envVars.expand(item.getMessage());
+            } else {
+                BuildJobModel buildJobModel = BuildJobModel.builder().projectName(projectName)
+                        .projectUrl(projectUrl).jobName(jobName).jobUrl(jobUrl)
+                        .statusType(statusType).duration(duration).executorName(executorName)
+                        .executorMobile(executorMobile).content(envVars.expand(content).replaceAll("\\\\n", "\n"))
+                        .build();
+                text = buildJobModel.toMarkdown();
+            }
+
+            MessageModel messageModel = MessageModel.builder().type(MsgTypeEnum.INTERACTIVE)
+                    .atAll(atAll).atOpenIds(atOpenIds).text(text).buttons(buttons)
+                    .title(String.format("%s %s %s", "\uD83D\uDCE2", projectName, statusType.getLabel()))
                     .build();
 
-            String statusLabel = statusType == null ? "unknown" : statusType.getLabel();
-
-            MessageModel message = MessageModel.builder().type(MsgTypeEnum.INTERACTIVE)
-                    .atAll(atAll).atOpenIds(atOpenIds).title(String.format("%s %s %s", "\uD83D\uDCE2", projectName, statusLabel))
-                    .text(buildJobModel.toMarkdown()).buttons(buttons).build();
-
             Logger.log(listener, "当前机器人信息: %s", item.getRobotName());
-            Logger.log(listener, "发送的消息详情: %s", JsonUtils.toJsonStr(message));
+            Logger.log(listener, "发送的消息详情: %s", JsonUtils.toJsonStr(messageModel));
 
-            String msg = service.send(robotId, message);
+            String msg = service.send(robotId, messageModel);
 
             if (msg != null) {
                 result.add(msg);
