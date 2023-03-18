@@ -28,6 +28,8 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 public class FeiShuTalkNotifierConfig extends AbstractDescribableImpl<FeiShuTalkNotifierConfig> {
 
+    private boolean disabled;
+
     private boolean checked;
 
     private String robotId;
@@ -43,8 +45,9 @@ public class FeiShuTalkNotifierConfig extends AbstractDescribableImpl<FeiShuTalk
     private Set<String> noticeOccasions;
 
     @DataBoundConstructor
-    public FeiShuTalkNotifierConfig(boolean checked, String robotId, String robotName,
+    public FeiShuTalkNotifierConfig(boolean disabled, boolean checked, String robotId, String robotName,
                                     boolean atAll, String atOpenId, String content, Set<String> noticeOccasions) {
+        this.disabled = disabled;
         this.checked = checked;
         this.robotId = robotId;
         this.robotName = robotName;
@@ -55,7 +58,7 @@ public class FeiShuTalkNotifierConfig extends AbstractDescribableImpl<FeiShuTalk
     }
 
     public FeiShuTalkNotifierConfig(FeiShuTalkRobotConfig robotConfig) {
-        this(false, robotConfig.getId(), robotConfig.getName(), false, null, null, getDefaultNoticeOccasions());
+        this(false, false, robotConfig.getId(), robotConfig.getName(), false, null, null, getDefaultNoticeOccasions());
     }
 
     private static Set<String> getDefaultNoticeOccasions() {
@@ -80,6 +83,7 @@ public class FeiShuTalkNotifierConfig extends AbstractDescribableImpl<FeiShuTalk
     }
 
     public void copy(FeiShuTalkNotifierConfig notifierConfig) {
+        this.setDisabled(notifierConfig.isDisabled());
         this.setChecked(notifierConfig.isChecked());
         this.setAtAll(notifierConfig.isAtAll());
         this.setAtOpenId(notifierConfig.getAtOpenId());

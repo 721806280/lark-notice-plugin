@@ -3,10 +3,10 @@ package io.jenkins.plugins;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.EnvVars;
 import hudson.Extension;
-import hudson.model.*;
-import hudson.model.Cause.RemoteCause;
-import hudson.model.Cause.UpstreamCause;
-import hudson.model.Cause.UserIdCause;
+import hudson.model.Job;
+import hudson.model.Result;
+import hudson.model.Run;
+import hudson.model.TaskListener;
 import hudson.model.listeners.RunListener;
 import io.jenkins.plugins.context.PipelineEnvContext;
 import io.jenkins.plugins.enums.BuildStatusEnum;
@@ -27,7 +27,6 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * 所有项目触发
@@ -61,51 +60,72 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
         }
     }
 
-    /**
-     * @see <a href="https://github.com/jenkinsci/build-user-vars-plugin/blob/master/src/main/java/org/jenkinsci/plugins/builduser/BuildUser.java">...</a>
-     */
-    private RunUser getUser(Run<?, ?> run, TaskListener listener) {
+    private void send(Run<?, ?> run, TaskListener listener, NoticeOccasionEnum noticeOccasion) {
+        Job<?, ?> job = run.getParent();
+        FeiShuTalkJobProperty property = job.getProperty(FeiShuTalkJobProperty.class);
+
+        if (property == null) {
+            Logger.log(listener, "当前任务未配置机器人，已跳过");
+            return;
+        }
+
+        // 环境变量
+        EnvVars envVars = getEnvVars(run, listener);
+
         // 执行人信息
-        User user = null;
-        String executorName = null;
-        String executorMobile = null;
+        RunUser user = Utils.getExecutor(run, listener);
+        String executorName = envVars.get("EXECUTOR_NAME", user.getName());
+        String executorMobile = envVars.get("EXECUTOR_MOBILE", user.getMobile());
 
-        UserIdCause userIdCause = run.getCause(UserIdCause.class);
-        if (userIdCause != null && userIdCause.getUserId() != null) {
-            user = User.getById(userIdCause.getUserId(), false);
+        // 项目信息
+        String projectName = job.getFullDisplayName();
+        String projectUrl = job.getAbsoluteUrl();
+
+        // 构建信息
+        BuildStatusEnum statusType = noticeOccasion.buildStatus();
+        String jobName = run.getDisplayName();
+        String jobUrl = rootPath + run.getUrl();
+        String duration = run.getDurationString();
+        List<Button> buttons = Utils.createDefaultButtons(jobUrl);
+        List<String> result = new ArrayList<>();
+        List<FeiShuTalkNotifierConfig> notifierConfigs = property.getAvailableNotifierConfigs();
+
+        for (FeiShuTalkNotifierConfig item : notifierConfigs) {
+            boolean skipped = skip(listener, noticeOccasion, item);
+            if (skipped) {
+                continue;
+            }
+
+            String robotId = item.getRobotId();
+            String content = item.getContent();
+            boolean atAll = item.isAtAll();
+            Set<String> atOpenIds = item.resolveAtOpenIds(envVars);
+
+            BuildJobModel buildJobModel = BuildJobModel.builder().projectName(projectName)
+                    .projectUrl(projectUrl).jobName(jobName).jobUrl(jobUrl)
+                    .statusType(statusType).duration(duration).executorName(executorName)
+                    .executorMobile(executorMobile).content(envVars.expand(content).replaceAll("\\\\n", "\n"))
+                    .build();
+
+            String statusLabel = statusType == null ? "unknown" : statusType.getLabel();
+
+            MessageModel message = MessageModel.builder().type(MsgTypeEnum.INTERACTIVE)
+                    .atAll(atAll).atOpenIds(atOpenIds).title(String.format("%s %s %s", "\uD83D\uDCE2", projectName, statusLabel))
+                    .text(buildJobModel.toMarkdown()).buttons(buttons).build();
+
+            Logger.log(listener, "当前机器人信息: %s", item.getRobotName());
+            Logger.log(listener, "发送的消息详情: %s", JsonUtils.toJsonStr(message));
+
+            String msg = service.send(robotId, message);
+
+            if (msg != null) {
+                result.add(msg);
+            }
         }
 
-        if (user == null) {
-            RemoteCause remoteCause = run.getCause(RemoteCause.class);
-            if (remoteCause != null) {
-                executorName = String.format("%s %s", remoteCause.getAddr(), remoteCause.getNote());
-            } else {
-                UpstreamCause upstreamCause = run.getCause(UpstreamCause.class);
-                if (upstreamCause != null) {
-                    Job<?, ?> job = Jenkins.get().getItemByFullName(upstreamCause.getUpstreamProject(), Job.class);
-                    if (job != null) {
-                        Run<?, ?> upstream = job.getBuildByNumber(upstreamCause.getUpstreamBuild());
-                        if (upstream != null) {
-                            return getUser(run, listener);
-                        }
-                    }
-                    executorName = upstreamCause.getUpstreamProject();
-                }
-            }
-            if (executorName == null) {
-                Logger.log(listener, "未获取到构建人信息，将尝试从构建信息中模糊匹配。");
-                executorName = run.getCauses().stream().map(Cause::getShortDescription)
-                        .collect(Collectors.joining());
-            }
-        } else {
-            executorName = user.getDisplayName();
-            executorMobile = user.getProperty(FeiShuTalkUserProperty.class).getMobile();
-            if (executorMobile == null) {
-                Logger.log(listener, "用户【%s】暂未设置手机号码，请前往 %s 添加。", executorName,
-                        user.getAbsoluteUrl() + "/configure");
-            }
+        if (!result.isEmpty()) {
+            result.forEach(msg -> Logger.error(listener, msg));
         }
-        return RunUser.builder().name(executorName).mobile(executorMobile).build();
     }
 
     private EnvVars getEnvVars(Run<?, ?> run, TaskListener listener) {
@@ -141,71 +161,5 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
         }
         Logger.log(listener, "机器人 %s 已跳过 %s 环节", notifierConfig.getRobotName(), stage);
         return true;
-    }
-
-    private void send(Run<?, ?> run, TaskListener listener, NoticeOccasionEnum noticeOccasion) {
-        Job<?, ?> job = run.getParent();
-        FeiShuTalkJobProperty property = job.getProperty(FeiShuTalkJobProperty.class);
-
-        if (property == null) {
-            Logger.log(listener, "当前任务未配置机器人，已跳过");
-            return;
-        }
-
-        // 执行人信息
-        RunUser user = getUser(run, listener);
-
-        // 项目信息
-        String projectName = job.getFullDisplayName();
-        String projectUrl = job.getAbsoluteUrl();
-
-        // 构建信息
-        BuildStatusEnum statusType = noticeOccasion.buildStatus();
-        String jobName = run.getDisplayName();
-        String jobUrl = rootPath + run.getUrl();
-        String duration = run.getDurationString();
-        List<Button> buttons = Utils.createDefaultButtons(jobUrl);
-        List<String> result = new ArrayList<>();
-        List<FeiShuTalkNotifierConfig> notifierConfigs = property.getCheckedNotifierConfigs();
-
-        // 环境变量
-        EnvVars envVars = getEnvVars(run, listener);
-
-        for (FeiShuTalkNotifierConfig item : notifierConfigs) {
-            boolean skipped = skip(listener, noticeOccasion, item);
-            if (skipped) {
-                continue;
-            }
-
-            String robotId = item.getRobotId();
-            String content = item.getContent();
-            boolean atAll = item.isAtAll();
-            Set<String> atOpenIds = item.resolveAtOpenIds(envVars);
-
-            BuildJobModel buildJobModel = BuildJobModel.builder().projectName(projectName)
-                    .projectUrl(projectUrl).jobName(jobName).jobUrl(jobUrl)
-                    .statusType(statusType).duration(duration).executorName(envVars.get("EXECUTOR_NAME", user.getName()))
-                    .executorMobile(envVars.get("EXECUTOR_MOBILE", user.getMobile())).content(envVars.expand(content).replaceAll("\\\\n", "\n"))
-                    .build();
-
-            String statusLabel = statusType == null ? "unknown" : statusType.getLabel();
-
-            MessageModel message = MessageModel.builder().type(MsgTypeEnum.INTERACTIVE)
-                    .atAll(atAll).atOpenIds(atOpenIds).title(String.format("%s %s %s", "\uD83D\uDCE2", projectName, statusLabel))
-                    .text(buildJobModel.toMarkdown()).buttons(buttons).build();
-
-            Logger.log(listener, "当前机器人信息: %s", item.getRobotName());
-            Logger.log(listener, "发送的消息详情: %s", JsonUtils.toJsonStr(message));
-
-            String msg = service.send(robotId, message);
-
-            if (msg != null) {
-                result.add(msg);
-            }
-        }
-
-        if (!result.isEmpty()) {
-            result.forEach(msg -> Logger.error(listener, msg));
-        }
     }
 }

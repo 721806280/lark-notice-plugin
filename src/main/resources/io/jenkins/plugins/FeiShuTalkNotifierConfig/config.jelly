@@ -6,6 +6,9 @@
 
     <f:entry title="${instance.getRobotName()}">
         <f:advanced>
+            <f:entry title="停用" field="disabled">
+                <f:checkbox checked="${instance.getDisabled()}"/>
+            </f:entry>
             <f:entry title="通知时机" field="noticeOccasions">
                 <j:forEach var="noticeOccasionTypeItem"
                            items="${noticeOccasionTypes}">

@@ -81,7 +81,7 @@ public enum NoticeOccasionEnum {
             case NOT_BUILT:
                 return BuildStatusEnum.NOT_BUILT;
             default:
-                return null;
+                return BuildStatusEnum.UNKNOWN;
         }
     }
 

@@ -65,6 +65,12 @@ public class FeiShuTalkJobProperty extends JobProperty<Job<?, ?>> {
                 .filter(FeiShuTalkNotifierConfig::isChecked).collect(Collectors.toList());
     }
 
+    public List<FeiShuTalkNotifierConfig> getAvailableNotifierConfigs() {
+        return this.getNotifierConfigs().stream()
+                .filter(config -> config.isChecked() && !config.isDisabled())
+                .collect(Collectors.toList());
+    }
+
     @Extension
     public static class FeiShuTalkJobPropertyDescriptor extends JobPropertyDescriptor {
 

@@ -1,9 +1,16 @@
 package io.jenkins.plugins.tools;
 
+import hudson.model.*;
+import io.jenkins.plugins.FeiShuTalkUserProperty;
+import io.jenkins.plugins.model.RunUser;
 import io.jenkins.plugins.sdk.entity.support.Button;
+import jenkins.model.Jenkins;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * 通用方法合集
@@ -56,5 +63,70 @@ public class Utils {
             return "";
         }
         return String.join(DELIMITER, list);
+    }
+
+    //====================================================================================
+
+    /**
+     * @see <a
+     * href="https://github.com/jenkinsci/build-user-vars-plugin/blob/master/src/main/java/org/jenkinsci/plugins/builduser/BuildUser.java">...</a>
+     */
+    public static RunUser getExecutor(Run<?, ?> run, TaskListener listener) {
+        RunUser executor = getExecutorFromUser(run, listener);
+        if (executor == null) {
+            executor = getExecutorFromRemote(run);
+        }
+        if (executor == null) {
+            executor = getExecutorFromUpstream(run, listener);
+        }
+        if (executor == null) {
+            executor = getExecutorFromBuild(run);
+        }
+        return executor;
+    }
+
+    public static RunUser getExecutorFromUser(Run<?, ?> run, TaskListener listener) {
+        Cause.UserIdCause userIdCause = run.getCause(Cause.UserIdCause.class);
+        if (Objects.isNull(userIdCause) || Objects.isNull(userIdCause.getUserId())) {
+            return null;
+        }
+
+        User user = User.getById(userIdCause.getUserId(), false);
+        if (Objects.isNull(user)) {
+            return null;
+        }
+
+        String name = user.getDisplayName(), mobile = user.getProperty(FeiShuTalkUserProperty.class).getMobile();
+        if (StringUtils.isEmpty(mobile)) {
+            Logger.log(listener, "用户【%s】暂未设置手机号码，请前往 %s 添加。", name, user.getAbsoluteUrl() + "/configure");
+        }
+        return new RunUser(name, mobile);
+    }
+
+    public static RunUser getExecutorFromRemote(Run<?, ?> run) {
+        Cause.RemoteCause remoteCause = run.getCause(Cause.RemoteCause.class);
+        return Objects.isNull(remoteCause) ? null :
+                new RunUser(String.format("%s %s", remoteCause.getAddr(), remoteCause.getNote()), null);
+    }
+
+    public static RunUser getExecutorFromUpstream(Run<?, ?> run, TaskListener listener) {
+        Cause.UpstreamCause upstreamCause = run.getCause(Cause.UpstreamCause.class);
+        if (Objects.isNull(upstreamCause)) {
+            return null;
+        }
+
+        Job<?, ?> job = Jenkins.get().getItemByFullName(upstreamCause.getUpstreamProject(), Job.class);
+        if (job != null) {
+            Run<?, ?> upstream = job.getBuildByNumber(upstreamCause.getUpstreamBuild());
+            if (upstream != null) {
+                return getExecutor(upstream, listener);
+            }
+        }
+        return new RunUser(upstreamCause.getUpstreamProject(), null);
+    }
+
+    public static RunUser getExecutorFromBuild(Run<?, ?> run) {
+        String name = run.getCauses().stream().map(Cause::getShortDescription).collect(Collectors.joining());
+        return new RunUser(name, null);
     }
 }
