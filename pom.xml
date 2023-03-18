@@ -11,7 +11,7 @@
     </parent>
     <groupId>io.jenkins.plugins</groupId>
     <artifactId>feishu-notifications</artifactId>
-    <version>0.0.4-SNAPSHOT</version>
+    <version>0.0.5-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <properties>
         <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
