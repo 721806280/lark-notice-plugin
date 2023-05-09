@@ -1,14 +1,14 @@
-## 系统说明
+## 🌐 系统说明
 
 - **飞书 Jenkins 插件**
 - **飞书 Jenkins 插件**
 - **飞书 Jenkins 插件**
 
-## 开发服务
+## 🧑‍💻 开发服务
 
 在 `IDEA` 右侧 `maven` 控制面板中添加 `hpi:run` 到启动配置：
 
-## 远程调试(Remote JVM DEBUG)
+### 远程调试(Remote JVM DEBUG)
 
 #### 1. 命令行模式启动
 
@@ -29,7 +29,7 @@
 > 2. 配置端口后 `Run` 运行调试
 > 3. 启动后控制台打印信息: `Listening for transport dt_socket at address: 5005`
 
-## 开发约定
+## ✅ 开发约定
 
 1. 使用 [Alibaba Java Coding Guidelines](https://plugins.jetbrains.com/plugin/10046-alibaba-java-coding-guidelines/)
    校验代码规范。
@@ -38,7 +38,7 @@
 > `IDEA`下载 [intellij-java-google-style.xml](https://github.com/google/styleguide/blob/gh-pages/intellij-java-google-style.xml)
 >  通过 `Settings` -> `Editor` `Code Style` 进行导入。
 
-## 使用示例
+## 📝 使用文档
 
 #### Freestyle
 
@@ -220,14 +220,20 @@ pipeline {
 
 ```
 
-## 参考文档
+## 🔍️ 相关链接
 
-1. [Plugin tutorial](https://wiki.jenkins.io/display/JENKINS/Plugin+tutorial#Plugintutorial-SettingUpEnvironment)
-2. [Jenkins 插件开发之旅：两天内从 idea 到发布(上篇)](https://jenkins-zh.cn/wechat/articles/2019/05/2019-05-06-jenkins-plugin-develop-within-two-days-part01/)
-3. [Jenkins 插件开发之旅：两天内从 idea 到发布(下篇)](https://jenkins-zh.github.io/wechat/articles/2019/05/2019-05-08-jenkins-plugin-develop-within-two-days-part02/)
+- [Plugin tutorial](https://wiki.jenkins.io/display/JENKINS/Plugin+tutorial#Plugintutorial-SettingUpEnvironment)
+- [Jenkins 插件开发之旅：两天内从 idea 到发布(上篇)](https://jenkins-zh.cn/wechat/articles/2019/05/2019-05-06-jenkins-plugin-develop-within-two-days-part01/)
+- [Jenkins 插件开发之旅：两天内从 idea 到发布(下篇)](https://jenkins-zh.github.io/wechat/articles/2019/05/2019-05-08-jenkins-plugin-develop-within-two-days-part02/)
 
-## 参考项目
+## 🍻 开源推荐
 
-1. [钉钉插件](https://github.com/jenkinsci/dingtalk-plugin)
+- `钉钉插件`：[https://github.com/jenkinsci/dingtalk-plugin](https://github.com/jenkinsci/dingtalk-plugin)
 
 ---
+
+## 💚 鸣谢
+
+感谢 JetBrains 提供的免费开源 License：
+
+[![JetBrains](docs/img/jetbrains.png)](https://www.jetbrains.com/?from=feishu-talk-plugin)
