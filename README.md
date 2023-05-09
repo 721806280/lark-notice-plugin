@@ -230,8 +230,6 @@ pipeline {
 
 - `钉钉插件`：[https://github.com/jenkinsci/dingtalk-plugin](https://github.com/jenkinsci/dingtalk-plugin)
 
----
-
 ## 💚 鸣谢
 
 感谢 JetBrains 提供的免费开源 License：
