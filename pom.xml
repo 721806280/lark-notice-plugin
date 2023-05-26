@@ -10,7 +10,7 @@
         <relativePath/>
     </parent>
     <groupId>io.jenkins.plugins</groupId>
-    <artifactId>feishu-notifications</artifactId>
+    <artifactId>feishu-talk</artifactId>
     <version>1.0.0</version>
     <packaging>hpi</packaging>
     <properties>
