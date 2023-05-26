@@ -10,7 +10,7 @@
         <relativePath/>
     </parent>
     <groupId>io.jenkins.plugins</groupId>
-    <artifactId>feishu-talk</artifactId>
+    <artifactId>feishu-notification</artifactId>
     <version>1.0.0</version>
     <packaging>hpi</packaging>
     <properties>
@@ -19,9 +19,9 @@
         <hpi.compatibleSinceVersion>2.0.0</hpi.compatibleSinceVersion>
     </properties>
 
-    <name>FeiShuTalk</name>
-    <description>飞书 Jenkins 插件</description>
-    <url>https://github.com/721806280/feishu-talk-plugin</url>
+    <name>${artifactId}</name>
+    <description>飞书 Jenkins 通知插件</description>
+    <url>https://github.com/721806280/feishu-notification</url>
 
     <licenses>
         <license>
@@ -39,10 +39,10 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git@github.com:721806280/feishu-talk-plugin.git</connection>
-        <developerConnection>scm:git:git@github.com:721806280/feishu-talk-plugin.git</developerConnection>
+        <connection>scm:git:git@github.com:721806280/feishu-notification-plugin.git</connection>
+        <developerConnection>scm:git:git@github.com:721806280/feishu-notification-plugin.git</developerConnection>
         <url>https://github.com/721806280/feishu-talk-plugin</url>
-        <tag>feishu-notifications-1.0.0</tag>
+        <tag>feishu-notification-1.0.0</tag>
     </scm>
 
     <dependencies>
