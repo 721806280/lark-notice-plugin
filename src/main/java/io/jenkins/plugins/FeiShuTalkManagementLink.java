@@ -44,8 +44,10 @@ public class FeiShuTalkManagementLink extends ManagementLink {
     @POST
     public void doConfigure(StaplerRequest req, StaplerResponse res)
             throws ServletException, FormException, IOException {
-        getFeiShuTalkGlobalConfigDescriptor().configure(req, req.getSubmittedForm());
-        FormApply.success(req.getContextPath() + "/manage").generateResponse(req, res, null);
+        if (Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
+            getFeiShuTalkGlobalConfigDescriptor().configure(req, req.getSubmittedForm());
+            FormApply.success(req.getContextPath() + "/manage").generateResponse(req, res, null);
+        }
     }
 
     /**

@@ -38,6 +38,13 @@
         </developer>
     </developers>
 
+    <scm>
+        <connection>scm:git:git@github.com:721806280/feishu-talk-plugin.git</connection>
+        <developerConnection>scm:git:git@github.com:721806280/feishu-talk-plugin.git</developerConnection>
+        <url>https://github.com/721806280/feishu-talk-plugin</url>
+        <tag>feishu-notifications-1.0.0</tag>
+    </scm>
+
     <dependencies>
         <dependency>
             <groupId>org.jenkins-ci.plugins.workflow</groupId>
