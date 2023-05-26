@@ -40,7 +40,7 @@
 
 ## 📝 使用文档
 
-> 请参考 [官方文档](https://721806280.github.io/feishu-talk-plugin-doc)
+> 请参考 [官方文档](https://721806280.github.io/feishu-notification-plugin-doc)
 
 ## 🔍️ 相关链接
 
@@ -56,4 +56,4 @@
 
 感谢 JetBrains 提供的免费开源 License
 
-[![JetBrains](docs/img/jetbrains.png)](https://www.jetbrains.com/?from=feishu-talk-plugin)
+[![JetBrains](docs/img/jetbrains.png)](https://www.jetbrains.com/?from=feishu-notification-plugin)

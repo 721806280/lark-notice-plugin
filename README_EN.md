@@ -41,7 +41,7 @@ Add `hpi:run` to the startup configuration in the `maven` control panel on the r
 
 ## 📝 Using documentation
 
-> Please refer to [official document](https://721806280.github.io/feishu-talk-plugin-doc)
+> Please refer to [official document](https://721806280.github.io/feishu-notification-plugin)
 
 ## 🔍️ Related Links
 
@@ -59,4 +59,4 @@ Add `hpi:run` to the startup configuration in the `maven` control panel on the r
 
 Thanks to JetBrains for the free open source license
 
-[![JetBrains](docs/img/jetbrains.png)](https://www.jetbrains.com/?from=feishu-talk-plugin)
+[![JetBrains](docs/img/jetbrains.png)](https://www.jetbrains.com/?from=feishu-notification-plugin)
