@@ -40,7 +40,7 @@ public class DefaultFeiShuTalkSender extends AbstractFeiShuTalkSender {
     public SendResult sendText(MessageModel msg) {
         Text text = new Text();
         text.setText(addKeyWord(msg.getText(), robotConfig.getKeys()));
-        return call(buildParams(MsgTypeEnum.TEXT, text));
+        return sendMessage(buildParams(MsgTypeEnum.TEXT, text));
     }
 
     /**
@@ -53,7 +53,7 @@ public class DefaultFeiShuTalkSender extends AbstractFeiShuTalkSender {
     public SendResult sendImage(MessageModel msg) {
         Image image = new Image();
         image.setImageKey(msg.getText());
-        return call(buildParams(MsgTypeEnum.IMAGE, image));
+        return sendMessage(buildParams(MsgTypeEnum.IMAGE, image));
     }
 
     /**
@@ -66,7 +66,7 @@ public class DefaultFeiShuTalkSender extends AbstractFeiShuTalkSender {
     public SendResult sendShareChat(MessageModel msg) {
         ShareChat shareChat = new ShareChat();
         shareChat.setShareChatId(msg.getText());
-        return call(buildParams(MsgTypeEnum.SHARE_CHAT, shareChat));
+        return sendMessage(buildParams(MsgTypeEnum.SHARE_CHAT, shareChat));
     }
 
     /**
@@ -84,7 +84,7 @@ public class DefaultFeiShuTalkSender extends AbstractFeiShuTalkSender {
         Post post = new Post();
         post.setPost(new RichText(content));
 
-        return call(buildParams(MsgTypeEnum.POST, post));
+        return sendMessage(buildParams(MsgTypeEnum.POST, post));
     }
 
     /**
@@ -115,7 +115,7 @@ public class DefaultFeiShuTalkSender extends AbstractFeiShuTalkSender {
         }
 
         card.setElements(JsonUtils.readTree(JsonUtils.toJsonStr(elements)));
-        return call(buildParams(MsgTypeEnum.INTERACTIVE, new ActionCard(card)));
+        return sendMessage(buildParams(MsgTypeEnum.INTERACTIVE, new ActionCard(card)));
     }
 
 }
