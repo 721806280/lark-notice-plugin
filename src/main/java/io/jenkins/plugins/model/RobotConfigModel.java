@@ -10,6 +10,7 @@ import org.apache.commons.lang.StringUtils;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.net.ProxySelector;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -17,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 机器人配置信息
+ * 机器人配置模型。
  *
  * @author xm.z
  */
@@ -26,30 +27,37 @@ import java.util.Map;
 public class RobotConfigModel {
 
     /**
-     * 关键字
+     * 代理选择器，用于处理网络请求。
      */
-    private String keys;
+    private ProxySelector proxySelector;
 
     /**
-     * 签名
-     */
-    private String sign;
-
-    /**
-     * api 接口
+     * 提供机器人发送消息的 webhook。
      */
     private String webhook;
 
     /**
-     * 从机器人配置中解析元信息
-     *
-     * @param robotConfig 配置
-     * @return 机器人配置
+     * 提供机器人安全校验的 key。
      */
-    public static RobotConfigModel of(FeiShuTalkRobotConfig robotConfig) {
+    private String keys;
+
+    /**
+     * 提供机器人安全校验的 secret。
+     */
+    private String sign;
+
+    /**
+     * 根据飞书机器人配置对象创建 RobotConfigModel 对象。
+     *
+     * @param robotConfig 飞书机器人配置对象
+     * @return RobotConfigModel 对象
+     */
+    public static RobotConfigModel of(FeiShuTalkRobotConfig robotConfig, ProxySelector proxySelector) {
         List<FeiShuTalkSecurityPolicyConfig> securityPolicyConfigs = robotConfig.getSecurityPolicyConfigs();
         RobotConfigModel meta = new RobotConfigModel();
+        meta.setProxySelector(proxySelector);
         meta.setWebhook(robotConfig.getWebhook());
+
         // 解析安全策略
         securityPolicyConfigs.stream()
                 .filter(config -> StringUtils.isNotBlank(config.getValue()))
@@ -71,9 +79,11 @@ public class RobotConfigModel {
     }
 
     /**
-     * 签名方法
+     * 使用给定的时间戳和 secret 创建签名。
      *
-     * @return 签名
+     * @param timestamp 时间戳
+     * @param secret    secret
+     * @return 签名字符串
      */
     private static String createSign(long timestamp, String secret) {
         String result = "";
@@ -89,6 +99,12 @@ public class RobotConfigModel {
         return result;
     }
 
+    /**
+     * 使用给定内容构建加密后的签名。
+     *
+     * @param content 待加密的内容
+     * @return 包含签名信息的 Map 对象
+     */
     public Map<String, Object> buildSign(Map<String, Object> content) {
         if (StringUtils.isNotBlank(sign)) {
             long timestamp = System.currentTimeMillis() / 1000L;

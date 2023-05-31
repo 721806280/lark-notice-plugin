@@ -8,30 +8,64 @@ import lombok.Data;
 import java.util.Arrays;
 
 /**
+ * 用于存储构建任务相关的模型。
+ *
  * @author xm.z
  */
 @Data
 @Builder
 public class BuildJobModel {
 
+    /**
+     * 项目名称。
+     */
     private String projectName;
 
+    /**
+     * 项目 URL。
+     */
     private String projectUrl;
 
+    /**
+     * 构建任务名称。
+     */
     private String jobName;
 
+    /**
+     * 构建任务 URL。
+     */
     private String jobUrl;
 
+    /**
+     * 构建任务状态。
+     */
     private BuildStatusEnum statusType;
 
+    /**
+     * 构建持续时间。
+     */
     private String duration;
 
+    /**
+     * 执行构建任务的用户名称。
+     */
     private String executorName;
 
+    /**
+     * 执行构建任务的用户手机号码。
+     */
     private String executorMobile;
 
+    /**
+     * 额外的任务执行信息。
+     */
     private String content;
 
+    /**
+     * 将该模型转化为 Markdown 格式的字符串。
+     *
+     * @return Markdown 格式的字符串。
+     */
     public String toMarkdown() {
         return Utils.join(
                 Arrays.asList(

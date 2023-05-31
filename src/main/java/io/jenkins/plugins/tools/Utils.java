@@ -3,7 +3,7 @@ package io.jenkins.plugins.tools;
 import hudson.model.*;
 import io.jenkins.plugins.FeiShuTalkUserProperty;
 import io.jenkins.plugins.model.RunUser;
-import io.jenkins.plugins.sdk.entity.support.Button;
+import io.jenkins.plugins.sdk.model.entity.support.Button;
 import jenkins.model.Jenkins;
 import org.apache.commons.lang.StringUtils;
 

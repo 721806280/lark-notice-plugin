@@ -15,4 +15,4 @@
             $('.none-raw-content').css('display', '')
         }
     }
-})(jQuery3 || jQuery)
+})(jQuery)

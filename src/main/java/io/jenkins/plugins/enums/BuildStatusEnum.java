@@ -1,6 +1,7 @@
 package io.jenkins.plugins.enums;
 
 import io.jenkins.plugins.Messages;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
@@ -9,6 +10,7 @@ import lombok.Getter;
  * @author xm.z
  */
 @Getter
+@AllArgsConstructor
 public enum BuildStatusEnum {
 
     /**
@@ -46,14 +48,7 @@ public enum BuildStatusEnum {
      */
     UNKNOWN(Messages.BuildStatusType_unknown(), "default");
 
-
     private final String label;
-
-
     private final String color;
 
-    BuildStatusEnum(String label, String color) {
-        this.label = label;
-        this.color = color;
-    }
 }

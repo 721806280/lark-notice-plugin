@@ -114,4 +114,4 @@
 
         return result
     }
-})(jQuery3 || jQuery)
+})(jQuery)

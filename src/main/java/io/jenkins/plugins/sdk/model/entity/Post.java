@@ -1,6 +1,6 @@
-package io.jenkins.plugins.sdk.entity;
+package io.jenkins.plugins.sdk.model.entity;
 
-import io.jenkins.plugins.sdk.entity.support.RichText;
+import io.jenkins.plugins.sdk.model.entity.support.RichText;
 import lombok.Data;
 
 /**

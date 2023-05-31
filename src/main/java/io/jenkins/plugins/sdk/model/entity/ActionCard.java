@@ -1,6 +1,6 @@
-package io.jenkins.plugins.sdk.entity;
+package io.jenkins.plugins.sdk.model.entity;
 
-import io.jenkins.plugins.sdk.entity.support.Card;
+import io.jenkins.plugins.sdk.model.entity.support.Card;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

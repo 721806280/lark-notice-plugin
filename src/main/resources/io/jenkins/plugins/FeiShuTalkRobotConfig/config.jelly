@@ -5,7 +5,7 @@
     <st:adjunct includes="io.jenkins.plugins.jquery3"/>
     <st:once>
         <script type="text/javascript"
-                src="${rootURL}/plugin/feishu-notifications/scripts/robotConfigValidator.js"/>
+                src="${rootURL}/plugin/feishu-notification/scripts/robotConfigValidator.js"/>
     </st:once>
 
     <style>

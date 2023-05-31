@@ -3,7 +3,7 @@ package io.jenkins.plugins.model;
 import lombok.*;
 
 /**
- * RunUser
+ * 当前执行任务的用户信息
  *
  * @author xm.z
  */
@@ -13,13 +13,15 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RunUser {
+
     /**
-     * <p>当前执行人名称</p>
+     * 当前执行任务的用户名称
      */
     private String name;
 
     /**
-     * <p>当前执行人配置的手机号</p>
+     * 当前执行任务的用户配置的手机号
      */
     private String mobile;
+
 }

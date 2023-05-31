@@ -85,9 +85,7 @@ public class Logger {
         FeiShuTalkGlobalConfig globalConfig = FeiShuTalkGlobalConfig.getInstance();
         boolean verbose = globalConfig.isVerbose();
         if (verbose) {
-            // Logger.line(listener, LineType.START);
             Logger.debug(listener, "[飞书插件]" + msg, args);
-            // Logger.line(listener, LineType.END);
         }
     }
 

@@ -14,7 +14,10 @@ import io.jenkins.plugins.enums.MsgTypeEnum;
 import io.jenkins.plugins.enums.SecurityPolicyEnum;
 import io.jenkins.plugins.model.BuildJobModel;
 import io.jenkins.plugins.model.MessageModel;
+import io.jenkins.plugins.model.RobotConfigModel;
 import io.jenkins.plugins.sdk.FeiShuTalkSender;
+import io.jenkins.plugins.sdk.impl.DefaultFeiShuTalkSender;
+import io.jenkins.plugins.sdk.model.SendResult;
 import io.jenkins.plugins.tools.JsonUtils;
 import jenkins.model.Jenkins;
 import lombok.Getter;
@@ -25,12 +28,12 @@ import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 
-import java.net.Proxy;
+import java.net.ProxySelector;
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * 机器人配置页面
+ * 飞书机器人配置类，包括机器人ID，名称，Webhook密钥和安全策略配置列表。
  *
  * @author xm.z
  */
@@ -41,23 +44,34 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unused")
 public class FeiShuTalkRobotConfig implements Describable<FeiShuTalkRobotConfig> {
 
+    /**
+     * 机器人ID，可以为空，为空时自动生成UUID。
+     */
     private String id;
 
     /**
-     * 名称
+     * 机器人名称，不可为空。
      */
     private String name;
 
     /**
-     * webhook 地址
+     * Webhook密钥，采用Jenkins提供的Secret实现，不可为空。
      */
     private Secret webhook;
 
     /**
-     * 安全策略配置
+     * 安全策略配置列表，包括一组Key-Value对，不可为空。
      */
     private List<FeiShuTalkSecurityPolicyConfig> securityPolicyConfigs;
 
+    /**
+     * 构造方法，用于初始化机器人配置对象。
+     *
+     * @param id                    机器人ID，可以为空。
+     * @param name                  机器人名称，不可为空。
+     * @param webhook               Webhook密钥，不可为空。
+     * @param securityPolicyConfigs 安全策略配置列表，不可为空。
+     */
     @DataBoundConstructor
     public FeiShuTalkRobotConfig(String id, String name, String webhook, List<FeiShuTalkSecurityPolicyConfig> securityPolicyConfigs) {
         this.id = StringUtils.isBlank(id) ? UUID.randomUUID().toString() : id;
@@ -66,6 +80,11 @@ public class FeiShuTalkRobotConfig implements Describable<FeiShuTalkRobotConfig>
         this.securityPolicyConfigs = securityPolicyConfigs;
     }
 
+    /**
+     * 获取机器人ID，为空时生成一个UUID，并返回。
+     *
+     * @return 机器人ID。
+     */
     public String getId() {
         if (StringUtils.isBlank(id)) {
             setId(UUID.randomUUID().toString());
@@ -73,6 +92,11 @@ public class FeiShuTalkRobotConfig implements Describable<FeiShuTalkRobotConfig>
         return id;
     }
 
+    /**
+     * 获取Webhook密钥的明文值。
+     *
+     * @return Webhook密钥的明文值。
+     */
     public String getWebhook() {
         if (webhook == null) {
             return null;
@@ -80,6 +104,11 @@ public class FeiShuTalkRobotConfig implements Describable<FeiShuTalkRobotConfig>
         return webhook.getPlainText();
     }
 
+    /**
+     * 获取安全策略配置列表，其中包括一组Key-Value对。
+     *
+     * @return 安全策略配置列表。
+     */
     public List<FeiShuTalkSecurityPolicyConfig> getSecurityPolicyConfigs() {
         return Arrays.stream(SecurityPolicyEnum.values()).map(enumItem -> {
             FeiShuTalkSecurityPolicyConfig policyConfig = FeiShuTalkSecurityPolicyConfig.of(enumItem);
@@ -92,27 +121,35 @@ public class FeiShuTalkRobotConfig implements Describable<FeiShuTalkRobotConfig>
         }).collect(Collectors.toList());
     }
 
+    /**
+     * 获取该类的描述符，用于在Jenkins中显示机器人配置页面。
+     *
+     * @return 机器人配置页面描述符。
+     */
     @Override
     public Descriptor<FeiShuTalkRobotConfig> getDescriptor() {
         return Jenkins.get().getDescriptorByType(FeiShuTalkRobotConfigDescriptor.class);
     }
 
+    /**
+     * 机器人配置页面描述符，用于Jenkins中显示机器人配置页面。
+     */
     @Extension
     public static class FeiShuTalkRobotConfigDescriptor extends Descriptor<FeiShuTalkRobotConfig> {
 
         /**
-         * 安全配置页面
+         * 获取安全策略配置页面描述符。
          *
-         * @return 安全策略配置页面
+         * @return 安全策略配置页面描述符。
          */
         public FeiShuTalkSecurityPolicyConfigDescriptor getFeiShuTalkSecurityPolicyConfigDescriptor() {
             return Jenkins.get().getDescriptorByType(FeiShuTalkSecurityPolicyConfigDescriptor.class);
         }
 
         /**
-         * 获取默认的安全配置选项
+         * 获取默认的安全策略配置列表。
          *
-         * @return 默认的安全配置选项
+         * @return 默认安全策略配置列表。
          */
         public ArrayList<FeiShuTalkSecurityPolicyConfig> getDefaultSecurityPolicyConfigs() {
             return Arrays.stream(SecurityPolicyEnum.values())
@@ -121,10 +158,10 @@ public class FeiShuTalkRobotConfig implements Describable<FeiShuTalkRobotConfig>
         }
 
         /**
-         * name 字段必填
+         * 校验机器人名称是否为空。
          *
-         * @param value name
-         * @return 是否校验成功
+         * @param value 机器人名称。
+         * @return 返回验证结果，如果验证通过，返回FormValidation.ok()，否则返回错误信息。
          */
         public FormValidation doCheckName(@QueryParameter String value) {
             return StringUtils.isNotBlank(value) ? FormValidation.ok() :
@@ -132,10 +169,10 @@ public class FeiShuTalkRobotConfig implements Describable<FeiShuTalkRobotConfig>
         }
 
         /**
-         * webhook 字段必填
+         * 校验Webhook密钥是否为空。
          *
-         * @param value webhook
-         * @return 是否校验成功
+         * @param value Webhook密钥。
+         * @return 返回验证结果，如果验证通过，返回FormValidation.ok()，否则返回错误信息。
          */
         public FormValidation doCheckWebhook(@QueryParameter String value) {
             return StringUtils.isNotBlank(value) ? FormValidation.ok() :
@@ -143,14 +180,14 @@ public class FeiShuTalkRobotConfig implements Describable<FeiShuTalkRobotConfig>
         }
 
         /**
-         * 测试配置信息
+         * 测试机器人配置是否可以正常工作。
          *
-         * @param id                   id
-         * @param name                 名称
-         * @param webhook              webhook
-         * @param securityPolicyConfig 安全策略
-         * @param proxy                代理
-         * @return 机器人配置是否正确
+         * @param id                   机器人ID。
+         * @param name                 机器人名称。
+         * @param webhook              Webhook密钥。
+         * @param proxy                代理设置。
+         * @param securityPolicyConfig 安全策略配置列表。
+         * @return 返回测试结果，如果测试通过，返回FormValidation.respond(Kind.OK)，否则返回错误信息。
          */
         public FormValidation doTest(@QueryParameter("id") String id, @QueryParameter("name") String name,
                                      @QueryParameter("webhook") String webhook, @QueryParameter("proxy") String proxy,
@@ -160,16 +197,21 @@ public class FeiShuTalkRobotConfig implements Describable<FeiShuTalkRobotConfig>
 
             FeiShuTalkRobotConfig robotConfig = new FeiShuTalkRobotConfig(id, name, webhook, securityPolicyConfigs);
 
-            Proxy proxyVar = JsonUtils.toBean(proxy, FeiShuTalkProxyConfig.class).getProxy();
+            ProxySelector proxySelector = JsonUtils.toBean(proxy, FeiShuTalkProxyConfig.class).obtainProxySelector();
 
-            FeiShuTalkSender sender = new FeiShuTalkSender(robotConfig, proxyVar);
+            FeiShuTalkSender sender = new DefaultFeiShuTalkSender(RobotConfigModel.of(robotConfig, proxySelector));
 
-            String message = sender.sendInteractive(buildTestMessage());
+            SendResult sendResult = sender.sendInteractive(buildTestMessage());
 
-            return StringUtils.isNotBlank(message) ? FormValidation.error(message) :
+            return !sendResult.isOk() ? FormValidation.error(sendResult.getMsg()) :
                     FormValidation.respond(Kind.OK, "<span style='color:#52c41a;font-weight:bold;'>测试成功</span>");
         }
 
+        /**
+         * 构建用于测试机器人配置的消息模型。
+         *
+         * @return 测试消息模型。
+         */
         private MessageModel buildTestMessage() {
             String rootUrl = Jenkins.get().getRootUrl();
             User user = Optional.ofNullable(User.current()).orElse(User.getUnknown());

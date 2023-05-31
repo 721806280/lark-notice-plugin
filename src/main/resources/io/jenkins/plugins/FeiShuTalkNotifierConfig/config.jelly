@@ -4,7 +4,7 @@
     <st:adjunct includes="io.jenkins.plugins.jquery3"/>
     <st:once>
         <script type="text/javascript"
-                src="${rootURL}/plugin/feishu-notifications/scripts/notifierConfig.js"/>
+                src="${rootURL}/plugin/feishu-notification/scripts/notifierConfig.js"/>
     </st:once>
     <!-- 通知时机列表 -->
     <j:set var="noticeOccasionTypes" value="${descriptor.getNoticeOccasionTypes()}"/>

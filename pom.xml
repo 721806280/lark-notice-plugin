@@ -19,7 +19,7 @@
         <hpi.compatibleSinceVersion>2.0.0</hpi.compatibleSinceVersion>
     </properties>
 
-    <name>${artifactId}</name>
+    <name>${project.artifactId}</name>
     <description>飞书 Jenkins 通知插件</description>
     <url>https://github.com/721806280/feishu-notification</url>
 

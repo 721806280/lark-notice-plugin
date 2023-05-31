@@ -1,4 +1,4 @@
-package io.jenkins.plugins.sdk.entity.support;
+package io.jenkins.plugins.sdk.model.entity.support;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;

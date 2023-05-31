@@ -1,4 +1,4 @@
-package io.jenkins.plugins.sdk.entity.support;
+package io.jenkins.plugins.sdk.model.entity.support;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

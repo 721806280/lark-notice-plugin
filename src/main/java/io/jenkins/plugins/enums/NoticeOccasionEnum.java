@@ -2,6 +2,7 @@ package io.jenkins.plugins.enums;
 
 import hudson.model.Result;
 import io.jenkins.plugins.Messages;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
@@ -9,6 +10,8 @@ import lombok.Getter;
  *
  * @author xm.z
  */
+@Getter
+@AllArgsConstructor
 public enum NoticeOccasionEnum {
     /**
      * 在启动构建时通知
@@ -40,12 +43,7 @@ public enum NoticeOccasionEnum {
      */
     NOT_BUILT(Messages.NoticeOccasion_not_built());
 
-    @Getter
     private final String desc;
-
-    NoticeOccasionEnum(String desc) {
-        this.desc = desc;
-    }
 
     public static NoticeOccasionEnum getNoticeOccasion(Result result) {
         if (Result.SUCCESS.equals(result)) {
@@ -84,6 +82,5 @@ public enum NoticeOccasionEnum {
                 return BuildStatusEnum.UNKNOWN;
         }
     }
-
 
 }

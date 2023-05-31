@@ -1,6 +1,7 @@
 package io.jenkins.plugins.enums;
 
 import io.jenkins.plugins.Messages;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -9,7 +10,9 @@ import lombok.ToString;
  *
  * @author xm.z
  */
+@Getter
 @ToString
+@AllArgsConstructor
 public enum SecurityPolicyEnum {
 
     /**
@@ -22,10 +25,6 @@ public enum SecurityPolicyEnum {
      */
     SECRET(Messages.SecurityPolicyType_secret());
 
-    @Getter
     private final String desc;
 
-    SecurityPolicyEnum(String desc) {
-        this.desc = desc;
-    }
 }

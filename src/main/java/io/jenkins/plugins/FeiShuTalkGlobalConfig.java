@@ -16,12 +16,20 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.StaplerRequest;
 
-import java.net.Proxy;
+import java.net.ProxySelector;
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * 全局配置
+ * 飞书机器人插件全局配置的类。
+ *
+ * <p>使用 FeiShuTalkGlobalConfig 可以获取和更新所有机器人的全局配置，包括代理配置、调试模式、通知事件等。</p>
+ *
+ * <p>FeiShuTalkGlobalConfig 类通过实现 Describable 接口来提供描述器，用于在 Jenkins 系统管理中心页面
+ * 中展示全局配置界面。</p>
+ *
+ * <p>FeiShuTalkGlobalConfig 中包含多个机器人配置（FeiShuTalkRobotConfig），并且每个机器人都可以单独进行
+ * 配置和管理。</p>
  *
  * @author xm.z
  */
@@ -30,29 +38,36 @@ import java.util.stream.Collectors;
 @Extension
 @Symbol("fsTalk")
 @SuppressWarnings("unused")
-public class FeiShuTalkGlobalConfig extends Descriptor<FeiShuTalkGlobalConfig> implements
-        Describable<FeiShuTalkGlobalConfig> {
+public class FeiShuTalkGlobalConfig extends Descriptor<FeiShuTalkGlobalConfig> implements Describable<FeiShuTalkGlobalConfig> {
 
     /**
-     * 网络代理
+     * 代理配置。
      */
     private FeiShuTalkProxyConfig proxyConfig;
 
     /**
-     * 是否打印详细日志
+     * 是否开启调试模式。
      */
     private boolean verbose;
 
     /**
-     * 通知时机
+     * 所有通知事件的集合。
      */
     private Set<String> noticeOccasions = Arrays.stream(NoticeOccasionEnum.values()).map(Enum::name).collect(Collectors.toSet());
 
     /**
-     * 机器人配置列表
+     * 多个机器人的配置信息列表。
      */
     private ArrayList<FeiShuTalkRobotConfig> robotConfigs = new ArrayList<>();
 
+    /**
+     * FeiShuTalkGlobalConfig 的构造函数，用于创建实例并初始化各属性的值。
+     *
+     * @param proxyConfig     代理配置。
+     * @param verbose         是否开启调试模式。
+     * @param noticeOccasions 所有通知事件的集合。
+     * @param robotConfigs    多个机器人的配置信息列表。
+     */
     @DataBoundConstructor
     public FeiShuTalkGlobalConfig(FeiShuTalkProxyConfig proxyConfig, boolean verbose,
                                   Set<String> noticeOccasions, ArrayList<FeiShuTalkRobotConfig> robotConfigs) {
@@ -62,62 +77,91 @@ public class FeiShuTalkGlobalConfig extends Descriptor<FeiShuTalkGlobalConfig> i
         this.robotConfigs = robotConfigs;
     }
 
+    /**
+     * FeiShuTalkGlobalConfig 的默认构造函数。
+     * 在 Jenkins 启动时会调用该方法进行实例化并加载配置文件。
+     */
     public FeiShuTalkGlobalConfig() {
-        super(self());
+        super(FeiShuTalkGlobalConfig.class);
         this.load();
     }
 
     /**
-     * 获取全局配置信息
+     * 获取 FeiShuTalkGlobalConfig 实例。
      *
-     * @return 全局配置信息
+     * @return FeiShuTalkGlobalConfig 实例。
      */
     public static FeiShuTalkGlobalConfig getInstance() {
         return Jenkins.get().getDescriptorByType(FeiShuTalkGlobalConfig.class);
     }
 
     /**
-     * 获取机器人配置信息
+     * 根据机器人 ID 获取机器人配置。
      *
-     * @param robotId 机器人ID
-     * @return 机器人配置信息
+     * @param robotId 机器人 ID。
+     * @return 机器人配置。
      */
     public static Optional<FeiShuTalkRobotConfig> getRobot(String robotId) {
         return getInstance().robotConfigs.stream().filter(item -> Objects.equals(item.getId(), robotId)).findAny();
     }
 
     /**
-     * 获取网络代理
+     * 从代理配置中获取代理选择器。
      *
-     * @return proxy
+     * @return 代理选择器。
      */
-    public Proxy getProxy() {
-        if (proxyConfig == null) {
-            return null;
-        }
-        return proxyConfig.getProxy();
+    public ProxySelector obtainProxySelector() {
+        return proxyConfig == null ? null : proxyConfig.obtainProxySelector();
     }
 
+    /**
+     * 设置是否开启调试模式。
+     *
+     * @param verbose 是否开启调试模式。
+     */
     @DataBoundSetter
     public void setVerbose(boolean verbose) {
         this.verbose = verbose;
     }
 
+    /**
+     * 设置所有通知事件的集合。
+     *
+     * @param noticeOccasions 所有通知事件的集合。
+     */
     @DataBoundSetter
     public void setNoticeOccasions(Set<String> noticeOccasions) {
         this.noticeOccasions = noticeOccasions;
     }
 
+    /**
+     * 设置代理配置。
+     *
+     * @param proxyConfig 代理配置。
+     */
     @DataBoundSetter
     public void setProxyConfig(FeiShuTalkProxyConfig proxyConfig) {
         this.proxyConfig = proxyConfig;
     }
 
+    /**
+     * 设置多个机器人的配置信息列表。
+     *
+     * @param robotConfigs 多个机器人的配置信息列表。
+     */
     @DataBoundSetter
     public void setRobotConfigs(ArrayList<FeiShuTalkRobotConfig> robotConfigs) {
         this.robotConfigs = robotConfigs;
     }
 
+    /**
+     * 将表单提交的 JSON 对象转换成 FeiShuTalkGlobalConfig 类型的实例，并保存到配置文件中。
+     *
+     * @param req  HTTP 请求对象。
+     * @param json 表单提交的 JSON 对象。
+     * @return true 如果配置保存成功，false 否则。
+     * @throws FormException 如果表单提交的数据不能正确绑定到对象上，则抛出该异常。
+     */
     @Override
     public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
         Object robotConfigObj = json.get("robotConfigs");
@@ -137,32 +181,37 @@ public class FeiShuTalkGlobalConfig extends Descriptor<FeiShuTalkGlobalConfig> i
     }
 
     /**
-     * 通知时机列表
+     * 获取所有通知事件的枚举值。
      *
-     * @return 通知时机
+     * @return 所有通知事件的枚举值。
      */
     public NoticeOccasionEnum[] getAllNoticeOccasions() {
         return NoticeOccasionEnum.values();
     }
 
+    /**
+     * 获取描述器。
+     *
+     * @return 描述器对象。
+     */
     @Override
     public Descriptor<FeiShuTalkGlobalConfig> getDescriptor() {
         return this;
     }
 
     /**
-     * `网络代理` 配置页面
+     * 获取代理配置。
      *
-     * @return 网络代理配置页面
+     * @return 代理配置。
      */
     public FeiShuTalkProxyConfig getFeiShuTalkProxyConfig() {
         return Jenkins.get().getDescriptorByType(FeiShuTalkProxyConfig.class);
     }
 
     /**
-     * `机器人` 配置页面
+     * 获取机器人配置的描述器。
      *
-     * @return 机器人配置页面
+     * @return 机器人配置的描述器。
      */
     public FeiShuTalkRobotConfigDescriptor getFeiShuTalkRobotConfigDescriptor() {
         return Jenkins.get().getDescriptorByType(FeiShuTalkRobotConfigDescriptor.class);

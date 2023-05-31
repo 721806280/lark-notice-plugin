@@ -1,4 +1,4 @@
-package io.jenkins.plugins.sdk.entity;
+package io.jenkins.plugins.sdk.model.entity;
 
 import lombok.Data;
 

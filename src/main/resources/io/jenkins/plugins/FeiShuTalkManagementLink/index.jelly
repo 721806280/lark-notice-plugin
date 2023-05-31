@@ -5,7 +5,7 @@
         <st:include it="${app}" page="sidepanel.jelly"/>
         <l:main-panel>
             <h1>
-                <img src="${rootURL}/plugin/feishu-notifications/images/talk.png" style="height:32px;"/>
+                <img src="${rootURL}/plugin/feishu-notification/images/logo.png" style="height:32px;"/>
                 飞书全局配置
             </h1>
             <f:form action="configure" method="POST" name="feiShuTalkManagementLinkForm">

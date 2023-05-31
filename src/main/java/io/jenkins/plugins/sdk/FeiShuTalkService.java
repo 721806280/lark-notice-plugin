@@ -1,6 +1,7 @@
-package io.jenkins.plugins.service;
+package io.jenkins.plugins.sdk;
 
 import io.jenkins.plugins.model.MessageModel;
+import io.jenkins.plugins.sdk.model.SendResult;
 
 /**
  * 发送消息
@@ -16,6 +17,6 @@ public interface FeiShuTalkService {
      * @param msg   消息体
      * @return 响应结果
      */
-    String send(String robot, MessageModel msg);
+    SendResult send(String robot, MessageModel msg);
 
 }
