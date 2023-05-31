@@ -1,8 +1,10 @@
 ## 🌐 System Description
 
-- **Feishu Jenkins Notification Plugin**
-- **Feishu Jenkins Notification Plugin**
-- **Feishu Jenkins Notification Plugin**
+`feishu-notification-plugin` is a `Jenkins` plugin for pushing `Jenkins` build notifications to the `Feishu` platform.
+It supports many different types of messages, including `build started`, `build completed`, `build failed`, `build log`,
+etc.
+At the same time, the plug-in also provides the functions of `custom template` and `variable`, enabling you to customize
+the content and format of notification messages according to your needs.
 
 ## 🧑‍💻 Development Services
 
