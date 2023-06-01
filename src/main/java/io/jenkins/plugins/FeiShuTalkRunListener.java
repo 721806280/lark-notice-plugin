@@ -9,7 +9,6 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.model.listeners.RunListener;
 import io.jenkins.plugins.context.PipelineEnvContext;
-import io.jenkins.plugins.enums.BuildStatusEnum;
 import io.jenkins.plugins.enums.MsgTypeEnum;
 import io.jenkins.plugins.enums.NoticeOccasionEnum;
 import io.jenkins.plugins.model.BuildJobModel;
@@ -17,18 +16,16 @@ import io.jenkins.plugins.model.MessageModel;
 import io.jenkins.plugins.model.RunUser;
 import io.jenkins.plugins.sdk.impl.FeiShuTalkServiceImpl;
 import io.jenkins.plugins.sdk.model.SendResult;
-import io.jenkins.plugins.sdk.model.entity.support.Button;
 import io.jenkins.plugins.tools.JsonUtils;
 import io.jenkins.plugins.tools.Logger;
-import io.jenkins.plugins.tools.Utils;
 import jenkins.model.Jenkins;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.io.IOException;
+
+import static io.jenkins.plugins.sdk.constant.Constants.NOTICE_ICON;
 
 /**
  * FeiShuTalkRunListener 是一个 Jenkins 监听器，它实现了 {@link hudson.model.listeners.RunListener} 接口，
@@ -103,84 +100,52 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
      */
     private void send(Run<?, ?> run, TaskListener listener, NoticeOccasionEnum noticeOccasion) {
         Job<?, ?> job = run.getParent();
-        FeiShuTalkJobProperty property = job.getProperty(FeiShuTalkJobProperty.class);
 
+        FeiShuTalkJobProperty property = job.getProperty(FeiShuTalkJobProperty.class);
         if (property == null) {
             Logger.log(listener, "当前任务未配置机器人，已跳过");
             return;
         }
 
-        // 环境变量
-        EnvVars envVars = getEnvVars(run, listener);
-
         // 执行人信息
-        RunUser user = Utils.getExecutor(run, listener);
-        String executorName = envVars.get("EXECUTOR_NAME", user.getName());
-        String executorMobile = envVars.get("EXECUTOR_MOBILE", user.getMobile());
+        RunUser user = RunUser.getExecutor(run, listener);
 
-        // 项目信息
-        String projectName = job.getFullDisplayName();
-        String projectUrl = job.getAbsoluteUrl();
+        // 构建任务信息
+        BuildJobModel buildJobModel = BuildJobModel.builder()
+                // 项目信息
+                .projectName(job.getFullDisplayName()).projectUrl(job.getAbsoluteUrl())
+                // 构建信息
+                .jobName(run.getDisplayName()).jobUrl(rootPath + run.getUrl()).duration(run.getDurationString())
+                // 执行人信息
+                .executorName(user.getName()).executorMobile(user.getMobile())
+                // 构建状态
+                .statusType(noticeOccasion.buildStatus()).build();
 
-        // 构建信息
-        String jobName = run.getDisplayName(), jobUrl = rootPath + run.getUrl(), duration = run.getDurationString();
-        // 构建状态
-        BuildStatusEnum statusType = noticeOccasion.buildStatus();
-        // 设置环境变量
-        envVars.put("EXECUTOR_NAME", StringUtils.defaultIfBlank(executorName, ""));
-        envVars.put("EXECUTOR_MOBILE", StringUtils.defaultIfBlank(executorMobile, ""));
-        envVars.put("PROJECT_NAME", projectName);
-        envVars.put("PROJECT_URL", projectUrl);
-        envVars.put("JOB_NAME", jobName);
-        envVars.put("JOB_URL", jobUrl);
-        envVars.put("JOB_DURATION", duration);
-        envVars.put("JOB_STATUS", statusType.getLabel());
+        // 获取并更新环境变量
+        EnvVars envVars = fetchUpdateEnvVariables(run, listener, buildJobModel);
 
-        // 默认按钮
-        List<Button> buttons = Utils.createDefaultButtons(jobUrl);
-        List<String> errors = new ArrayList<>();
-        List<FeiShuTalkNotifierConfig> notifierConfigs = property.getAvailableNotifierConfigs();
+        // 遍历所有可用的通知器配置
+        property.getAvailableNotifierConfigs().stream()
+                // 根据配置决定是否跳过当前项
+                .filter(config -> config.getNoticeOccasions().contains(noticeOccasion.name()))
+                .forEach(config -> {
+                    buildJobModel.setContent(envVars.expand(config.getContent()).replaceAll("\\\\n", "\n"));
+                    String text = config.isRaw() ? envVars.expand(config.getMessage()) : buildJobModel.toMarkdown();
 
-        for (FeiShuTalkNotifierConfig item : notifierConfigs) {
-            boolean skipped = skip(listener, noticeOccasion, item);
-            if (skipped) {
-                continue;
-            }
+                    MessageModel messageModel = MessageModel.builder().type(MsgTypeEnum.INTERACTIVE)
+                            .atAll(config.isAtAll()).atOpenIds(config.resolveAtOpenIds(envVars))
+                            .text(text).buttons(buildJobModel.createDefaultButtons())
+                            .title(String.format("%s %s %s", NOTICE_ICON, buildJobModel.getProjectName(), buildJobModel.getStatusType().getLabel()))
+                            .build();
 
-            String robotId = item.getRobotId(), content = item.getContent();
-            boolean atAll = item.isAtAll();
-            Set<String> atOpenIds = item.resolveAtOpenIds(envVars);
+                    Logger.log(listener, "当前机器人信息: %s", config.getRobotName());
+                    Logger.log(listener, "发送的消息详情: %s", JsonUtils.toJsonStr(messageModel));
 
-            String text;
-            if (item.isRaw()) {
-                text = envVars.expand(item.getMessage());
-            } else {
-                BuildJobModel buildJobModel = BuildJobModel.builder().projectName(projectName)
-                        .projectUrl(projectUrl).jobName(jobName).jobUrl(jobUrl)
-                        .statusType(statusType).duration(duration).executorName(executorName)
-                        .executorMobile(executorMobile).content(envVars.expand(content).replaceAll("\\\\n", "\n"))
-                        .build();
-                text = buildJobModel.toMarkdown();
-            }
-
-            MessageModel messageModel = MessageModel.builder().type(MsgTypeEnum.INTERACTIVE)
-                    .atAll(atAll).atOpenIds(atOpenIds).text(text).buttons(buttons)
-                    .title(String.format("%s %s %s", "\uD83D\uDCE2", projectName, statusType.getLabel()))
-                    .build();
-
-            Logger.log(listener, "当前机器人信息: %s", item.getRobotName());
-            Logger.log(listener, "发送的消息详情: %s", JsonUtils.toJsonStr(messageModel));
-
-            SendResult sendResult = service.send(robotId, messageModel);
-
-            if (!sendResult.isOk()) {
-                errors.add(sendResult.getMsg());
-            }
-        }
-
-        if (!errors.isEmpty()) {
-            errors.forEach(error -> Logger.error(listener, error));
-        }
+                    SendResult sendResult = service.send(config.getRobotId(), messageModel);
+                    if (!sendResult.isOk()) {
+                        Logger.error(listener, sendResult.getMsg());
+                    }
+                });
     }
 
     /**
@@ -191,45 +156,37 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
      * @return 环境变量键值对
      */
     private EnvVars getEnvVars(Run<?, ?> run, TaskListener listener) {
-        EnvVars envVars;
+        EnvVars envVars = new EnvVars();
         try {
             envVars = run.getEnvironment(listener);
-        } catch (Exception e) {
-            envVars = new EnvVars();
+            envVars.overrideAll(PipelineEnvContext.get());
+        } catch (IOException | InterruptedException e) {
             log.error(e);
             Logger.log(listener, "获取 Job 任务的环境变量时发生异常");
             Logger.log(listener, ExceptionUtils.getStackTrace(e));
-            Thread.currentThread().interrupt();
         }
-
-        try {
-            EnvVars pipelineEnvVars = PipelineEnvContext.get();
-            envVars.overrideAll(pipelineEnvVars);
-        } catch (Exception e) {
-            log.error(e);
-            Logger.log(listener, "获取 Pipeline 环境变量时发生异常");
-            Logger.log(listener, ExceptionUtils.getStackTrace(e));
-        }
-
         return envVars;
     }
 
     /**
-     * 判断当前机器人是否要跳过当前消息通知类型的发送
+     * 从给定的 Run 对象和 BuildJobModel 对象中获取信息并更新环境变量。
      *
-     * @param listener       任务输出流监听器
-     * @param noticeOccasion 消息通知类型，枚举值为开始、完成或失败
-     * @param notifierConfig 当前机器人的配置信息
-     * @return 是否要跳过当前发送
+     * @param run           表示当前构建的 Run 对象。
+     * @param listener      用于记录日志和报告错误的 TaskListener 对象。
+     * @param buildJobModel 包含要在环境变量中设置的构建与任务信息的 BuildJobModel 对象。
+     * @return 更新后的 EnvVars 对象。
      */
-    private boolean skip(TaskListener listener, NoticeOccasionEnum noticeOccasion,
-                         FeiShuTalkNotifierConfig notifierConfig) {
-        String stage = noticeOccasion.name();
-        Set<String> noticeOccasions = notifierConfig.getNoticeOccasions();
-        if (noticeOccasions.contains(stage)) {
-            return false;
-        }
-        Logger.log(listener, "机器人 %s 已跳过 %s 环节", notifierConfig.getRobotName(), stage);
-        return true;
+    private EnvVars fetchUpdateEnvVariables(Run<?, ?> run, TaskListener listener, BuildJobModel buildJobModel) {
+        EnvVars envVars = getEnvVars(run, listener);
+        envVars.put("EXECUTOR_NAME", StringUtils.defaultIfBlank(buildJobModel.getExecutorName(), ""));
+        envVars.put("EXECUTOR_MOBILE", StringUtils.defaultIfBlank(buildJobModel.getExecutorMobile(), ""));
+        envVars.put("PROJECT_NAME", buildJobModel.getProjectName());
+        envVars.put("PROJECT_URL", buildJobModel.getProjectUrl());
+        envVars.put("JOB_NAME", buildJobModel.getJobName());
+        envVars.put("JOB_URL", buildJobModel.getJobUrl());
+        envVars.put("JOB_DURATION", buildJobModel.getDuration());
+        envVars.put("JOB_STATUS", buildJobModel.getStatusType().getLabel());
+        return envVars;
     }
+
 }

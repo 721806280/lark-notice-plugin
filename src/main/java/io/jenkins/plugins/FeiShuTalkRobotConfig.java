@@ -32,6 +32,8 @@ import java.net.ProxySelector;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static io.jenkins.plugins.sdk.constant.Constants.NOTICE_ICON;
+
 /**
  * 飞书机器人配置类，包括机器人ID，名称，Webhook密钥和安全策略配置列表。
  *
@@ -223,7 +225,7 @@ public class FeiShuTalkRobotConfig implements Describable<FeiShuTalkRobotConfig>
                     .build();
 
             return MessageModel.builder().type(MsgTypeEnum.INTERACTIVE)
-                    .title("\uD83D\uDCE2 飞书机器人测试成功")
+                    .title(NOTICE_ICON + " 飞书机器人测试成功")
                     .text(buildJobModel.toMarkdown())
                     .atAll(false).build();
         }

@@ -1,11 +1,13 @@
 package io.jenkins.plugins.model;
 
 import io.jenkins.plugins.enums.BuildStatusEnum;
+import io.jenkins.plugins.sdk.model.entity.support.Button;
 import io.jenkins.plugins.tools.Utils;
 import lombok.Builder;
 import lombok.Data;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * 用于存储构建任务相关的模型。
@@ -77,5 +79,9 @@ public class BuildJobModel {
                         content == null ? "" : content
                 )
         );
+    }
+
+    public List<Button> createDefaultButtons() {
+        return Utils.createDefaultButtons(this.getJobUrl());
     }
 }

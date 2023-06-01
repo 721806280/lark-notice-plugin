@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static io.jenkins.plugins.sdk.constant.Constants.NOTICE_ICON;
+
 /**
  * 用于存储消息相关的模型。
  *
@@ -27,7 +29,7 @@ public class MessageModel {
     /**
      * 默认标题。
      */
-    public static final String DEFAULT_TITLE = "\uD83D\uDCE2 Jenkins 构建通知";
+    public static final String DEFAULT_TITLE = NOTICE_ICON + " Jenkins 构建通知";
 
     /**
      * 消息类型。

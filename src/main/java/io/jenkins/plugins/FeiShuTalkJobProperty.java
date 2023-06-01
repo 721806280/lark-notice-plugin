@@ -7,9 +7,7 @@ import hudson.model.JobPropertyDescriptor;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,24 +49,17 @@ public class FeiShuTalkJobProperty extends JobProperty<Job<?, ?>> {
      * @return 任务配置页面中展示的机器人和通知配置信息列表。
      */
     public List<FeiShuTalkNotifierConfig> getNotifierConfigs() {
-        List<FeiShuTalkNotifierConfig> notifierConfigList = new ArrayList<>();
-        List<FeiShuTalkRobotConfig> robotConfigs = FeiShuTalkGlobalConfig.getInstance().getRobotConfigs();
-
-        for (FeiShuTalkRobotConfig robotConfig : robotConfigs) {
-            String id = robotConfig.getId();
-            FeiShuTalkNotifierConfig newNotifierConfig = new FeiShuTalkNotifierConfig(robotConfig);
-            if (!CollectionUtils.isEmpty(notifierConfigs)) {
-                for (FeiShuTalkNotifierConfig notifierConfig : notifierConfigs) {
-                    String robotId = notifierConfig.getRobotId();
-                    if (id.equals(robotId)) {
-                        newNotifierConfig.copy(notifierConfig);
-                    }
-                }
-            }
-            notifierConfigList.add(newNotifierConfig);
-        }
-
-        return notifierConfigList;
+        return FeiShuTalkGlobalConfig.getInstance().getRobotConfigs()
+                .stream()
+                .map(robotConfig -> {
+                    FeiShuTalkNotifierConfig newNotifierConfig = new FeiShuTalkNotifierConfig(robotConfig);
+                    notifierConfigs.stream()
+                            .filter(notifierConfig -> robotConfig.getId().equals(notifierConfig.getRobotId()))
+                            .findFirst()
+                            .ifPresent(newNotifierConfig::copy);
+                    return newNotifierConfig;
+                })
+                .collect(Collectors.toList());
     }
 
     /**

@@ -1,7 +1,6 @@
 package io.jenkins.plugins.model;
 
 import io.jenkins.plugins.FeiShuTalkRobotConfig;
-import io.jenkins.plugins.FeiShuTalkSecurityPolicyConfig;
 import io.jenkins.plugins.enums.SecurityPolicyEnum;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -14,8 +13,8 @@ import java.net.ProxySelector;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 机器人配置模型。
@@ -53,13 +52,15 @@ public class RobotConfigModel {
      * @return RobotConfigModel 对象
      */
     public static RobotConfigModel of(FeiShuTalkRobotConfig robotConfig, ProxySelector proxySelector) {
-        List<FeiShuTalkSecurityPolicyConfig> securityPolicyConfigs = robotConfig.getSecurityPolicyConfigs();
+        Objects.requireNonNull(robotConfig, "robotConfig must not be null");
+        Objects.requireNonNull(proxySelector, "proxySelector must not be null");
+
         RobotConfigModel meta = new RobotConfigModel();
         meta.setProxySelector(proxySelector);
         meta.setWebhook(robotConfig.getWebhook());
 
         // 解析安全策略
-        securityPolicyConfigs.stream()
+        robotConfig.getSecurityPolicyConfigs().stream()
                 .filter(config -> StringUtils.isNotBlank(config.getValue()))
                 .forEach(config -> {
                     String type = config.getType();
@@ -72,7 +73,7 @@ public class RobotConfigModel {
                             meta.setSign(config.getValue());
                             break;
                         default:
-                            log.error("对应的安全策略不存在：{}", type);
+                            throw new IllegalArgumentException("Invalid security policy type: " + type);
                     }
                 });
         return meta;
