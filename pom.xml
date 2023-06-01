@@ -15,7 +15,7 @@
     <packaging>hpi</packaging>
     <properties>
         <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-        <jenkins.version>2.375.4</jenkins.version>
+        <jenkins.version>2.387.3</jenkins.version>
         <hpi.compatibleSinceVersion>2.0.0</hpi.compatibleSinceVersion>
     </properties>
 
@@ -70,7 +70,7 @@
         <dependencies>
             <dependency>
                 <groupId>io.jenkins.tools.bom</groupId>
-                <artifactId>bom-2.375.x</artifactId>
+                <artifactId>bom-2.387.x</artifactId>
                 <version>2102.v854b_fec19c92</version>
                 <type>pom</type>
                 <scope>import</scope>
