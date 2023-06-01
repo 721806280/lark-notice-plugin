@@ -1,6 +1,6 @@
 package io.jenkins.plugins.model;
 
-import io.jenkins.plugins.FeiShuTalkRobotConfig;
+import io.jenkins.plugins.config.FeiShuTalkRobotConfig;
 import io.jenkins.plugins.enums.SecurityPolicyEnum;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;

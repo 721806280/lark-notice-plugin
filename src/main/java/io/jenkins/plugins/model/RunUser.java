@@ -2,7 +2,7 @@ package io.jenkins.plugins.model;
 
 import hudson.model.*;
 import io.jenkins.cli.shaded.org.apache.commons.lang.StringUtils;
-import io.jenkins.plugins.FeiShuTalkUserProperty;
+import io.jenkins.plugins.config.property.FeiShuTalkUserProperty;
 import io.jenkins.plugins.tools.Logger;
 import jenkins.model.Jenkins;
 import lombok.*;

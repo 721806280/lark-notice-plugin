@@ -1,6 +1,8 @@
 package io.jenkins.plugins;
 
 import hudson.util.Secret;
+import io.jenkins.plugins.config.FeiShuTalkRobotConfig;
+import io.jenkins.plugins.config.FeiShuTalkSecurityPolicyConfig;
 import io.jenkins.plugins.enums.BuildStatusEnum;
 import io.jenkins.plugins.model.BuildJobModel;
 import io.jenkins.plugins.model.MessageModel;
@@ -23,13 +25,23 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public class FeiShuTalkSenderTest {
 
+    /**
+     * 飞书机器人的 Webhook 地址。
+     * Webhook 是一种通过 HTTP 协议向机器人发送消息的方式。飞书机器人的 Webhook 用于接收来自用户的消息，
+     * 并将其转发给相应的机器人处理程序。
+     * <p>
+     * 示例 Webhook：<a href="https://open.feishu.cn/open-apis/bot/v2/hook/XXX">...</a>
+     * 注意：'XXX' 应该替换为你自己的飞书机器人的 Webhook Token。
+     */
+    private static final String WEBHOOK = "https://open.feishu.cn/open-apis/bot/v2/hook/XXX";
+
     @Test
     void testSendFeiShuTalkMessage() {
         // 设置机器人配置
         List<FeiShuTalkSecurityPolicyConfig> securityPolicyConfigs = new ArrayList<>();
         securityPolicyConfigs.add(new FeiShuTalkSecurityPolicyConfig("KEY", "jenkins", ""));
         FeiShuTalkRobotConfig robot = new FeiShuTalkRobotConfig();
-        robot.setWebhook(Secret.fromString("https://open.feishu.cn/open-apis/bot/v2/hook/XXX"));
+        robot.setWebhook(Secret.fromString(WEBHOOK));
         robot.setSecurityPolicyConfigs(securityPolicyConfigs);
 
         // 构建消息体

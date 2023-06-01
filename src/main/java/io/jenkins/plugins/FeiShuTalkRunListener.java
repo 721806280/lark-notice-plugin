@@ -8,6 +8,7 @@ import hudson.model.Result;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.model.listeners.RunListener;
+import io.jenkins.plugins.config.property.FeiShuTalkJobProperty;
 import io.jenkins.plugins.context.PipelineEnvContext;
 import io.jenkins.plugins.enums.MsgTypeEnum;
 import io.jenkins.plugins.enums.NoticeOccasionEnum;

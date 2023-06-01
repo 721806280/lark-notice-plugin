@@ -5,6 +5,8 @@ import hudson.EnvVars;
 import hudson.Extension;
 import hudson.model.Run;
 import hudson.model.TaskListener;
+import io.jenkins.plugins.config.FeiShuTalkGlobalConfig;
+import io.jenkins.plugins.config.FeiShuTalkRobotConfig;
 import io.jenkins.plugins.enums.MsgTypeEnum;
 import io.jenkins.plugins.model.ButtonModel;
 import io.jenkins.plugins.model.MessageModel;

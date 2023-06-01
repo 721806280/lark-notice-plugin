@@ -1,7 +1,7 @@
 package io.jenkins.plugins.sdk.impl;
 
-import io.jenkins.plugins.FeiShuTalkGlobalConfig;
-import io.jenkins.plugins.FeiShuTalkRobotConfig;
+import io.jenkins.plugins.config.FeiShuTalkGlobalConfig;
+import io.jenkins.plugins.config.FeiShuTalkRobotConfig;
 import io.jenkins.plugins.enums.MsgTypeEnum;
 import io.jenkins.plugins.model.MessageModel;
 import io.jenkins.plugins.model.RobotConfigModel;

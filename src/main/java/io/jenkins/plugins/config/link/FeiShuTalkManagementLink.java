@@ -1,10 +1,12 @@
-package io.jenkins.plugins;
+package io.jenkins.plugins.config.link;
 
 import hudson.Extension;
 import hudson.model.Descriptor;
 import hudson.model.Descriptor.FormException;
 import hudson.model.ManagementLink;
 import hudson.util.FormApply;
+import io.jenkins.plugins.Messages;
+import io.jenkins.plugins.config.FeiShuTalkGlobalConfig;
 import jenkins.model.Jenkins;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;

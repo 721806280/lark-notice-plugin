@@ -1,9 +1,11 @@
-package io.jenkins.plugins;
+package io.jenkins.plugins.config.property;
 
 import hudson.Extension;
 import hudson.model.Job;
 import hudson.model.JobProperty;
 import hudson.model.JobPropertyDescriptor;
+import io.jenkins.plugins.config.FeiShuTalkGlobalConfig;
+import io.jenkins.plugins.config.FeiShuTalkNotifierConfig;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.kohsuke.stapler.DataBoundConstructor;

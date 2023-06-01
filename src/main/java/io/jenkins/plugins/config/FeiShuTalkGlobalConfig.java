@@ -1,9 +1,9 @@
-package io.jenkins.plugins;
+package io.jenkins.plugins.config;
 
 import hudson.Extension;
 import hudson.model.Describable;
 import hudson.model.Descriptor;
-import io.jenkins.plugins.FeiShuTalkRobotConfig.FeiShuTalkRobotConfigDescriptor;
+import io.jenkins.plugins.config.FeiShuTalkRobotConfig.FeiShuTalkRobotConfigDescriptor;
 import io.jenkins.plugins.enums.NoticeOccasionEnum;
 import jenkins.model.Jenkins;
 import lombok.Getter;

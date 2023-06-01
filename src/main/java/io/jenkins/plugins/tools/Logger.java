@@ -1,7 +1,7 @@
 package io.jenkins.plugins.tools;
 
 import hudson.model.TaskListener;
-import io.jenkins.plugins.FeiShuTalkGlobalConfig;
+import io.jenkins.plugins.config.FeiShuTalkGlobalConfig;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.PrintStream;

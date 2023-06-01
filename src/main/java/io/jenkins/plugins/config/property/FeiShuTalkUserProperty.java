@@ -1,4 +1,4 @@
-package io.jenkins.plugins;
+package io.jenkins.plugins.config.property;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
@@ -6,6 +6,7 @@ import hudson.Extension;
 import hudson.model.User;
 import hudson.model.UserProperty;
 import hudson.model.UserPropertyDescriptor;
+import io.jenkins.plugins.Messages;
 import lombok.Getter;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.StaplerRequest;

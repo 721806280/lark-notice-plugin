@@ -1,4 +1,4 @@
-package io.jenkins.plugins;
+package io.jenkins.plugins.config;
 
 import hudson.EnvVars;
 import hudson.Extension;

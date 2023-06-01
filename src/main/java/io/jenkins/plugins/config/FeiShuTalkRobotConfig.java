@@ -1,4 +1,4 @@
-package io.jenkins.plugins;
+package io.jenkins.plugins.config;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import hudson.Extension;
@@ -8,7 +8,8 @@ import hudson.model.User;
 import hudson.util.FormValidation;
 import hudson.util.FormValidation.Kind;
 import hudson.util.Secret;
-import io.jenkins.plugins.FeiShuTalkSecurityPolicyConfig.FeiShuTalkSecurityPolicyConfigDescriptor;
+import io.jenkins.plugins.Messages;
+import io.jenkins.plugins.config.FeiShuTalkSecurityPolicyConfig.FeiShuTalkSecurityPolicyConfigDescriptor;
 import io.jenkins.plugins.enums.BuildStatusEnum;
 import io.jenkins.plugins.enums.MsgTypeEnum;
 import io.jenkins.plugins.enums.SecurityPolicyEnum;
