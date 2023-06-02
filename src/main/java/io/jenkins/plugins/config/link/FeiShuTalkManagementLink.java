@@ -46,7 +46,7 @@ public class FeiShuTalkManagementLink extends ManagementLink {
      */
     @Override
     public String getDisplayName() {
-        return Messages.displayName();
+        return Messages.plugin_display_name();
     }
 
     /**
@@ -66,7 +66,7 @@ public class FeiShuTalkManagementLink extends ManagementLink {
      */
     @Override
     public String getDescription() {
-        return Messages.ManagementLink_description();
+        return Messages.plugin_management_description();
     }
 
     /**

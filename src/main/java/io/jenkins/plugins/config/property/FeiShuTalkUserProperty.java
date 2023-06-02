@@ -47,7 +47,7 @@ public class FeiShuTalkUserProperty extends UserProperty {
         @NonNull
         @Override
         public String getDisplayName() {
-            return Messages.UserProperty_mobile();
+            return Messages.user_property_mobile();
         }
 
         /**

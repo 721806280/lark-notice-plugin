@@ -18,12 +18,12 @@ public enum SecurityPolicyEnum {
     /**
      * 关键字
      */
-    KEY(Messages.SecurityPolicyType_key()),
+    KEY(Messages.security_policy_type_key()),
 
     /**
      * 加签
      */
-    SECRET(Messages.SecurityPolicyType_secret());
+    SECRET(Messages.security_policy_type_secret());
 
     private final String desc;
 

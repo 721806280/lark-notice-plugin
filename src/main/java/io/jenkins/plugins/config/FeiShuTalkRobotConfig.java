@@ -168,7 +168,7 @@ public class FeiShuTalkRobotConfig implements Describable<FeiShuTalkRobotConfig>
          */
         public FormValidation doCheckName(@QueryParameter String value) {
             return StringUtils.isNotBlank(value) ? FormValidation.ok() :
-                    FormValidation.error(Messages.RobotConfigFormValidation_name());
+                    FormValidation.error(Messages.form_validation_name());
         }
 
         /**
@@ -179,7 +179,7 @@ public class FeiShuTalkRobotConfig implements Describable<FeiShuTalkRobotConfig>
          */
         public FormValidation doCheckWebhook(@QueryParameter String value) {
             return StringUtils.isNotBlank(value) ? FormValidation.ok() :
-                    FormValidation.error(Messages.RobotConfigFormValidation_webhook());
+                    FormValidation.error(Messages.form_validation_webhook());
         }
 
         /**

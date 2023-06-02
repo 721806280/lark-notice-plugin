@@ -16,37 +16,37 @@ public enum BuildStatusEnum {
     /**
      * 开始
      */
-    START(Messages.BuildStatusType_start(), "green"),
+    START(Messages.build_status_start(), "green"),
 
     /**
      * 失败
      */
-    FAILURE(Messages.BuildStatusType_failure(), "red"),
+    FAILURE(Messages.build_status_failure(), "red"),
 
     /**
      * 成功
      */
-    SUCCESS(Messages.BuildStatusType_success(), "green"),
+    SUCCESS(Messages.build_status_success(), "green"),
 
     /**
      * 取消
      */
-    ABORTED(Messages.BuildStatusType_aborted(), "grey"),
+    ABORTED(Messages.build_status_aborted(), "grey"),
 
     /**
      * 不稳定
      */
-    UNSTABLE(Messages.BuildStatusType_unstable(), "grey"),
+    UNSTABLE(Messages.build_status_unstable(), "grey"),
 
     /**
      * 未构建
      */
-    NOT_BUILT(Messages.BuildStatusType_not_built(), "grey"),
+    NOT_BUILT(Messages.build_status_not_built(), "grey"),
 
     /**
      * 未知
      */
-    UNKNOWN(Messages.BuildStatusType_unknown(), "default");
+    UNKNOWN(Messages.build_status_unknown(), "default");
 
     private final String label;
     private final String color;
