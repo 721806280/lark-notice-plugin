@@ -5,14 +5,18 @@ import io.jenkins.plugins.Messages;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * 通知时机
+ * 通知时机枚举类
  *
  * @author xm.z
  */
 @Getter
 @AllArgsConstructor
 public enum NoticeOccasionEnum {
+
     /**
      * 在启动构建时通知
      */
@@ -43,44 +47,41 @@ public enum NoticeOccasionEnum {
      */
     NOT_BUILT(Messages.notice_not_built());
 
+    /**
+     * 将Result值和NoticeOccasionEnum值进行映射，方便获取对应的通知时机。
+     */
+    static final Map<Result, NoticeOccasionEnum> RESULT_TO_ENUM_MAP = new HashMap<>(
+            Map.of(
+                    Result.SUCCESS, SUCCESS,
+                    Result.FAILURE, FAILURE,
+                    Result.ABORTED, ABORTED,
+                    Result.UNSTABLE, UNSTABLE,
+                    Result.NOT_BUILT, NOT_BUILT
+            )
+    );
+
+    /**
+     * 描述信息
+     */
     private final String desc;
 
+    /**
+     * 根据给定的Result值获取对应的通知时机。
+     *
+     * @param result 给定的Result值
+     * @return 对应的通知时机
+     */
     public static NoticeOccasionEnum getNoticeOccasion(Result result) {
-        if (Result.SUCCESS.equals(result)) {
-            return NoticeOccasionEnum.SUCCESS;
-        }
-        if (Result.FAILURE.equals(result)) {
-            return NoticeOccasionEnum.FAILURE;
-        }
-        if (Result.ABORTED.equals(result)) {
-            return NoticeOccasionEnum.ABORTED;
-        }
-        if (Result.UNSTABLE.equals(result)) {
-            return NoticeOccasionEnum.UNSTABLE;
-        }
-        if (Result.NOT_BUILT.equals(result)) {
-            return NoticeOccasionEnum.NOT_BUILT;
-        }
-        return null;
+        return RESULT_TO_ENUM_MAP.get(result);
     }
 
+    /**
+     * 获取当前通知时机所对应的构建状态。
+     *
+     * @return 当前通知时机所对应的构建状态
+     */
     public BuildStatusEnum buildStatus() {
-        switch (this) {
-            case START:
-                return BuildStatusEnum.START;
-            case SUCCESS:
-                return BuildStatusEnum.SUCCESS;
-            case FAILURE:
-                return BuildStatusEnum.FAILURE;
-            case ABORTED:
-                return BuildStatusEnum.ABORTED;
-            case UNSTABLE:
-                return BuildStatusEnum.UNSTABLE;
-            case NOT_BUILT:
-                return BuildStatusEnum.NOT_BUILT;
-            default:
-                return BuildStatusEnum.UNKNOWN;
-        }
+        return BuildStatusEnum.BUILD_STATUS_ENUM_MAP.getOrDefault(this, BuildStatusEnum.UNKNOWN);
     }
 
 }
