@@ -1,10 +1,18 @@
-## 🌐 Plug-in introduction
+## 🌐 Plugin Introduction
 
-`feishu-notification-plugin` is a `Jenkins` plugin for pushing `Jenkins` build notifications to the `Feishu` platform.
-It supports many different types of messages, including `build started`, `build completed`, `build failed`, `build log`,
-etc.
+`feishu-notification-plugin` is
+a [FeiShu robot notification](https://open.feishu.cn/document/ukTMukTMukTM/ucTM5YjL3ETO24yNxkjN) plugin for `Jenkins`,
+which can push the `Jenkins` build process and result notifications to the `Feishu` collaboration platform.
+Multiple notification timings can be configured,
+including `build startup`, `build interruption`, `build failure`, `build success`, `build unstable`, etc.
+Support many different types of messages,
+including `text message`, `picture message`, `group business card message`, `rich text message`, `card message`;
 At the same time, the plug-in also provides the functions of `custom template` and `variable`, enabling you to customize
 the content and format of notification messages according to your needs.
+
+## 📝 Using documentation
+
+> Please refer to [official document](https://721806280.github.io/feishu-notification-plugin-doc)
 
 ## 🧑‍💻 Development Services
 
@@ -40,10 +48,6 @@ Add `hpi:run` to the startup configuration in the `maven` control panel on the r
 > `IDEA`
 > download [intellij-java-google-style.xml](https://github.com/google/styleguide/blob/gh-pages/intellij-java-google-style.xml)
 > Import via `Settings` -> `Editor` `Code Style`.
-
-## 📝 Using documentation
-
-> Please refer to [official document](https://721806280.github.io/feishu-notification-plugin)
 
 ## 🔍️ Related Links
 
