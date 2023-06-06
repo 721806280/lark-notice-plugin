@@ -8,6 +8,7 @@ import io.jenkins.plugins.config.FeiShuTalkGlobalConfig;
 import io.jenkins.plugins.config.FeiShuTalkNotifierConfig;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.apache.commons.collections.CollectionUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.util.List;
@@ -55,10 +56,12 @@ public class FeiShuTalkJobProperty extends JobProperty<Job<?, ?>> {
                 .stream()
                 .map(robotConfig -> {
                     FeiShuTalkNotifierConfig newNotifierConfig = new FeiShuTalkNotifierConfig(robotConfig);
-                    notifierConfigs.stream()
-                            .filter(notifierConfig -> robotConfig.getId().equals(notifierConfig.getRobotId()))
-                            .findFirst()
-                            .ifPresent(newNotifierConfig::copy);
+                    if (CollectionUtils.isNotEmpty(notifierConfigs)) {
+                        notifierConfigs.stream()
+                                .filter(notifierConfig -> robotConfig.getId().equals(notifierConfig.getRobotId()))
+                                .findFirst()
+                                .ifPresent(newNotifierConfig::copy);
+                    }
                     return newNotifierConfig;
                 })
                 .collect(Collectors.toList());
