@@ -14,6 +14,183 @@ the content and format of notification messages according to your needs.
 
 > Please refer to [official document](https://721806280.github.io/feishu-notification-plugin-doc)
 
+#### TEXT message
+
+```
+pipeline {
+     agent any
+     stages {
+         stage('text'){
+             steps {
+                 echo 'Send text message...'
+             }
+             post {
+                 success {
+                     feiShuTalk (
+                         robot: 'f72aa1bb-0f0b-47c7-8387-272d266dc25c',
+                         type: 'TEXT',
+                         text: [
+                             "New Update Reminder",
+                             '<at user_id="all">everyone</at>'
+                         ]
+                     )
+                 }
+             }
+         }
+     }
+}
+```
+
+#### Group business card message
+
+```
+pipeline {
+     agent any
+     stages {
+         stage('text'){
+             steps {
+                 echo 'Send group business card message...'
+             }
+             post {
+                 success {
+                     feiShuTalk (
+                         robot: 'f72aa1bb-0f0b-47c7-8387-272d266dc25c',
+                         type: 'SHARE_CHAT',
+                         shareChatId: 'oc_f5b1a7eb27ae2c7b6adc2a74faf339ff'
+                     )
+                 }
+             }
+         }
+     }
+}
+```
+
+#### Picture Message
+
+```
+pipeline {
+     agent any
+     stages {
+         stage('text'){
+             steps {
+                 echo 'Send picture message...'
+             }
+             post {
+                 success {
+                     feiShuTalk (
+                         robot: 'f72aa1bb-0f0b-47c7-8387-272d266dc25c',
+                         type: 'IMAGE',
+                         imageKey: 'img_ecffc3b9-8f14-400f-a014-05eca1a4310g'
+                     )
+                 }
+             }
+         }
+     }
+}
+```
+
+#### Rich text messages
+
+```
+pipeline {
+     agent any
+     stages {
+         stage('text'){
+             steps {
+                 echo 'Send rich text message...'
+             }
+             post {
+                 success {
+                     feiShuTalk (
+                         robot: 'f72aa1bb-0f0b-47c7-8387-272d266dc25c',
+                         type: 'POST',
+                         title: 'Project update notification',
+                         post: [
+                             [
+                                 [
+                                     "tag": "text",
+                                     "text": "Item has been updated: "
+                                 ],
+                                 [
+                                     "tag": "a",
+                                     "text": "Please check",
+                                     "href": "https://www.example.com/"
+                                 ],
+                                 [
+                                     "tag": "at",
+                                     "user_id": "ou_xxxxxx",
+                                     "user_name": "tom"
+                                 ]
+                             ],
+                             [
+                                 [
+                                     "tag": "text",
+                                     "text": "Item has been updated:"
+                                 ],
+                                 [
+                                     "tag": "at",
+                                     "user_id": "all",
+                                     "user_name": "Everyone"
+                                 ]
+                             ]
+                         ]
+                     )
+                 }
+             }
+         }
+     }
+}
+
+```
+
+#### Card message
+
+> 1. The value range of the button color `type`: primary | danger | default
+> 2. Value range of font color `color`: green: green text | red: red text | grey: gray text | default: black text on
+     white background
+
+```
+pipeline {
+     agent any
+     stages {
+         stage('text'){
+             steps {
+                 echo "Send card message..."
+             }
+             post {
+                 success {
+                     feiShuTalk (
+                         robot: "f72aa1bb-0f0b-47c7-8387-272d266dc25c",
+                         type: "INTERACTIVE",
+                         title: "📢 Jenkins Build Notifications",
+                         text: [
+                             "📋 **JOB NAME**: [${JOB_NAME}](${JOB_URL})",
+                             "🔢 **Task ID**: [${BUILD_DISPLAY_NAME}](${BUILD_URL})",
+                             "🌟 **Build Status**: <font color='green'>Success</font>",
+                             "🕐 **Build Duration**: ${currentBuild.duration} ms",
+                             "👤 **Performer**: Started by user anonymous",
+                             "<at id=all></at>"
+                         ],
+                         buttons: [
+                            [
+                               title: "Change Record",
+                               url: "${BUILD_URL}changes"
+                            ],
+                            [
+                               title: "Console",
+                               type: "danger",
+                               url: "${BUILD_URL}console"
+                            ]
+                         ]
+                     )
+                 }
+             }
+         }
+     }
+}
+
+```
+
 ## 🧑‍💻 Development Services
 
 Add `hpi:run` to the startup configuration in the `maven` control panel on the right side of `IDEA`:
