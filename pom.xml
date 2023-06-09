@@ -16,6 +16,7 @@
     <properties>
         <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
         <jenkins.version>2.387.3</jenkins.version>
+        <lombok.version>1.18.28</lombok.version>
     </properties>
 
     <name>${project.artifactId}</name>
@@ -68,7 +69,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.28</version>
+            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
