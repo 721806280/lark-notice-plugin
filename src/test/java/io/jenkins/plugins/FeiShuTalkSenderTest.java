@@ -1,15 +1,15 @@
 package io.jenkins.plugins;
 
 import hudson.util.Secret;
-import io.jenkins.plugins.config.FeiShuTalkRobotConfig;
-import io.jenkins.plugins.config.FeiShuTalkSecurityPolicyConfig;
-import io.jenkins.plugins.enums.BuildStatusEnum;
-import io.jenkins.plugins.model.BuildJobModel;
-import io.jenkins.plugins.model.MessageModel;
-import io.jenkins.plugins.model.RobotConfigModel;
-import io.jenkins.plugins.sdk.FeiShuTalkSender;
-import io.jenkins.plugins.sdk.impl.DefaultFeiShuTalkSender;
-import io.jenkins.plugins.sdk.model.SendResult;
+import io.jenkins.plugins.feishu.notification.config.FeiShuTalkRobotConfig;
+import io.jenkins.plugins.feishu.notification.config.FeiShuTalkSecurityPolicyConfig;
+import io.jenkins.plugins.feishu.notification.enums.BuildStatusEnum;
+import io.jenkins.plugins.feishu.notification.model.BuildJobModel;
+import io.jenkins.plugins.feishu.notification.model.MessageModel;
+import io.jenkins.plugins.feishu.notification.model.RobotConfigModel;
+import io.jenkins.plugins.feishu.notification.sdk.FeiShuTalkSender;
+import io.jenkins.plugins.feishu.notification.sdk.impl.DefaultFeiShuTalkSender;
+import io.jenkins.plugins.feishu.notification.sdk.model.SendResult;
 
 import java.net.ProxySelector;
 import java.util.ArrayList;
