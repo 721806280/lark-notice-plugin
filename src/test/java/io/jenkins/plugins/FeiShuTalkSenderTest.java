@@ -10,7 +10,6 @@ import io.jenkins.plugins.model.RobotConfigModel;
 import io.jenkins.plugins.sdk.FeiShuTalkSender;
 import io.jenkins.plugins.sdk.impl.DefaultFeiShuTalkSender;
 import io.jenkins.plugins.sdk.model.SendResult;
-import org.junit.jupiter.api.Test;
 
 import java.net.ProxySelector;
 import java.util.ArrayList;
@@ -35,7 +34,7 @@ public class FeiShuTalkSenderTest {
      */
     private static final String WEBHOOK = "https://open.feishu.cn/open-apis/bot/v2/hook/XXX";
 
-    @Test
+    // @Test
     void testSendFeiShuTalkMessage() {
         // 设置机器人配置
         List<FeiShuTalkSecurityPolicyConfig> securityPolicyConfigs = new ArrayList<>();

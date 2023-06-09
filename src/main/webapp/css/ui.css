@@ -1,0 +1,5 @@
+.robot-config-validate-msg > .error {
+    min-height: 60px;
+    max-height: 240px;
+    overflow: auto;
+}

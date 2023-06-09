@@ -1,11 +1,6 @@
 <?jelly escape-by-default='true'?>
-<j:jelly
-        xmlns:j="jelly:core"
-        xmlns:st="jelly:stapler"
-        xmlns:d="jelly:define"
-        xmlns:l="/lib/layout"
-        xmlns:f="/lib/form"
-        xmlns:local="local">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:f="/lib/form"
+         xmlns:local="local">
     <st:adjunct includes="lib.form.hetero-list.hetero-list"/>
 
     <j:set var="notifierConfigs"
@@ -22,8 +17,7 @@
     </d:taglib>
 
     <f:entry title="飞书机器人">
-        <div
-                class="jenkins-form-item hetero-list-container one-each">
+        <div class="jenkins-form-item hetero-list-container one-each">
             <!-- display existing items -->
             <j:forEach var="config"
                        items="${checkedNotifierConfigs}">

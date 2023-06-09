@@ -1,0 +1,8 @@
+<extensions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/EXTENSIONS/1.0.0"
+            xsi:schemaLocation="http://maven.apache.org/EXTENSIONS/1.0.0 http://maven.apache.org/xsd/core-extensions-1.0.0.xsd">
+    <extension>
+        <groupId>io.jenkins.tools.incrementals</groupId>
+        <artifactId>git-changelist-maven-extension</artifactId>
+        <version>1.6</version>
+    </extension>
+</extensions>

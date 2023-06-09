@@ -8,13 +8,7 @@
                 src="${rootURL}/plugin/feishu-notification/scripts/robotConfigValidator.js"/>
     </st:once>
 
-    <style>
-        .robot-config-validate-msg>.error{
-        min-height: 60px;
-        max-height: 240px;
-        overflow: auto;
-        }
-    </style>
+    <link rel="stylesheet" href="${rootURL}/plugin/feishu-notification/css/ui.css" type="text/css"/>
 
     <div class="robot-config-container">
         <f:entry title="id" field="id">

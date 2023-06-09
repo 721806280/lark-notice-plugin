@@ -4,10 +4,7 @@
     <l:layout permission="${app.ADMINISTER}" norefresh="true" title="飞书配置页面">
         <st:include it="${app}" page="sidepanel.jelly"/>
         <l:main-panel>
-            <h1>
-                <img src="${rootURL}/plugin/feishu-notification/images/logo.png" style="height:32px;"/>
-                飞书全局配置
-            </h1>
+            <h1>飞书全局配置</h1>
             <f:form action="configure" method="POST" name="feiShuTalkManagementLinkForm">
                 <j:scope>
                     <j:set var="descriptor" value="${it.getFeiShuTalkGlobalConfigDescriptor()}"/>
