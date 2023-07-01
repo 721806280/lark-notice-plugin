@@ -11,9 +11,11 @@
     </parent>
     <groupId>io.jenkins.plugins</groupId>
     <artifactId>feishu-notification</artifactId>
-    <version>1.1.0</version>
+    <version>${revision}-${changelist}</version>
     <packaging>hpi</packaging>
     <properties>
+        <revision>1.1.0</revision>
+        <changelist>M1</changelist>
         <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
         <jenkins.version>2.387.3</jenkins.version>
         <lombok.version>1.18.28</lombok.version>
