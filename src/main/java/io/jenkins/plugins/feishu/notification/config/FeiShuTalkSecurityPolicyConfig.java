@@ -39,7 +39,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
  * 设置策略值的方法 {@link #setValue(String)} 接受一个字符串类型的参数，
  * 并将该参数转换为 Secret 类型保存，以保证信息的安全性。</p>
  *
- * <p>该类实现了 Jenkins 的扩展点 {@link Descriptor<FeiShuTalkSecurityPolicyConfig>}，
+ * <p>该类实现了 Jenkins 的扩展点 {@link Descriptor}，
  * 并提供了描述器 {@link FeiShuTalkSecurityPolicyConfigDescriptor}，用于管理该类的配置信息。</p>
  *
  * @author xm.z
