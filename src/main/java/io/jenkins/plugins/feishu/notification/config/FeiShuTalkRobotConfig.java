@@ -194,7 +194,7 @@ public class FeiShuTalkRobotConfig implements Describable<FeiShuTalkRobotConfig>
         public FormValidation doTest(@QueryParameter("id") String id, @QueryParameter("name") String name,
                                      @QueryParameter("webhook") String webhook, @QueryParameter("proxy") String proxy,
                                      @QueryParameter("securityPolicyConfigs") String securityPolicyConfig) {
-            List<FeiShuTalkSecurityPolicyConfig> securityPolicyConfigs = JsonUtils.toBean(securityPolicyConfig, new TypeReference<>() {
+            List<FeiShuTalkSecurityPolicyConfig> securityPolicyConfigs = JsonUtils.toBean(securityPolicyConfig, new TypeReference<ArrayList<FeiShuTalkSecurityPolicyConfig>>() {
             });
 
             FeiShuTalkRobotConfig robotConfig = new FeiShuTalkRobotConfig(id, name, webhook, securityPolicyConfigs);

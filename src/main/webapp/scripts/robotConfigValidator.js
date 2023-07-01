@@ -1,86 +1,79 @@
-(function ($) {
-    if (!$) {
-        throw new Error('jQuery 插件加载失败将无法校验机器人配置，但不影响正常使用')
-    }
-
+(function () {
     // 页面加载完成后绑定按钮点击事件
-    $(function () {
-        $('.robot-config-validate-btn').on('click', validateRobotConfig);
-    })
+    document.addEventListener('DOMContentLoaded', function () {
+        var validateBtns = document.querySelectorAll('.robot-config-validate-btn');
+        validateBtns.forEach(function (btn) {
+            btn.addEventListener('click', validateRobotConfig);
+        });
+    });
 
     async function validateRobotConfig() {
-        const $robot = $(this).closest('.robot-config-container');
-        const $msg = $robot.find('.robot-config-validate-msg');
-
-        $msg.empty();
+        var robot = this.closest('.robot-config-container');
+        var msg = robot.querySelector('.robot-config-validate-msg');
+        msg.innerHTML = '';
 
         try {
-            const {fieldName, value} = crumb;
-            const checkUrl = `${$(this).data('validate-button-descriptor-url')}/${$(this).data('validate-button-method')}`;
-            const parameters = getParameters($robot);
+            var checkUrl = this.getAttribute('data-validate-button-descriptor-url') + '/' + this.getAttribute('data-validate-button-method');
 
-            const response = await fetch(checkUrl, {
+            var response = await fetch(checkUrl, {
                 method: 'POST',
-                headers: new Headers({
+                headers: {
                     "Content-Type": "application/x-www-form-urlencoded",
-                    [fieldName]: value,
-                }),
-                body: new URLSearchParams(parameters),
-                credentials: 'include',
+                    [crumb.fieldName]: crumb.value
+                },
+                body: getParams(robot).join('&'),
+                credentials: 'include'
             });
 
-            const message = await response.text()
+            var message = await response.text();
             if (response.ok) {
-                $msg.html(message);
+                msg.innerHTML = message;
                 layoutUpdateCallback.call();
             } else {
-                const id = `valerr${iota++}`;
-                const errorMsg = `<a href="" onclick="document.getElementById('${id}').style.display='block';return false">ERROR</a><div id="${id}" style="display:none"><pre>${message}</pre></div>`;
-                $msg.html(`${message}${$msg.html()}`);
+                var id = 'valerr' + iota++; // 这里的 iota 是一个全局计数器，你需要在其他地方定义并初始化它。
+                var errorMsg = '<a href="" onclick="document.getElementById(\'' + id + '\').style.display=\'block\';return false">ERROR</a><div id="' + id + '" style="display:none"><pre>' + message + '</pre></div>';
+                msg.innerHTML = message + msg.innerHTML;
             }
-            Behaviour.applySubtree($msg[0]);
+            Behaviour.applySubtree(msg);
         } catch (error) {
             console.error(error);
         }
     }
 
     /**
-     * 从机器人配置中获取请求参数。
-     *
-     * @param {jQuery} $robot - 机器人配置容器的 jQuery 对象。
-     * @returns {Object} 包含所有请求参数的对象。
+     * 获取机器人的请求参数
+     * @param {HTMLElement} robot - 机器人元素
+     * @returns {Array} - 表单请求参数数组
      */
-    function getParameters($robot) {
+    function getParams(robot) {
         // 获取代理信息
-        const $proxy = $('#proxyConfigContainer');
-        const proxyConfig = {
-            type: $proxy.find('select[name="type"]').val(), // 获取代理类型
-            host: $proxy.find('input[name="host"]').val(), // 获取代理主机地址
-            port: $proxy.find('input[name="port"]').val(), // 获取代理端口号
+        var proxy = document.getElementById('proxyConfigContainer');
+        var proxyConfig = {
+            type: proxy.querySelector('select[name="type"]').value, // 获取代理类型
+            host: proxy.querySelector('input[name="host"]').value, // 获取代理主机地址
+            port: proxy.querySelector('input[name="port"]').value, // 获取代理端口号
         };
 
         // 获取安全策略配置
-        const securityPolicyConfigs = $robot.find('.security-config-container').map((_, el) => ({
-            type: $(el).find('input[name="type"]').val(), // 获取策略类型
-            value: $(el).find('input[name="value"]').val(), // 获取策略值
-        })).get();
+        var securityConfigs = robot.querySelectorAll('.security-config-container');
+        var securityPolicyConfigs = Array.from(securityConfigs).map(function (el) {
+            return {
+                type: el.querySelector('input[name="type"]').value, // 获取策略类型
+                value: el.querySelector('input[name="value"]').value, // 获取策略值
+            };
+        });
 
-        // 临时解除 Array 类型的 toJSON 函数，以免序列化出错
-        const toJSON = Array.prototype.toJSON;
-        Array.prototype.toJSON = undefined
+        // 创建一个空数组来存储请求参数
+        var params = [];
 
-        // 返回所有请求参数的对象
-        const result = {
-            id: $robot.find('input[name="id"]').val(), // 获取机器人 ID
-            name: $robot.find('input[name="name"]').val(), // 获取机器人名称
-            webhook: $robot.find('input[name="webhook"]').val(), // 获取机器人 Webhook 地址
-            securityPolicyConfigs: JSON.stringify(securityPolicyConfigs), // 将安全策略配置转换为 JSON 字符串
-            proxy: JSON.stringify(proxyConfig), // 将代理信息转换为 JSON 字符串
-        };
+        // 添加请求参数
+        params.push('id=' + encodeURIComponent(robot.querySelector('input[name="id"]').value)); // 添加机器人 ID
+        params.push('name=' + encodeURIComponent(robot.querySelector('input[name="name"]').value)); // 添加机器人名称
+        params.push('webhook=' + encodeURIComponent(robot.querySelector('input[name="webhook"]').value)); // 添加机器人 Webhook 地址
+        params.push('securityPolicyConfigs=' + encodeURIComponent(JSON.parse(JSON.stringify(securityPolicyConfigs)))); // 添加安全策略
+        params.push('proxy=' + encodeURIComponent(JSON.stringify(proxyConfig))); // 添加代理配置
 
-        // 恢复 toJSON 函数
-        Array.prototype.toJSON = toJSON
-
-        return result
+        // 返回表单请求参数
+        return params;
     }
-})(jQuery)
+})();

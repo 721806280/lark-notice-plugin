@@ -1,7 +1,6 @@
 <?jelly escape-by-default='true'?>
 
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:f="/lib/form">
-    <st:adjunct includes="io.jenkins.plugins.jquery3"/>
     <st:once>
         <script type="text/javascript"
                 src="${rootURL}/plugin/feishu-notification/scripts/notifierConfig.js"/>

@@ -55,18 +55,6 @@
             <artifactId>jackson2-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.jenkins.plugins</groupId>
-            <artifactId>jquery3-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.jenkins.plugins</groupId>
-            <artifactId>commons-text-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.jenkins.plugins</groupId>
-            <artifactId>commons-lang3-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
