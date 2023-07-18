@@ -9,10 +9,13 @@ import io.jenkins.plugins.feishu.notification.config.FeiShuTalkGlobalConfig;
 import io.jenkins.plugins.feishu.notification.config.FeiShuTalkRobotConfig;
 import io.jenkins.plugins.feishu.notification.enums.MsgTypeEnum;
 import io.jenkins.plugins.feishu.notification.model.ButtonModel;
+import io.jenkins.plugins.feishu.notification.model.ImgModel;
 import io.jenkins.plugins.feishu.notification.model.MessageModel;
 import io.jenkins.plugins.feishu.notification.sdk.impl.FeiShuTalkServiceImpl;
 import io.jenkins.plugins.feishu.notification.sdk.model.SendResult;
+import io.jenkins.plugins.feishu.notification.sdk.model.entity.support.Alt;
 import io.jenkins.plugins.feishu.notification.sdk.model.entity.support.Button;
+import io.jenkins.plugins.feishu.notification.sdk.model.entity.support.ImgElement;
 import io.jenkins.plugins.feishu.notification.tools.JsonUtils;
 import io.jenkins.plugins.feishu.notification.tools.Logger;
 import io.jenkins.plugins.feishu.notification.tools.Utils;
@@ -27,10 +30,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.springframework.util.CollectionUtils;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -79,6 +79,16 @@ public class FeiShuTalkStep extends Step {
      * 富文本类型消息中展示内容的数据结构。
      */
     private List<List<Map<String, String>>> post;
+
+    /**
+     * 消息正文顶部的图片 -- 仅适用于卡片消息。
+     */
+    private ImgModel topImg;
+
+    /**
+     * 消息正文底部的图片 -- 仅适用于卡片消息。
+     */
+    private ImgModel bottomImg;
 
     /**
      * 消息中需要包含的按钮列表。
@@ -166,6 +176,26 @@ public class FeiShuTalkStep extends Step {
     }
 
     /**
+     * 设置消息中正文顶部的图片。
+     *
+     * @param topImg 消息中正文顶部的图片。
+     */
+    @DataBoundSetter
+    public void setTopImg(ImgModel topImg) {
+        this.topImg = topImg;
+    }
+
+    /**
+     * 设置消息中正文底部的图片。
+     *
+     * @param bottomImg 消息中正文底部的图片。
+     */
+    @DataBoundSetter
+    public void setBottomImg(ImgModel bottomImg) {
+        this.bottomImg = bottomImg;
+    }
+
+    /**
      * 设置消息中需要包含的按钮列表。
      *
      * @param buttons 消息中需要包含的按钮列表。
@@ -185,13 +215,35 @@ public class FeiShuTalkStep extends Step {
      */
     public SendResult send(Run<?, ?> run, EnvVars envVars, TaskListener listener) {
         MessageModel message = MessageModel.builder().type(type).title(envVars.expand(title))
-                .text(envVars.expand(buildText())).buttons(buildButtons(run, envVars)).build();
+                .text(envVars.expand(buildText())).buttons(buildButtons(run, envVars))
+                .topImg(buildImg(envVars, topImg)).bottomImg(buildImg(envVars, bottomImg))
+                .build();
 
         Logger.log(listener, "当前机器人信息: %s",
                 FeiShuTalkGlobalConfig.getRobot(robot).map(FeiShuTalkRobotConfig::getName));
         Logger.log(listener, "发送的消息详情: %s", JsonUtils.toJsonStr(message));
 
         return service.send(envVars.expand(robot), message);
+    }
+
+    /**
+     * 消息正文的图片节点
+     *
+     * @param envVars  Jenkins 任务运行时的环境变量。
+     * @param imgModel 消息正文的图片模型
+     * @return 消息正文的图片节点
+     */
+    private ImgElement buildImg(EnvVars envVars, ImgModel imgModel) {
+        if (Objects.isNull(imgModel)) {
+            return null;
+        }
+        ImgElement imgElement = new ImgElement();
+        imgElement.setImgKey(imgModel.getImgKey());
+        imgElement.setMode(imgModel.getMode());
+        imgElement.setCompactWidth(imgModel.isCompactWidth());
+        imgElement.setCustomWidth(imgModel.getCustomWidth());
+        imgElement.setAlt(Alt.build(envVars.expand(imgModel.getAltContent())));
+        return imgElement;
     }
 
     /**

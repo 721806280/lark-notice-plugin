@@ -11,10 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.apache.commons.collections.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 飞书默认消息发送实现
@@ -100,11 +97,19 @@ public class DefaultFeiShuTalkSender extends AbstractFeiShuTalkSender {
         card.setHeader(new Header("BLUE", new LarkMdText("plain_text", addKeyWord(msg.getTitle(), robotConfig.getKeys()))));
 
         Hr hr = new Hr();
-        LarkMdElement element = new LarkMdElement("div", new LarkMdText("lark_md", addAtInfo(msg.getText(), msg.getAt())));
+        LarkMdElement mdElement = new LarkMdElement("div", new LarkMdText("lark_md", addAtInfo(msg.getText(), msg.getAt())));
 
         List<Object> elements = new ArrayList<>();
+        if (Objects.nonNull(msg.getTopImg())) {
+            elements.add(hr);
+            elements.add(msg.getTopImg());
+        }
         elements.add(hr);
-        elements.add(element);
+        elements.add(mdElement);
+        if (Objects.nonNull(msg.getBottomImg())) {
+            elements.add(hr);
+            elements.add(msg.getBottomImg());
+        }
         elements.add(hr);
 
         if (!CollectionUtils.isEmpty(msg.getButtons())) {

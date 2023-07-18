@@ -3,6 +3,7 @@ package io.jenkins.plugins.feishu.notification.model;
 import io.jenkins.plugins.feishu.notification.enums.MsgTypeEnum;
 import io.jenkins.plugins.feishu.notification.sdk.model.entity.support.At;
 import io.jenkins.plugins.feishu.notification.sdk.model.entity.support.Button;
+import io.jenkins.plugins.feishu.notification.sdk.model.entity.support.ImgElement;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -55,6 +56,16 @@ public class MessageModel {
      * 消息正文。
      */
     private String text;
+
+    /**
+     * 消息正文顶部图片
+     */
+    private ImgElement topImg;
+
+    /**
+     * 消息正文底部图片
+     */
+    private ImgElement bottomImg;
 
     /**
      * 按钮信息。
