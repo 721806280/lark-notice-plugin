@@ -8,9 +8,7 @@
             <f:form action="configure" method="POST" name="feiShuTalkManagementLinkForm">
                 <j:scope>
                     <j:set var="descriptor" value="${it.getFeiShuTalkGlobalConfigDescriptor()}"/>
-                    <j:set var="instance" value="${descriptor}"/>
-                    <j:set var="it" value="${descriptor}"/>
-                    <st:include it="${it}" from="${descriptor}" page="${descriptor.configPage}"/>
+                    <st:include it="${descriptor}" from="${descriptor}" page="${descriptor.configPage}"/>
                 </j:scope>
             </f:form>
         </l:main-panel>
