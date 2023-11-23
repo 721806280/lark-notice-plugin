@@ -1,5 +1,4 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core"
-         xmlns:fmt="jelly:fmt"> <!-- 声明 fmt 命名空间 -->
-        <fmt:message key="plugin.display.name"/>
+<j:jelly xmlns:j="jelly:core">
+    FeiShu Jenkins Plugin
 </j:jelly>

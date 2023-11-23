@@ -46,6 +46,7 @@
                     data-validate-button-descriptor-url="${descriptor.descriptorFullUrl}"
                     data-validate-button-method="test"
                     data-validate-button-with="${with}"
+                    onclick="validateRobotConfig(this)"
             />
         </div>
     </div>

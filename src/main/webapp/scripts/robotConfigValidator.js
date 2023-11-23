@@ -1,79 +1,68 @@
-(function () {
-    // 页面加载完成后绑定按钮点击事件
-    document.addEventListener('DOMContentLoaded', function () {
-        var validateBtns = document.querySelectorAll('.robot-config-validate-btn');
-        validateBtns.forEach(function (btn) {
-            btn.addEventListener('click', validateRobotConfig);
+async function validateRobotConfig(_this) {
+    var robot = _this.closest('.robot-config-container');
+    var msg = robot.querySelector('.robot-config-validate-msg');
+    msg.innerHTML = '';
+
+    try {
+        var checkUrl = _this.getAttribute('data-validate-button-descriptor-url') + '/' + _this.getAttribute('data-validate-button-method');
+
+        var response = await fetch(checkUrl, {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                [crumb.fieldName]: crumb.value
+            },
+            body: getParams(robot).join('&'),
+            credentials: 'include'
         });
+
+        var message = await response.text();
+        if (response.ok) {
+            msg.innerHTML = message;
+            layoutUpdateCallback.call();
+        } else {
+            var id = 'valerr' + iota++; // 这里的 iota 是一个全局计数器，你需要在其他地方定义并初始化它。
+            msg.innerHTML = '<a href="" onclick="document.getElementById(\'' + id + '\').style.display=\'block\';return false">ERROR</a><div id="' + id + '" style="display:none"><pre>' + message + '</pre></div>';
+        }
+        Behaviour.applySubtree(msg);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+/**
+ * 获取机器人的请求参数
+ * @param {HTMLElement} robot - 机器人元素
+ * @returns {Array} - 表单请求参数数组
+ */
+function getParams(robot) {
+    // 获取代理信息
+    var proxy = document.getElementById('proxyConfigContainer');
+    var proxyConfig = {
+        type: proxy.querySelector('select[name="type"]').value, // 获取代理类型
+        host: proxy.querySelector('input[name="host"]').value, // 获取代理主机地址
+        port: proxy.querySelector('input[name="port"]').value, // 获取代理端口号
+    };
+
+    // 获取安全策略配置
+    var securityConfigs = robot.querySelectorAll('.security-config-container');
+    var securityPolicyConfigs = Array.from(securityConfigs).map(function (el) {
+        return {
+            type: el.querySelector('input[name="type"]').value, // 获取策略类型
+            value: el.querySelector('input[name="value"]').value, // 获取策略值
+        };
     });
 
-    async function validateRobotConfig() {
-        var robot = this.closest('.robot-config-container');
-        var msg = robot.querySelector('.robot-config-validate-msg');
-        msg.innerHTML = '';
+    // 创建一个空数组来存储请求参数
+    var params = [];
 
-        try {
-            var checkUrl = this.getAttribute('data-validate-button-descriptor-url') + '/' + this.getAttribute('data-validate-button-method');
+    // 添加请求参数
+    params.push('id=' + encodeURIComponent(robot.querySelector('input[name="id"]').value)); // 添加机器人 ID
+    params.push('name=' + encodeURIComponent(robot.querySelector('input[name="name"]').value)); // 添加机器人名称
+    params.push('webhook=' + encodeURIComponent(robot.querySelector('input[name="webhook"]').value)); // 添加机器人 Webhook 地址
+    params.push('securityPolicyConfigs=' + encodeURIComponent(JSON.stringify(securityPolicyConfigs))); // 添加安全策略
+    params.push('proxy=' + encodeURIComponent(JSON.stringify(proxyConfig))); // 添加代理配置
 
-            var response = await fetch(checkUrl, {
-                method: 'POST',
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
-                    [crumb.fieldName]: crumb.value
-                },
-                body: getParams(robot).join('&'),
-                credentials: 'include'
-            });
-
-            var message = await response.text();
-            if (response.ok) {
-                msg.innerHTML = message;
-                layoutUpdateCallback.call();
-            } else {
-                var id = 'valerr' + iota++; // 这里的 iota 是一个全局计数器，你需要在其他地方定义并初始化它。
-                var errorMsg = '<a href="" onclick="document.getElementById(\'' + id + '\').style.display=\'block\';return false">ERROR</a><div id="' + id + '" style="display:none"><pre>' + message + '</pre></div>';
-                msg.innerHTML = message + msg.innerHTML;
-            }
-            Behaviour.applySubtree(msg);
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-    /**
-     * 获取机器人的请求参数
-     * @param {HTMLElement} robot - 机器人元素
-     * @returns {Array} - 表单请求参数数组
-     */
-    function getParams(robot) {
-        // 获取代理信息
-        var proxy = document.getElementById('proxyConfigContainer');
-        var proxyConfig = {
-            type: proxy.querySelector('select[name="type"]').value, // 获取代理类型
-            host: proxy.querySelector('input[name="host"]').value, // 获取代理主机地址
-            port: proxy.querySelector('input[name="port"]').value, // 获取代理端口号
-        };
-
-        // 获取安全策略配置
-        var securityConfigs = robot.querySelectorAll('.security-config-container');
-        var securityPolicyConfigs = Array.from(securityConfigs).map(function (el) {
-            return {
-                type: el.querySelector('input[name="type"]').value, // 获取策略类型
-                value: el.querySelector('input[name="value"]').value, // 获取策略值
-            };
-        });
-
-        // 创建一个空数组来存储请求参数
-        var params = [];
-
-        // 添加请求参数
-        params.push('id=' + encodeURIComponent(robot.querySelector('input[name="id"]').value)); // 添加机器人 ID
-        params.push('name=' + encodeURIComponent(robot.querySelector('input[name="name"]').value)); // 添加机器人名称
-        params.push('webhook=' + encodeURIComponent(robot.querySelector('input[name="webhook"]').value)); // 添加机器人 Webhook 地址
-        params.push('securityPolicyConfigs=' + encodeURIComponent(JSON.parse(JSON.stringify(securityPolicyConfigs)))); // 添加安全策略
-        params.push('proxy=' + encodeURIComponent(JSON.stringify(proxyConfig))); // 添加代理配置
-
-        // 返回表单请求参数
-        return params;
-    }
-})();
+    // 返回表单请求参数
+    return params;
+}
