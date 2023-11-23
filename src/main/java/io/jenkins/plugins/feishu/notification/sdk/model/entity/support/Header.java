@@ -13,9 +13,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Header {
+
     private String template;
 
-    private LarkMdText title;
+    private TagContent title;
 
 }
 

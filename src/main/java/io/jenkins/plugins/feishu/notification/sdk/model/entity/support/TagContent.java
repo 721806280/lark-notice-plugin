@@ -5,19 +5,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * LarkMdText
+ * TagContent
  *
  * @author xm.z
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LarkMdText {
+public class TagContent {
 
     /**
      * 标签类型
      */
-    private String tag = "lark_md";
+    private String tag;
 
     /**
      * 信息文本

@@ -13,18 +13,15 @@ public class Button {
 
     private String tag = "button";
 
-    private String title;
-
     private String url;
 
     private String type;
 
-    private LarkMdText text;
+    private TagContent text;
 
-    public Button(String title, String url, String type) {
-        this.title = title;
+    public Button(String content, String url, String type) {
         this.url = url;
-        this.text = new LarkMdText("plain_text", title);
+        this.text = new TagContent("plain_text", content);
         this.type = StringUtils.defaultIfBlank(type, "primary");
     }
 

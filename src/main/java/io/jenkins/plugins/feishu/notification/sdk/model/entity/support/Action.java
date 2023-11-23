@@ -19,7 +19,7 @@ public class Action {
     /**
      * 信息文本
      */
-    private LarkMdText text;
+    private TagContent text;
 
     /**
      * 跳转地址

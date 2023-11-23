@@ -94,10 +94,10 @@ public class DefaultFeiShuTalkSender extends AbstractFeiShuTalkSender {
     public SendResult sendInteractive(MessageModel msg) {
         Card card = new Card();
         card.setConfig(new Config(true, true));
-        card.setHeader(new Header("BLUE", new LarkMdText("plain_text", addKeyWord(msg.getTitle(), robotConfig.getKeys()))));
+        card.setHeader(new Header("BLUE", new TagContent("plain_text", addKeyWord(msg.getTitle(), robotConfig.getKeys()))));
 
         Hr hr = new Hr();
-        LarkMdElement mdElement = new LarkMdElement("div", new LarkMdText("lark_md", addAtInfo(msg.getText(), msg.getAt())));
+        TagContent mdContent = new TagContent("markdown", addAtInfo(msg.getText(), msg.getAt()));
 
         List<Object> elements = new ArrayList<>();
         if (Objects.nonNull(msg.getTopImg())) {
@@ -105,7 +105,7 @@ public class DefaultFeiShuTalkSender extends AbstractFeiShuTalkSender {
             elements.add(msg.getTopImg());
         }
         elements.add(hr);
-        elements.add(mdElement);
+        elements.add(mdContent);
         if (Objects.nonNull(msg.getBottomImg())) {
             elements.add(hr);
             elements.add(msg.getBottomImg());
