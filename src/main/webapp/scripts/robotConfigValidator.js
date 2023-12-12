@@ -12,7 +12,7 @@ async function validateRobotConfig(_this) {
                 "Content-Type": "application/x-www-form-urlencoded",
                 [crumb.fieldName]: crumb.value
             },
-            body: getParams(robot).join('&'),
+            body: getParams(robot),
             credentials: 'include'
         });
 
@@ -54,14 +54,15 @@ function getParams(robot) {
     });
 
     // 创建一个空数组来存储请求参数
-    var params = [];
+    var params = new URLSearchParams();
 
     // 添加请求参数
-    params.push('id=' + encodeURIComponent(robot.querySelector('input[name="id"]').value)); // 添加机器人 ID
-    params.push('name=' + encodeURIComponent(robot.querySelector('input[name="name"]').value)); // 添加机器人名称
-    params.push('webhook=' + encodeURIComponent(robot.querySelector('input[name="webhook"]').value)); // 添加机器人 Webhook 地址
-    params.push('securityPolicyConfigs=' + encodeURIComponent(JSON.stringify(securityPolicyConfigs))); // 添加安全策略
-    params.push('proxy=' + encodeURIComponent(JSON.stringify(proxyConfig))); // 添加代理配置
+    params.append('id', robot.querySelector('input[name="id"]').value);
+    params.append('name', robot.querySelector('input[name="name"]').value);
+    params.append('webhook', robot.querySelector('input[name="webhook"]').value);
+    params.append('keyword', JSON.stringify(securityPolicyConfigs[0])); // 关键词
+    params.append('secret', JSON.stringify(securityPolicyConfigs[1]));  // 加密密钥
+    params.append('proxy', JSON.stringify(proxyConfig)); // 添加代理配置
 
     // 返回表单请求参数
     return params;

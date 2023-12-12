@@ -1,6 +1,5 @@
 package io.jenkins.plugins.feishu.notification.config;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import hudson.Extension;
 import hudson.model.Describable;
 import hudson.model.Descriptor;
@@ -188,14 +187,18 @@ public class FeiShuTalkRobotConfig implements Describable<FeiShuTalkRobotConfig>
          * @param name                 机器人名称。
          * @param webhook              Webhook密钥。
          * @param proxy                代理设置。
-         * @param securityPolicyConfig 安全策略配置列表。
+         * @param keyword              关键词。
+         * @param secret               加密密钥。
          * @return 返回测试结果，如果测试通过，返回FormValidation.respond(Kind.OK)，否则返回错误信息。
          */
         public FormValidation doTest(@QueryParameter("id") String id, @QueryParameter("name") String name,
                                      @QueryParameter("webhook") String webhook, @QueryParameter("proxy") String proxy,
-                                     @QueryParameter("securityPolicyConfigs") String securityPolicyConfig) {
-            List<FeiShuTalkSecurityPolicyConfig> securityPolicyConfigs = JsonUtils.toBean(securityPolicyConfig, new TypeReference<ArrayList<FeiShuTalkSecurityPolicyConfig>>() {
-            });
+                                     @QueryParameter("keyword") String keyword, @QueryParameter("secret") String secret) {
+
+            List<FeiShuTalkSecurityPolicyConfig> securityPolicyConfigs = List.of(
+                    JsonUtils.toBean(keyword, FeiShuTalkSecurityPolicyConfig.class),
+                    JsonUtils.toBean(secret, FeiShuTalkSecurityPolicyConfig.class)
+            );
 
             FeiShuTalkRobotConfig robotConfig = new FeiShuTalkRobotConfig(id, name, webhook, securityPolicyConfigs);
 
