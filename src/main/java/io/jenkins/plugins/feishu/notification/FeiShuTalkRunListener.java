@@ -140,7 +140,7 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
                             .build();
 
                     Logger.log(listener, "当前机器人信息: %s", config.getRobotName());
-                    Logger.log(listener, "发送的消息详情: %s", JsonUtils.toJsonStr(messageModel));
+                    Logger.log(listener, "发送的消息详情: %s", JsonUtils.toJson(messageModel));
 
                     SendResult sendResult = service.send(config.getRobotId(), messageModel);
                     if (!sendResult.isOk()) {

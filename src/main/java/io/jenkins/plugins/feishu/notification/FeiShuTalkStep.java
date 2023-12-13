@@ -221,7 +221,7 @@ public class FeiShuTalkStep extends Step {
 
         Logger.log(listener, "当前机器人信息: %s",
                 FeiShuTalkGlobalConfig.getRobot(robot).map(FeiShuTalkRobotConfig::getName));
-        Logger.log(listener, "发送的消息详情: %s", JsonUtils.toJsonStr(message));
+        Logger.log(listener, "发送的消息详情: %s", JsonUtils.toJson(message));
 
         return service.send(envVars.expand(robot), message);
     }
@@ -277,7 +277,7 @@ public class FeiShuTalkStep extends Step {
             case SHARE_CHAT:
                 return shareChatId;
             case POST:
-                return JsonUtils.toJsonStr(post);
+                return JsonUtils.toJson(post);
             default:
                 return Utils.join(text);
         }

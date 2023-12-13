@@ -196,13 +196,13 @@ public class FeiShuTalkRobotConfig implements Describable<FeiShuTalkRobotConfig>
                                      @QueryParameter("keyword") String keyword, @QueryParameter("secret") String secret) {
 
             List<FeiShuTalkSecurityPolicyConfig> securityPolicyConfigs = List.of(
-                    JsonUtils.toBean(keyword, FeiShuTalkSecurityPolicyConfig.class),
-                    JsonUtils.toBean(secret, FeiShuTalkSecurityPolicyConfig.class)
+                    Objects.requireNonNull(JsonUtils.readValue(keyword, FeiShuTalkSecurityPolicyConfig.class)),
+                    Objects.requireNonNull(JsonUtils.readValue(secret, FeiShuTalkSecurityPolicyConfig.class))
             );
 
             FeiShuTalkRobotConfig robotConfig = new FeiShuTalkRobotConfig(id, name, webhook, securityPolicyConfigs);
 
-            ProxySelector proxySelector = JsonUtils.toBean(proxy, FeiShuTalkProxyConfig.class).obtainProxySelector();
+            ProxySelector proxySelector = Objects.requireNonNull(JsonUtils.readValue(proxy, FeiShuTalkProxyConfig.class)).obtainProxySelector();
 
             FeiShuTalkSender sender = new DefaultFeiShuTalkSender(RobotConfigModel.of(robotConfig, proxySelector));
 

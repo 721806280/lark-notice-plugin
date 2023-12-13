@@ -119,7 +119,7 @@ public class DefaultFeiShuTalkSender extends AbstractFeiShuTalkSender {
             elements.add(actions);
         }
 
-        card.setElements(JsonUtils.readTree(JsonUtils.toJsonStr(elements)));
+        card.setElements(JsonUtils.valueToTree(elements));
         return sendMessage(buildParams(MsgTypeEnum.INTERACTIVE, new ActionCard(card)));
     }
 

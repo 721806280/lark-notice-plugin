@@ -16,6 +16,7 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -45,16 +46,17 @@ public abstract class AbstractFeiShuTalkSender implements FeiShuTalkSender {
         SendResult sendResult;
         try {
             RobotConfigModel robotConfig = getRobotConfig();
+            String body = Objects.requireNonNull(JsonUtils.toJson(robotConfig.buildSign(params)));
             HttpRequest request = HttpRequest.newBuilder().uri(URI.create(robotConfig.getWebhook()))
                     .header(CONTENT_TYPE, APPLICATION_JSON_VALUE).timeout(Duration.ofMinutes(3))
-                    .POST(HttpRequest.BodyPublishers.ofString(JsonUtils.toJsonStr(robotConfig.buildSign(params))))
+                    .POST(HttpRequest.BodyPublishers.ofString(body))
                     .build();
 
             HttpResponse<String> response = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1)
                     .followRedirects(HttpClient.Redirect.NORMAL).proxy(robotConfig.getProxySelector()).build()
                     .send(request, HttpResponse.BodyHandlers.ofString());
 
-            sendResult = JsonUtils.toBean(response.body(), SendResult.class);
+            sendResult = JsonUtils.readValue(response.body(), SendResult.class);
         } catch (Exception e) {
             log.error("飞书消息发送失败", e);
             sendResult = SendResult.fail(ExceptionUtils.getStackTrace(e));
