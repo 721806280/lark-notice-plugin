@@ -52,7 +52,8 @@ public class FeiShuTalkSenderTest {
                 .statusType(BuildStatusEnum.SUCCESS)
                 .duration("-")
                 .executorName("test")
-                .executorMobile("test")
+                .executorMobile("15866668888")
+                .executorOpenId("test")
                 .build();
         MessageModel msg = MessageModel.builder()
                 .title("飞书机器人测试成功")

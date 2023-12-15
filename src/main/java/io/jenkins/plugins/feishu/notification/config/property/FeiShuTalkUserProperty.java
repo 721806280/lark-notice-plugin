@@ -12,25 +12,32 @@ import net.sf.json.JSONObject;
 import org.kohsuke.stapler.StaplerRequest;
 
 /**
- * 用于为用户添加飞书通知相关的属性。
+ * 用户属性类，用于在 Jenkins 中为用户添加 FeiShuTalk 相关的属性
  *
  * @author xm.z
  */
+@Getter
 public class FeiShuTalkUserProperty extends UserProperty {
 
     /**
-     * 用户的手机号。
+     * 用户的手机号码
      */
-    @Getter
     private final String mobile;
 
     /**
-     * 构造方法，初始化用户手机号。
-     *
-     * @param mobile 用户手机号。
+     * 用户的 OpenID
      */
-    public FeiShuTalkUserProperty(String mobile) {
+    private final String openId;
+
+    /**
+     * 构造函数
+     *
+     * @param mobile 用户的手机号码
+     * @param openId 用户的 OpenID
+     */
+    public FeiShuTalkUserProperty(String mobile, String openId) {
         this.mobile = mobile;
+        this.openId = openId;
     }
 
     /**
@@ -47,7 +54,7 @@ public class FeiShuTalkUserProperty extends UserProperty {
         @NonNull
         @Override
         public String getDisplayName() {
-            return Messages.user_property_mobile();
+            return Messages.user_property_title();
         }
 
         /**
@@ -58,7 +65,7 @@ public class FeiShuTalkUserProperty extends UserProperty {
          */
         @Override
         public UserProperty newInstance(User user) {
-            return new FeiShuTalkUserProperty(null);
+            return new FeiShuTalkUserProperty(null, null);
         }
 
         /**
@@ -70,7 +77,7 @@ public class FeiShuTalkUserProperty extends UserProperty {
          */
         @Override
         public UserProperty newInstance(@Nullable StaplerRequest req, @NonNull JSONObject formData) {
-            return new FeiShuTalkUserProperty(formData.optString("mobile"));
+            return new FeiShuTalkUserProperty(formData.optString("mobile"), formData.optString("openId"));
         }
     }
 }

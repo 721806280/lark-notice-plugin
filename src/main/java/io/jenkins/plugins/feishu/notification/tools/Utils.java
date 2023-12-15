@@ -13,9 +13,14 @@ import java.util.List;
 public class Utils {
 
     /**
-     * 字符串分隔符
+     * 字符串常量：换行符 {@code "\n"}
      */
-    public static final String DELIMITER = "\n";
+    public static final String LF = "\n";
+
+    /**
+     * 字符串常量：逗号 {@code ","}
+     */
+    public static final String COMMA = ",";
 
     /**
      * 创建默认的按钮列表
@@ -55,7 +60,7 @@ public class Utils {
         if (list == null) {
             return "";
         }
-        return String.join(DELIMITER, list);
+        return String.join(LF, list);
     }
 
 }

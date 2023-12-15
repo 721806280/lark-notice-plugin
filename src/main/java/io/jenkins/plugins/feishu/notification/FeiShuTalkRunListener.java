@@ -25,8 +25,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
 import java.io.IOException;
+import java.util.Set;
 
 import static io.jenkins.plugins.feishu.notification.sdk.constant.Constants.NOTICE_ICON;
+import static io.jenkins.plugins.feishu.notification.tools.Utils.LF;
 
 /**
  * FeiShuTalkRunListener 是一个 Jenkins 监听器，它实现了 {@link hudson.model.listeners.RunListener} 接口，
@@ -85,7 +87,6 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
         try {
             this.send(run, listener, noticeOccasion);
         } catch (Exception e) {
-            e.printStackTrace();
             Logger.log(listener, "发送消息时报错: %s", e);
         } finally {
             PipelineEnvContext.reset();
@@ -118,7 +119,7 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
                 // 构建信息
                 .jobName(run.getDisplayName()).jobUrl(rootPath + run.getUrl()).duration(run.getDurationString())
                 // 执行人信息
-                .executorName(user.getName()).executorMobile(user.getMobile())
+                .executorName(user.getName()).executorMobile(user.getMobile()).executorOpenId(user.getOpenId())
                 // 构建状态
                 .statusType(noticeOccasion.buildStatus()).build();
 
@@ -130,11 +131,16 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
                 // 根据配置决定是否跳过当前项
                 .filter(config -> config.getNoticeOccasions().contains(noticeOccasion.name()))
                 .forEach(config -> {
-                    buildJobModel.setContent(envVars.expand(config.getContent()).replaceAll("\\\\n", "\n"));
+                    buildJobModel.setContent(envVars.expand(config.getContent()).replaceAll("\\\\n", LF));
                     String text = config.isRaw() ? envVars.expand(config.getMessage()) : buildJobModel.toMarkdown();
 
+                    Set<String> atOpenIds = config.resolveAtOpenIds(envVars);
+                    if (StringUtils.isNotBlank(user.getOpenId())) {
+                        atOpenIds.add(user.getOpenId());
+                    }
+
                     MessageModel messageModel = MessageModel.builder().type(MsgTypeEnum.INTERACTIVE)
-                            .atAll(config.isAtAll()).atOpenIds(config.resolveAtOpenIds(envVars))
+                            .atAll(config.isAtAll()).atOpenIds(atOpenIds)
                             .text(text).buttons(buildJobModel.createDefaultButtons())
                             .title(String.format("%s %s %s", NOTICE_ICON, buildJobModel.getProjectName(), buildJobModel.getStatusType().getLabel()))
                             .build();
@@ -181,6 +187,7 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
         EnvVars envVars = getEnvVars(run, listener);
         envVars.put("EXECUTOR_NAME", StringUtils.defaultIfBlank(buildJobModel.getExecutorName(), ""));
         envVars.put("EXECUTOR_MOBILE", StringUtils.defaultIfBlank(buildJobModel.getExecutorMobile(), ""));
+        envVars.put("EXECUTOR_OPENID", StringUtils.defaultIfBlank(buildJobModel.getExecutorOpenId(), ""));
         envVars.put("PROJECT_NAME", buildJobModel.getProjectName());
         envVars.put("PROJECT_URL", buildJobModel.getProjectUrl());
         envVars.put("JOB_NAME", buildJobModel.getJobName());

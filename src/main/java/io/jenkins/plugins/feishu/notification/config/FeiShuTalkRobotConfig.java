@@ -224,8 +224,7 @@ public class FeiShuTalkRobotConfig implements Describable<FeiShuTalkRobotConfig>
             BuildJobModel buildJobModel = BuildJobModel.builder().projectName("欢迎使用飞书机器人插件~")
                     .projectUrl(rootUrl).jobName("系统配置").jobUrl(rootUrl + "/configure")
                     .statusType(BuildStatusEnum.SUCCESS).duration("-")
-                    .executorName(user.getDisplayName()).executorMobile(user.getDescription())
-                    .build();
+                    .executorName(user.getDisplayName()).build();
 
             return MessageModel.builder().type(MsgTypeEnum.INTERACTIVE)
                     .title(NOTICE_ICON + " 飞书机器人测试成功")

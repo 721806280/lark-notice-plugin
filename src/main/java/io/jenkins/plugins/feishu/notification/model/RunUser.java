@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * 运行用户实体类，包含用户名称和手机号信息
+ * 运行用户实体类，包含用户名称、手机号信息以及openId信息
  *
  * @author xm.z
  */
@@ -35,6 +35,11 @@ public class RunUser {
     private final String mobile;
 
     /**
+     * 当前执行任务的用户配置的openId
+     */
+    private final String openId;
+
+    /**
      * 根据运行任务获取执行人信息
      *
      * @param run      运行任务
@@ -50,7 +55,7 @@ public class RunUser {
                 .map(Supplier::get)
                 .filter(Objects::nonNull)
                 .findFirst()
-                .orElse(new RunUser("", ""));
+                .orElse(new RunUser("", "", ""));
     }
 
     /**
@@ -72,10 +77,16 @@ public class RunUser {
         }
 
         String name = user.getDisplayName();
-        Optional<String> mobileOpt = Optional.ofNullable(user.getProperty(FeiShuTalkUserProperty.class)).map(FeiShuTalkUserProperty::getMobile);
+
+        Optional<FeiShuTalkUserProperty> userPropertyOpt = Optional.ofNullable(user.getProperty(FeiShuTalkUserProperty.class));
+
+        Optional<String> mobileOpt = userPropertyOpt.map(FeiShuTalkUserProperty::getMobile);
         mobileOpt.ifPresent(mobile -> Logger.log(listener, "用户【%s】暂未设置手机号码，请前往 %s 添加。", name, user.getAbsoluteUrl() + "/configure"));
 
-        return new RunUser(name, mobileOpt.orElse(null));
+        Optional<String> openIdOpt = userPropertyOpt.map(FeiShuTalkUserProperty::getOpenId);
+        openIdOpt.ifPresent(openId -> Logger.log(listener, "用户【%s】暂未设置OpenId，请前往 %s 添加。", name, user.getAbsoluteUrl() + "/configure"));
+
+        return new RunUser(name, mobileOpt.orElse(""), openIdOpt.orElse(""));
     }
 
     /**
@@ -87,7 +98,7 @@ public class RunUser {
     private static RunUser getExecutorFromRemote(Run<?, ?> run) {
         Cause.RemoteCause remoteCause = run.getCause(Cause.RemoteCause.class);
         return remoteCause == null ? null :
-                new RunUser(String.format("%s %s", remoteCause.getAddr(), remoteCause.getNote()), "");
+                new RunUser(String.format("%s %s", remoteCause.getAddr(), remoteCause.getNote()), "", "");
     }
 
     /**
@@ -120,6 +131,6 @@ public class RunUser {
      */
     private static RunUser getExecutorFromBuild(Run<?, ?> run) {
         String name = run.getCauses().stream().map(Cause::getShortDescription).collect(Collectors.joining());
-        return new RunUser(name, "");
+        return new RunUser(name, "", "");
     }
 }

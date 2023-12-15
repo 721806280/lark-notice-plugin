@@ -17,6 +17,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static io.jenkins.plugins.feishu.notification.tools.Utils.COMMA;
+import static io.jenkins.plugins.feishu.notification.tools.Utils.LF;
+
 /**
  * FeiShuTalkNotifierConfig 类用于存储飞书通知器的配置信息。
  *
@@ -27,6 +30,8 @@ import java.util.stream.Collectors;
  * atAll 表示是否需要在消息中 @ 所有人等。</p>
  *
  * <p>FeiShuTalkNotifierConfig 类提供了多个构造方法和公共方法，可以方便地对其属性进行操作。</p>
+ *
+ * @author xm.z
  */
 @Getter
 @Setter
@@ -158,7 +163,7 @@ public class FeiShuTalkNotifierConfig extends AbstractDescribableImpl<FeiShuTalk
             return new HashSet<>(16);
         }
         String realOpenId = envVars.expand(atOpenId);
-        return Arrays.stream(StringUtils.split(realOpenId.replace("\n", ","), ","))
+        return Arrays.stream(StringUtils.split(realOpenId.replace(LF, COMMA), COMMA))
                 .collect(Collectors.toSet());
     }
 

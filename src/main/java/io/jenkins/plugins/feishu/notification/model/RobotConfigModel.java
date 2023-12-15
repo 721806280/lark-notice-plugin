@@ -14,6 +14,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Objects;
 
+import static io.jenkins.plugins.feishu.notification.tools.Utils.LF;
+
 /**
  * 机器人配置模型。
  *
@@ -87,7 +89,7 @@ public class RobotConfigModel {
     private static String createSign(long timestamp, String secret) {
         String result = "";
         try {
-            String seed = timestamp + "\n" + secret;
+            String seed = timestamp + LF + secret;
             Mac mac = Mac.getInstance("HmacSHA256");
             mac.init(new SecretKeySpec(seed.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
             byte[] signData = mac.doFinal(new byte[]{});

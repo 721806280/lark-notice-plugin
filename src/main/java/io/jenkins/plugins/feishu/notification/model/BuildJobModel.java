@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * 用于存储构建任务相关的模型。
+ * 用于存储构建任务相关的模型
  *
  * @author xm.z
  */
@@ -19,54 +19,59 @@ import java.util.List;
 public class BuildJobModel {
 
     /**
-     * 项目名称。
+     * 项目名称
      */
     private String projectName;
 
     /**
-     * 项目 URL。
+     * 项目 URL
      */
     private String projectUrl;
 
     /**
-     * 构建任务名称。
+     * 构建任务名称
      */
     private String jobName;
 
     /**
-     * 构建任务 URL。
+     * 构建任务 URL
      */
     private String jobUrl;
 
     /**
-     * 构建任务状态。
+     * 构建任务状态
      */
     private BuildStatusEnum statusType;
 
     /**
-     * 构建持续时间。
+     * 构建持续时间
      */
     private String duration;
 
     /**
-     * 执行构建任务的用户名称。
+     * 执行构建任务的用户名称
      */
     private String executorName;
 
     /**
-     * 执行构建任务的用户手机号码。
+     * 执行构建任务的用户手机号码
      */
     private String executorMobile;
 
     /**
-     * 额外的任务执行信息。
+     * 执行构建任务的用户OpenId
+     */
+    private String executorOpenId;
+
+    /**
+     * 额外的任务执行信息
      */
     private String content;
 
     /**
-     * 将该模型转化为 Markdown 格式的字符串。
+     * 将该模型转化为 Markdown 格式的字符串
      *
-     * @return Markdown 格式的字符串。
+     * @return Markdown 格式的字符串
      */
     public String toMarkdown() {
         return Utils.join(

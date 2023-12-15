@@ -8,6 +8,8 @@ import io.jenkins.plugins.feishu.notification.sdk.model.entity.support.At;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static io.jenkins.plugins.feishu.notification.tools.Utils.LF;
+
 /**
  * 飞书消息发送接口
  *
@@ -87,10 +89,8 @@ public interface FeiShuTalkSender {
             return content;
         }
 
-        List<String> atContents = atOpenIds.stream()
-                .map(v -> String.format(atTemplate, v))
-                .collect(Collectors.toList());
+        List<String> atContents = atOpenIds.stream().map(v -> String.format(atTemplate, v)).collect(Collectors.toList());
         String atContent = StringUtils.join(atContents, "");
-        return content + "\n\n" + atContent + "\n";
+        return (StringUtils.endsWith(content, LF) ? content : content + LF) + atContent;
     }
 }
