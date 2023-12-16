@@ -1,5 +1,6 @@
 package io.jenkins.plugins.feishu.notification.sdk.impl;
 
+import io.jenkins.cli.shaded.org.apache.commons.lang.StringUtils;
 import io.jenkins.cli.shaded.org.apache.commons.lang.exception.ExceptionUtils;
 import io.jenkins.plugins.feishu.notification.enums.MsgTypeEnum;
 import io.jenkins.plugins.feishu.notification.model.RobotConfigModel;
@@ -16,7 +17,6 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -46,7 +46,7 @@ public abstract class AbstractFeiShuTalkSender implements FeiShuTalkSender {
         SendResult sendResult;
         try {
             RobotConfigModel robotConfig = getRobotConfig();
-            String body = Objects.requireNonNull(JsonUtils.toJson(robotConfig.buildSign(params)));
+            String body = StringUtils.defaultString(JsonUtils.toJson(robotConfig.buildSign(params)));
             HttpRequest request = HttpRequest.newBuilder().uri(URI.create(robotConfig.getWebhook()))
                     .header(CONTENT_TYPE, APPLICATION_JSON_VALUE).timeout(Duration.ofMinutes(3))
                     .POST(HttpRequest.BodyPublishers.ofString(body))

@@ -30,6 +30,7 @@ import org.kohsuke.stapler.QueryParameter;
 import java.net.ProxySelector;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.jenkins.plugins.feishu.notification.sdk.constant.Constants.NOTICE_ICON;
 
@@ -183,26 +184,27 @@ public class FeiShuTalkRobotConfig implements Describable<FeiShuTalkRobotConfig>
         /**
          * 测试机器人配置是否可以正常工作。
          *
-         * @param id                   机器人ID。
-         * @param name                 机器人名称。
-         * @param webhook              Webhook密钥。
-         * @param proxy                代理设置。
-         * @param keyword              关键词。
-         * @param secret               加密密钥。
+         * @param id      机器人ID。
+         * @param name    机器人名称。
+         * @param webhook Webhook密钥。
+         * @param proxy   代理设置。
+         * @param keyword 关键词。
+         * @param secret  加密密钥。
          * @return 返回测试结果，如果测试通过，返回FormValidation.respond(Kind.OK)，否则返回错误信息。
          */
         public FormValidation doTest(@QueryParameter("id") String id, @QueryParameter("name") String name,
                                      @QueryParameter("webhook") String webhook, @QueryParameter("proxy") String proxy,
                                      @QueryParameter("keyword") String keyword, @QueryParameter("secret") String secret) {
 
-            List<FeiShuTalkSecurityPolicyConfig> securityPolicyConfigs = List.of(
-                    Objects.requireNonNull(JsonUtils.readValue(keyword, FeiShuTalkSecurityPolicyConfig.class)),
-                    Objects.requireNonNull(JsonUtils.readValue(secret, FeiShuTalkSecurityPolicyConfig.class))
-            );
+            List<FeiShuTalkSecurityPolicyConfig> securityPolicyConfigs = Stream.of(keyword, secret)
+                    .map(json -> JsonUtils.readValue(json, FeiShuTalkSecurityPolicyConfig.class))
+                    .filter(Objects::nonNull).filter(config -> StringUtils.isNotBlank(config.getValue()))
+                    .collect(Collectors.toList());
 
             FeiShuTalkRobotConfig robotConfig = new FeiShuTalkRobotConfig(id, name, webhook, securityPolicyConfigs);
 
-            ProxySelector proxySelector = Objects.requireNonNull(JsonUtils.readValue(proxy, FeiShuTalkProxyConfig.class)).obtainProxySelector();
+            ProxySelector proxySelector = Optional.ofNullable(JsonUtils.readValue(proxy, FeiShuTalkProxyConfig.class))
+                    .orElseGet(FeiShuTalkProxyConfig::new).obtainProxySelector();
 
             FeiShuTalkSender sender = new DefaultFeiShuTalkSender(RobotConfigModel.of(robotConfig, proxySelector));
 
