@@ -14,7 +14,7 @@
     <version>${revision}-${changelist}</version>
     <packaging>hpi</packaging>
     <properties>
-        <revision>1.2.1</revision>
+        <revision>1.2.2</revision>
         <changelist>M1</changelist>
         <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
         <jenkins.version>2.414.3</jenkins.version>
