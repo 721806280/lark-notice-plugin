@@ -5,22 +5,14 @@ import io.jenkins.plugins.feishu.notification.sdk.model.entity.support.Button;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.jenkins.plugins.feishu.notification.sdk.constant.Constants.LF;
+
 /**
  * 通用方法合集
  *
  * @author xm.z
  */
 public class Utils {
-
-    /**
-     * 字符串常量：换行符 {@code "\n"}
-     */
-    public static final String LF = "\n";
-
-    /**
-     * 字符串常量：逗号 {@code ","}
-     */
-    public static final String COMMA = ",";
 
     /**
      * 创建默认的按钮列表

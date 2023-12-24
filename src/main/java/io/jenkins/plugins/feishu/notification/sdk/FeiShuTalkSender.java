@@ -8,7 +8,7 @@ import io.jenkins.plugins.feishu.notification.sdk.model.entity.support.At;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static io.jenkins.plugins.feishu.notification.tools.Utils.LF;
+import static io.jenkins.plugins.feishu.notification.sdk.constant.Constants.LF;
 
 /**
  * 飞书消息发送接口

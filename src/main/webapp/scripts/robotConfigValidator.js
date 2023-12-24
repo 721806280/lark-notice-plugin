@@ -33,7 +33,7 @@ async function validateRobotConfig(_this) {
 /**
  * 获取机器人的请求参数
  * @param {HTMLElement} robot - 机器人元素
- * @returns {Array} - 表单请求参数数组
+ * @returns {URLSearchParams} - 请求参数
  */
 function getParams(robot) {
     // 获取代理信息

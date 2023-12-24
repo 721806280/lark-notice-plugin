@@ -1,10 +1,14 @@
 package io.jenkins.plugins.feishu.notification.sdk.constant;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 /**
  * 基础常量信息
  *
  * @author xm.z
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Constants {
 
     /**
@@ -13,9 +17,13 @@ public final class Constants {
     public static final String NOTICE_ICON = "\uD83D\uDCE2";
 
     /**
-     * 私有化构造，防止实例化
+     * 字符串常量：换行符 {@code "\n"}
      */
-    private Constants() {
-    }
+    public static final String LF = "\n";
+
+    /**
+     * 字符串常量：逗号 {@code ","}
+     */
+    public static final String COMMA = ",";
 
 }

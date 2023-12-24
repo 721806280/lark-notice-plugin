@@ -17,8 +17,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static io.jenkins.plugins.feishu.notification.tools.Utils.COMMA;
-import static io.jenkins.plugins.feishu.notification.tools.Utils.LF;
+import static io.jenkins.plugins.feishu.notification.sdk.constant.Constants.COMMA;
+import static io.jenkins.plugins.feishu.notification.sdk.constant.Constants.LF;
 
 /**
  * FeiShuTalkNotifierConfig 类用于存储飞书通知器的配置信息。

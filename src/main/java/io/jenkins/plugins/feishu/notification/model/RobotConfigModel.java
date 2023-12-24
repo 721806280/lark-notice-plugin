@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Objects;
 
-import static io.jenkins.plugins.feishu.notification.tools.Utils.LF;
+import static io.jenkins.plugins.feishu.notification.sdk.constant.Constants.LF;
 
 /**
  * 机器人配置模型。

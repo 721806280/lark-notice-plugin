@@ -27,8 +27,8 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import java.io.IOException;
 import java.util.Set;
 
+import static io.jenkins.plugins.feishu.notification.sdk.constant.Constants.LF;
 import static io.jenkins.plugins.feishu.notification.sdk.constant.Constants.NOTICE_ICON;
-import static io.jenkins.plugins.feishu.notification.tools.Utils.LF;
 
 /**
  * FeiShuTalkRunListener 是一个 Jenkins 监听器，它实现了 {@link hudson.model.listeners.RunListener} 接口，
