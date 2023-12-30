@@ -19,37 +19,37 @@ public enum BuildStatusEnum {
     /**
      * 开始
      */
-    START(Messages.build_status_start(), "green"),
+    START(Messages.build_status_start(), "blue", "blue"),
 
     /**
      * 失败
      */
-    FAILURE(Messages.build_status_failure(), "red"),
+    FAILURE(Messages.build_status_failure(), "red", "red"),
 
     /**
      * 成功
      */
-    SUCCESS(Messages.build_status_success(), "green"),
+    SUCCESS(Messages.build_status_success(), "green", "green"),
 
     /**
      * 取消
      */
-    ABORTED(Messages.build_status_aborted(), "grey"),
+    ABORTED(Messages.build_status_aborted(), "neutral", "grey"),
 
     /**
      * 不稳定
      */
-    UNSTABLE(Messages.build_status_unstable(), "grey"),
+    UNSTABLE(Messages.build_status_unstable(), "yellow", "yellow"),
 
     /**
      * 未构建
      */
-    NOT_BUILT(Messages.build_status_not_built(), "grey"),
+    NOT_BUILT(Messages.build_status_not_built(), "turquoise", "turquoise"),
 
     /**
      * 未知
      */
-    UNKNOWN(Messages.build_status_unknown(), "default");
+    UNKNOWN(Messages.build_status_unknown(), "purple", "purple");
 
     /**
      * 将NoticeOccasionEnum值和BuildStatusEnum值进行映射，方便获取对应的构建状态。
@@ -67,5 +67,6 @@ public enum BuildStatusEnum {
 
     private final String label;
     private final String color;
+    private final String template;
 
 }

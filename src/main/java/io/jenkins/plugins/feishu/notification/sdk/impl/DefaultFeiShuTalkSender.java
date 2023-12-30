@@ -94,7 +94,7 @@ public class DefaultFeiShuTalkSender extends AbstractFeiShuTalkSender {
     public SendResult sendInteractive(MessageModel msg) {
         Card card = new Card();
         card.setConfig(new Config(true, true));
-        card.setHeader(new Header("BLUE", new TagContent("plain_text", addKeyWord(msg.getTitle(), robotConfig.getKeys()))));
+        card.setHeader(new Header(msg.obtainTitleTemplate(), new TagContent("plain_text", addKeyWord(msg.getTitle(), robotConfig.getKeys()))));
 
         Hr hr = new Hr();
         TagContent mdContent = new TagContent("markdown", addAtInfo(msg.getText(), msg.getAt()));

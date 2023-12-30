@@ -1,5 +1,6 @@
 package io.jenkins.plugins.feishu.notification.model;
 
+import io.jenkins.plugins.feishu.notification.enums.BuildStatusEnum;
 import io.jenkins.plugins.feishu.notification.enums.MsgTypeEnum;
 import io.jenkins.plugins.feishu.notification.sdk.model.entity.support.At;
 import io.jenkins.plugins.feishu.notification.sdk.model.entity.support.Button;
@@ -11,13 +12,14 @@ import lombok.ToString;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.jenkins.plugins.feishu.notification.sdk.constant.Constants.NOTICE_ICON;
 
 /**
- * 用于存储消息相关的模型。
+ * 用于存储消息相关的模型
  *
  * @author xm.z
  */
@@ -28,32 +30,37 @@ import static io.jenkins.plugins.feishu.notification.sdk.constant.Constants.NOTI
 public class MessageModel {
 
     /**
-     * 默认标题。
+     * 默认标题
      */
     public static final String DEFAULT_TITLE = NOTICE_ICON + " Jenkins 构建通知";
 
     /**
-     * 消息类型。
+     * 消息类型
      */
     private MsgTypeEnum type;
 
     /**
-     * 需要 at 的 open_id 集合。
+     * 构建状态
+     */
+    private BuildStatusEnum statusType;
+
+    /**
+     * 需要 at 的 open_id 集合
      */
     private Set<String> atOpenIds;
 
     /**
-     * 是否 at 全部。
+     * 是否 at 全部
      */
     private boolean atAll;
 
     /**
-     * 标题，首屏会话透出的展示内容。
+     * 标题，首屏会话透出的展示内容
      */
     private String title;
 
     /**
-     * 消息正文。
+     * 消息正文
      */
     private String text;
 
@@ -68,23 +75,32 @@ public class MessageModel {
     private ImgElement bottomImg;
 
     /**
-     * 按钮信息。
+     * 按钮信息
      */
     private List<Button> buttons;
 
     /**
-     * 获取带默认值的标题。
+     * 获取带默认值的标题
      *
-     * @return 带默认值的标题。
+     * @return 带默认值的标题
      */
     public String getTitle() {
         return StringUtils.defaultIfBlank(title, DEFAULT_TITLE);
     }
 
     /**
-     * 获取 at 设置。
+     * 获取标题模版色
      *
-     * @return at。
+     * @return 模版色
+     */
+    public String obtainTitleTemplate() {
+        return (Objects.nonNull(statusType) ? statusType : BuildStatusEnum.START).getTemplate();
+    }
+
+    /**
+     * 获取 at 设置
+     *
+     * @return at
      */
     public At getAt() {
         At at = new At();

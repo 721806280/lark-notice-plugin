@@ -32,17 +32,6 @@ public class Utils {
     }
 
     /**
-     * markdown 染色
-     *
-     * @param content 内容
-     * @param color   颜色
-     * @return 带颜色的内容
-     */
-    public static String dye(String content, String color) {
-        return "<font color=" + color + ">" + content + "</font>";
-    }
-
-    /**
      * markdown 数组转字符串
      *
      * @param list 数组

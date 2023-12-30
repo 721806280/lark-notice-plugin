@@ -10,7 +10,6 @@ import hudson.model.TaskListener;
 import hudson.model.listeners.RunListener;
 import io.jenkins.plugins.feishu.notification.config.property.FeiShuTalkJobProperty;
 import io.jenkins.plugins.feishu.notification.context.PipelineEnvContext;
-import io.jenkins.plugins.feishu.notification.enums.MsgTypeEnum;
 import io.jenkins.plugins.feishu.notification.enums.NoticeOccasionEnum;
 import io.jenkins.plugins.feishu.notification.model.BuildJobModel;
 import io.jenkins.plugins.feishu.notification.model.MessageModel;
@@ -28,7 +27,6 @@ import java.io.IOException;
 import java.util.Set;
 
 import static io.jenkins.plugins.feishu.notification.sdk.constant.Constants.LF;
-import static io.jenkins.plugins.feishu.notification.sdk.constant.Constants.NOTICE_ICON;
 
 /**
  * FeiShuTalkRunListener 是一个 Jenkins 监听器，它实现了 {@link hudson.model.listeners.RunListener} 接口，
@@ -139,11 +137,8 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
                         atOpenIds.add(user.getOpenId());
                     }
 
-                    MessageModel messageModel = MessageModel.builder().type(MsgTypeEnum.INTERACTIVE)
-                            .atAll(config.isAtAll()).atOpenIds(atOpenIds)
-                            .text(text).buttons(buildJobModel.createDefaultButtons())
-                            .title(String.format("%s %s %s", NOTICE_ICON, buildJobModel.getProjectName(), buildJobModel.getStatusType().getLabel()))
-                            .build();
+                    MessageModel messageModel = buildJobModel.messageModelBuilder()
+                            .atAll(config.isAtAll()).atOpenIds(atOpenIds).text(text).build();
 
                     Logger.log(listener, "当前机器人信息: %s", config.getRobotName());
                     Logger.log(listener, "发送的消息详情: %s", JsonUtils.toJson(messageModel));

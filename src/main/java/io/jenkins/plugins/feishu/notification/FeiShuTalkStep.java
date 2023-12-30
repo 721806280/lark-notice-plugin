@@ -8,6 +8,7 @@ import hudson.model.TaskListener;
 import io.jenkins.plugins.feishu.notification.config.FeiShuTalkGlobalConfig;
 import io.jenkins.plugins.feishu.notification.config.FeiShuTalkRobotConfig;
 import io.jenkins.plugins.feishu.notification.enums.MsgTypeEnum;
+import io.jenkins.plugins.feishu.notification.enums.NoticeOccasionEnum;
 import io.jenkins.plugins.feishu.notification.model.ButtonModel;
 import io.jenkins.plugins.feishu.notification.model.ImgModel;
 import io.jenkins.plugins.feishu.notification.model.MessageModel;
@@ -214,7 +215,10 @@ public class FeiShuTalkStep extends Step {
      * @return 消息发送结果。
      */
     public SendResult send(Run<?, ?> run, EnvVars envVars, TaskListener listener) {
-        MessageModel message = MessageModel.builder().type(type).title(envVars.expand(title))
+        NoticeOccasionEnum noticeOccasion = NoticeOccasionEnum.getNoticeOccasion(run.getResult());
+
+        MessageModel message = MessageModel.builder().type(type)
+                .statusType(noticeOccasion.buildStatus()).title(envVars.expand(title))
                 .text(envVars.expand(buildText())).buttons(buildButtons(run, envVars))
                 .topImg(buildImg(envVars, topImg)).bottomImg(buildImg(envVars, bottomImg))
                 .build();
