@@ -26,8 +26,13 @@ public class SendResult {
      */
     private String msg;
 
+    /**
+     * 请求数据
+     */
+    private String requestBody;
+
     public static SendResult fail(String msg) {
-        return new SendResult(-1, msg);
+        return new SendResult(-1, msg, null);
     }
 
     public boolean isOk() {

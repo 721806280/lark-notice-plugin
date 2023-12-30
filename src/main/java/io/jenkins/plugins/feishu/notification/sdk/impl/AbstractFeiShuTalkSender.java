@@ -17,6 +17,7 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -43,13 +44,13 @@ public abstract class AbstractFeiShuTalkSender implements FeiShuTalkSender {
      * @return 发送结果
      */
     protected SendResult sendMessage(Map<String, Object> params) {
+        RobotConfigModel robotConfig = getRobotConfig();
+        String body = JsonUtils.toJson(robotConfig.buildSign(params));
         SendResult sendResult;
         try {
-            RobotConfigModel robotConfig = getRobotConfig();
-            String body = StringUtils.defaultString(JsonUtils.toJson(robotConfig.buildSign(params)));
             HttpRequest request = HttpRequest.newBuilder().uri(URI.create(robotConfig.getWebhook()))
                     .header(CONTENT_TYPE, APPLICATION_JSON_VALUE).timeout(Duration.ofMinutes(3))
-                    .POST(HttpRequest.BodyPublishers.ofString(body))
+                    .POST(HttpRequest.BodyPublishers.ofString(StringUtils.defaultString(body)))
                     .build();
 
             HttpResponse<String> response = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1)
@@ -61,6 +62,7 @@ public abstract class AbstractFeiShuTalkSender implements FeiShuTalkSender {
             log.error("飞书消息发送失败", e);
             sendResult = SendResult.fail(ExceptionUtils.getStackTrace(e));
         }
+        Optional.ofNullable(sendResult).ifPresent(result -> result.setRequestBody(body));
         return sendResult;
     }
 

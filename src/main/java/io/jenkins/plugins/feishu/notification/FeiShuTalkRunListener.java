@@ -16,7 +16,6 @@ import io.jenkins.plugins.feishu.notification.model.MessageModel;
 import io.jenkins.plugins.feishu.notification.model.RunUser;
 import io.jenkins.plugins.feishu.notification.sdk.impl.FeiShuTalkServiceImpl;
 import io.jenkins.plugins.feishu.notification.sdk.model.SendResult;
-import io.jenkins.plugins.feishu.notification.tools.JsonUtils;
 import io.jenkins.plugins.feishu.notification.tools.Logger;
 import jenkins.model.Jenkins;
 import lombok.extern.log4j.Log4j;
@@ -141,9 +140,8 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
                             .atAll(config.isAtAll()).atOpenIds(atOpenIds).text(text).build();
 
                     Logger.log(listener, "当前机器人信息: %s", config.getRobotName());
-                    Logger.log(listener, "发送的消息详情: %s", JsonUtils.toJson(messageModel));
-
                     SendResult sendResult = service.send(config.getRobotId(), messageModel);
+                    Logger.log(listener, "发送的消息详情: %s", sendResult.getRequestBody());
                     if (!sendResult.isOk()) {
                         Logger.error(listener, sendResult.getMsg());
                     }
