@@ -92,34 +92,38 @@ public class DefaultFeiShuTalkSender extends AbstractFeiShuTalkSender {
      */
     @Override
     public SendResult sendInteractive(MessageModel msg) {
-        Card card = new Card();
-        card.setConfig(new Config(true, true));
-        card.setHeader(new Header(msg.obtainTitleTemplate(), new TagContent("plain_text", addKeyWord(msg.getTitle(), robotConfig.getKeys()))));
+        String text = msg.getText();
+        Card card = Optional.ofNullable(JsonUtils.isValidJson(text) ? JsonUtils.readValue(text, Card.class) : null)
+                .orElseGet(Card::new);
+        if (Objects.isNull(card.getElements())) {
+            card.setConfig(new Config(true, true));
+            card.setHeader(new Header(msg.obtainTitleTemplate(), new TagContent("plain_text", addKeyWord(msg.getTitle(), robotConfig.getKeys()))));
 
-        Hr hr = new Hr();
-        TagContent mdContent = new TagContent("markdown", addAtInfo(msg.getText(), msg.getAt()));
+            Hr hr = new Hr();
+            TagContent mdContent = new TagContent("markdown", addAtInfo(text, msg.getAt()));
 
-        List<Object> elements = new ArrayList<>();
-        if (Objects.nonNull(msg.getTopImg())) {
+            List<Object> elements = new ArrayList<>();
+            if (Objects.nonNull(msg.getTopImg())) {
+                elements.add(hr);
+                elements.add(msg.getTopImg());
+            }
             elements.add(hr);
-            elements.add(msg.getTopImg());
-        }
-        elements.add(hr);
-        elements.add(mdContent);
-        if (Objects.nonNull(msg.getBottomImg())) {
+            elements.add(mdContent);
+            if (Objects.nonNull(msg.getBottomImg())) {
+                elements.add(hr);
+                elements.add(msg.getBottomImg());
+            }
             elements.add(hr);
-            elements.add(msg.getBottomImg());
-        }
-        elements.add(hr);
 
-        if (!CollectionUtils.isEmpty(msg.getButtons())) {
-            Map<String, Object> actions = new HashMap<>(8);
-            actions.put("actions", msg.getButtons());
-            actions.put("tag", "action");
-            elements.add(actions);
-        }
+            if (!CollectionUtils.isEmpty(msg.getButtons())) {
+                Map<String, Object> actions = new HashMap<>(8);
+                actions.put("actions", msg.getButtons());
+                actions.put("tag", "action");
+                elements.add(actions);
+            }
 
-        card.setElements(JsonUtils.valueToTree(elements));
+            card.setElements(JsonUtils.valueToTree(elements));
+        }
         return sendMessage(buildParams(MsgTypeEnum.INTERACTIVE, new ActionCard(card)));
     }
 
