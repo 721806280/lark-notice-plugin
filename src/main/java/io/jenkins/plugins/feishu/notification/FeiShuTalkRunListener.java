@@ -136,7 +136,8 @@ public class FeiShuTalkRunListener extends RunListener<Run<?, ?>> {
                         atOpenIds.add(user.getOpenId());
                     }
 
-                    MessageModel messageModel = buildJobModel.messageModelBuilder()
+                    String title = envVars.expand(config.getTitle());
+                    MessageModel messageModel = buildJobModel.messageModelBuilder(title)
                             .atAll(config.isAtAll()).atOpenIds(atOpenIds).text(text).build();
 
                     Logger.log(listener, "当前机器人信息: %s", config.getRobotName());

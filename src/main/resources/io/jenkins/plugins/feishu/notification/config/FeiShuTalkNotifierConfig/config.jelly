@@ -39,6 +39,9 @@
                     <f:checkbox title="atAll" field="atAll"/>
                     <f:textarea field="atOpenId"/>
                 </f:entry>
+                <f:entry field="title" title="自定义标题">
+                    <f:textbox/>
+                </f:entry>
                 <f:entry field="content" title="自定义内容">
                     <f:textarea/>
                 </f:entry>

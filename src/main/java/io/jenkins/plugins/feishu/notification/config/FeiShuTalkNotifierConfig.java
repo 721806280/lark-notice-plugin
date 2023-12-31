@@ -75,6 +75,11 @@ public class FeiShuTalkNotifierConfig extends AbstractDescribableImpl<FeiShuTalk
     private String atOpenId;
 
     /**
+     * 消息标题
+     */
+    private String title;
+
+    /**
      * 消息内容
      */
     private String content;
@@ -100,13 +105,14 @@ public class FeiShuTalkNotifierConfig extends AbstractDescribableImpl<FeiShuTalk
      * @param robotName       机器人名称。
      * @param atAll           是否 @ 所有人。
      * @param atOpenId        需要 @ 的用户 OpenID。
+     * @param title           消息标题
      * @param content         消息内容。
      * @param message         消息模板。
      * @param noticeOccasions 需要进行哪些通知的 Set 集合。
      */
     @DataBoundConstructor
     public FeiShuTalkNotifierConfig(boolean raw, boolean disabled, boolean checked, String robotId, String robotName,
-                                    boolean atAll, String atOpenId, String content, String message, Set<String> noticeOccasions) {
+                                    boolean atAll, String atOpenId, String title, String content, String message, Set<String> noticeOccasions) {
         this.raw = raw;
         this.disabled = disabled;
         this.checked = checked;
@@ -114,6 +120,7 @@ public class FeiShuTalkNotifierConfig extends AbstractDescribableImpl<FeiShuTalk
         this.robotName = robotName;
         this.atAll = atAll;
         this.atOpenId = atOpenId;
+        this.title = title;
         this.content = content;
         this.message = message;
         this.noticeOccasions = noticeOccasions;
@@ -127,7 +134,7 @@ public class FeiShuTalkNotifierConfig extends AbstractDescribableImpl<FeiShuTalk
      */
     public FeiShuTalkNotifierConfig(FeiShuTalkRobotConfig robotConfig) {
         this(false, false, false, robotConfig.getId(), robotConfig.getName(), false,
-                null, null, null, getDefaultNoticeOccasions());
+                null, null, null, null, getDefaultNoticeOccasions());
     }
 
     /**
@@ -189,6 +196,7 @@ public class FeiShuTalkNotifierConfig extends AbstractDescribableImpl<FeiShuTalk
         this.setChecked(notifierConfig.isChecked());
         this.setAtAll(notifierConfig.isAtAll());
         this.setAtOpenId(notifierConfig.getAtOpenId());
+        this.setTitle(notifierConfig.getTitle());
         this.setContent(notifierConfig.getContent());
         this.setMessage(notifierConfig.getMessage());
         this.setNoticeOccasions(notifierConfig.getNoticeOccasions());

@@ -8,7 +8,6 @@ import lombok.Data;
 import java.util.Arrays;
 
 import static io.jenkins.plugins.feishu.notification.enums.MsgTypeEnum.INTERACTIVE;
-import static io.jenkins.plugins.feishu.notification.sdk.constant.Constants.NOTICE_ICON;
 
 /**
  * 用于存储构建任务相关的模型
@@ -88,11 +87,9 @@ public class BuildJobModel {
         );
     }
 
-    public MessageModel.MessageModelBuilder messageModelBuilder() {
-        return MessageModel.builder()
-                .type(INTERACTIVE).statusType(statusType)
-                .buttons(Utils.createDefaultButtons(jobUrl))
-                .title(String.format("%s %s %s", NOTICE_ICON, projectName, statusType.getLabel()));
+    public MessageModel.MessageModelBuilder messageModelBuilder(String title) {
+        return MessageModel.builder().type(INTERACTIVE).statusType(statusType)
+                .buttons(Utils.createDefaultButtons(jobUrl)).title(title);
     }
 
 }
