@@ -89,11 +89,11 @@ public class MessageModel {
     }
 
     /**
-     * 获取标题模版色
+     * 获取卡片标题的主题色
      *
-     * @return 模版色
+     * @return 卡片标题的主题色
      */
-    public String obtainTitleTemplate() {
+    public String obtainHeaderTemplate() {
         return (Objects.nonNull(statusType) ? statusType : BuildStatusEnum.START).getTemplate();
     }
 

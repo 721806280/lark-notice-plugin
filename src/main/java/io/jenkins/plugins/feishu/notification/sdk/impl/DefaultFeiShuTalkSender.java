@@ -1,5 +1,6 @@
 package io.jenkins.plugins.feishu.notification.sdk.impl;
 
+import io.jenkins.cli.shaded.org.apache.commons.lang.StringUtils;
 import io.jenkins.plugins.feishu.notification.enums.MsgTypeEnum;
 import io.jenkins.plugins.feishu.notification.model.MessageModel;
 import io.jenkins.plugins.feishu.notification.model.RobotConfigModel;
@@ -92,12 +93,19 @@ public class DefaultFeiShuTalkSender extends AbstractFeiShuTalkSender {
      */
     @Override
     public SendResult sendInteractive(MessageModel msg) {
+        String headerTemplate = msg.obtainHeaderTemplate();
+
         String text = msg.getText();
         Card card = Optional.ofNullable(JsonUtils.isValidJson(text) ? JsonUtils.readValue(text, Card.class) : null)
                 .orElseGet(Card::new);
+
+        Optional.ofNullable(card.getHeader())
+                .filter(header -> Objects.nonNull(header.getTemplate()) && StringUtils.isBlank(header.getTemplate()))
+                .ifPresent(header -> header.setTemplate(headerTemplate));
+
         if (Objects.isNull(card.getElements())) {
             card.setConfig(new Config(true, true));
-            card.setHeader(new Header(msg.obtainTitleTemplate(), new TagContent("plain_text", addKeyWord(msg.getTitle(), robotConfig.getKeys()))));
+            card.setHeader(new Header(headerTemplate, new TagContent("plain_text", addKeyWord(msg.getTitle(), robotConfig.getKeys()))));
 
             Hr hr = new Hr();
             TagContent mdContent = new TagContent("markdown", addAtInfo(text, msg.getAt()));
