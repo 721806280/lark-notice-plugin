@@ -10,11 +10,11 @@
         <relativePath/>
     </parent>
     <groupId>io.jenkins.plugins</groupId>
-    <artifactId>feishu-notification</artifactId>
+    <artifactId>lark-notice</artifactId>
     <version>${revision}-${changelist}</version>
     <packaging>hpi</packaging>
     <properties>
-        <revision>1.2.3</revision>
+        <revision>2.0.0</revision>
         <changelist>M1</changelist>
         <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
         <jenkins.version>2.414.3</jenkins.version>
@@ -22,8 +22,8 @@
     </properties>
 
     <name>${project.artifactId}</name>
-    <description>飞书 Jenkins 通知插件</description>
-    <url>https://github.com/jenkinsci/feishu-notification-plugin</url>
+    <description>Lark通知插件</description>
+    <url>https://github.com/jenkinsci/lark-notice-plugin</url>
 
     <licenses>
         <license>
@@ -41,8 +41,8 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git@github.com:jenkinsci/feishu-notification-plugin.git</connection>
-        <developerConnection>scm:git:git@github.com:jenkinsci/feishu-notification-plugin.git</developerConnection>
+        <connection>scm:git:git@github.com:jenkinsci/lark-notice-plugin.git</connection>
+        <developerConnection>scm:git:git@github.com:jenkinsci/lark-notice-plugin.git</developerConnection>
         <url>${project.url}</url>
         <tag>${project.name}-${project.version}</tag>
     </scm>
