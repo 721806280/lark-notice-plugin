@@ -1,0 +1,17 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
+    <j:set var="type" value="${instance.getType()}"/>
+    <j:set var="desc" value="${instance.getDesc()}"/>
+
+    <div class="security-config-container">
+        <f:entry title="${desc}" field="value"
+                 help="${type == 'KEY' ? '/descriptor/io.jenkins.plugins.lark.notice.config.LarkSecurityPolicyConfig/help/key' : null}">
+            <f:textbox name="value"/>
+        </f:entry>
+        <f:invisibleEntry>
+            <input type="hidden" name="type" value="${type}"/>
+            <input type="hidden" name="desc" value="${desc}"/>
+        </f:invisibleEntry>
+    </div>
+
+</j:jelly>

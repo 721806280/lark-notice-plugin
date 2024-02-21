@@ -1,31 +1,8 @@
-### gradle ###
-.gradle
-/build/
-!gradle/wrapper/gradle-wrapper.jar
-
-### STS ###
-.settings/
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-bin/
-
 ### IntelliJ IDEA ###
 .idea
 *.iws
 *.iml
 *.ipr
-rebel.xml
-
-### NetBeans ###
-nbproject/private/
-build/
-nbbuild/
-nbdist/
-.nb-gradle/
 
 ### maven ###
 target/
@@ -34,9 +11,6 @@ target/
 *.zip
 *.tar
 *.tar.gz
-
-### vscode ###
-.vscode
 
 ### logs ###
 /logs/
@@ -57,5 +31,5 @@ Thumbs.db
 Servers
 .metadata
 
-### jenkins ###
+### Jenkins ###
 work/

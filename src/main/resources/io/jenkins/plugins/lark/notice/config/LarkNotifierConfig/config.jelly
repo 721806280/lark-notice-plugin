@@ -1,0 +1,59 @@
+<?jelly escape-by-default='true'?>
+
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:f="/lib/form">
+    <st:once>
+        <script type="text/javascript"
+                src="${rootURL}/plugin/lark-notice/scripts/notifierConfig.js"/>
+    </st:once>
+    <!-- 通知时机列表 -->
+    <j:set var="noticeOccasionTypes" value="${descriptor.getNoticeOccasionTypes()}"/>
+
+    <f:entry title="${instance.getRobotName()}" class="">
+        <f:advanced>
+            <f:entry title="停用" field="disabled">
+                <f:checkbox checked="${instance.getDisabled()}"/>
+            </f:entry>
+            <f:entry title="禁用内置消息" field="raw" class="notifier-config-raw">
+                <f:checkbox checked="${instance.getRaw()}"/>
+            </f:entry>
+            <f:entry title="通知时机" field="noticeOccasions">
+                <j:forEach var="noticeOccasionTypeItem" items="${noticeOccasionTypes}">
+                    <j:scope>
+                        <j:set var="name" value="${noticeOccasionTypeItem.name()}"/>
+                        <j:set var="desc" value="${noticeOccasionTypeItem.getDesc()}"/>
+                        <label style="margin-right: 5px;">
+                            <f:checkbox json="${name}" name="noticeOccasions" title="${desc}"
+                                        checked="${instance.noticeOccasions.contains(name)}"/>
+                        </label>
+                    </j:scope>
+                </j:forEach>
+            </f:entry>
+            <div class="raw-content" style="display: none;">
+                <f:entry field="message" title="自定义消息">
+                    <f:textarea/>
+                </f:entry>
+            </div>
+            <div class="none-raw-content">
+                <f:entry title="通知人" field="at">
+                    <f:checkbox title="atAll" field="atAll"/>
+                    <f:textarea field="atUserId"/>
+                </f:entry>
+                <f:entry field="title" title="自定义标题">
+                    <f:textbox/>
+                </f:entry>
+                <f:entry field="content" title="自定义内容">
+                    <f:textarea/>
+                </f:entry>
+            </div>
+        </f:advanced>
+    </f:entry>
+    <f:invisibleEntry>
+        <input type="hidden" name="robotId" value="${instance.getRobotId()}"/>
+    </f:invisibleEntry>
+    <f:invisibleEntry>
+        <input type="hidden" name="robotName" value="${instance.getRobotName()}"/>
+    </f:invisibleEntry>
+    <f:invisibleEntry>
+        <input type="hidden" name="checked" value="true"/>
+    </f:invisibleEntry>
+</j:jelly>
