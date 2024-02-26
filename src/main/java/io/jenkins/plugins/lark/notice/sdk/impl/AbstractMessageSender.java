@@ -10,10 +10,17 @@ import io.jenkins.plugins.lark.notice.sdk.model.SendResult;
 import io.jenkins.plugins.lark.notice.tools.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509ExtendedTrustManager;
+import java.net.Socket;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.util.Optional;
 
@@ -29,6 +36,40 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
  */
 @Slf4j
 public abstract class AbstractMessageSender implements MessageSender {
+
+    /**
+     * Define a mock TrustManager to ignore certificate validation
+     */
+    private static final TrustManager MOCK_TRUST_MANAGER = new X509ExtendedTrustManager() {
+        @Override
+        public X509Certificate[] getAcceptedIssuers() {
+            return new X509Certificate[]{};
+        }
+
+        @Override
+        public void checkClientTrusted(X509Certificate[] chain, String authType) {
+        }
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] chain, String authType) {
+        }
+
+        @Override
+        public void checkClientTrusted(X509Certificate[] chain, String authType, Socket socket) {
+        }
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] chain, String authType, Socket socket) {
+        }
+
+        @Override
+        public void checkClientTrusted(X509Certificate[] chain, String authType, SSLEngine engine) {
+        }
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] chain, String authType, SSLEngine engine) {
+        }
+    };
 
     /**
      * Retrieves the robot configuration information.
@@ -49,8 +90,11 @@ public abstract class AbstractMessageSender implements MessageSender {
             RobotConfigModel robotConfig = getRobotConfig();
             String webhook = robotConfig.getWebhook();
 
-            HttpRequest.Builder builder = HttpRequest.newBuilder().uri(URI.create(webhook))
-                    .header(CONTENT_TYPE, APPLICATION_JSON_VALUE).timeout(Duration.ofMinutes(3))
+            // Create HttpRequest.Builder
+            HttpRequest.Builder builder = HttpRequest.newBuilder()
+                    .uri(URI.create(webhook))
+                    .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+                    .timeout(Duration.ofMinutes(3))
                     .POST(HttpRequest.BodyPublishers.ofString(StringUtils.defaultString(body)));
 
             if (ArrayUtils.isNotEmpty(headers)) {
@@ -61,10 +105,9 @@ public abstract class AbstractMessageSender implements MessageSender {
                 builder.headers(headers);
             }
 
-            HttpResponse<String> response = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1)
-                    .followRedirects(HttpClient.Redirect.NORMAL).proxy(robotConfig.getProxySelector()).build()
+            // Create HttpClient and send the request
+            HttpResponse<String> response = createHttpClient(robotConfig)
                     .send(builder.build(), HttpResponse.BodyHandlers.ofString());
-
             sendResult = JsonUtils.readValue(response.body(), SendResult.class);
         } catch (Exception e) {
             log.error("Failed to send Lark message", e);
@@ -72,6 +115,24 @@ public abstract class AbstractMessageSender implements MessageSender {
         }
         Optional.ofNullable(sendResult).ifPresent(result -> result.setRequestBody(body));
         return sendResult;
+    }
+
+    /**
+     * Create HttpClient.
+     *
+     * @param robotConfig Robot configuration information.
+     * @return HttpClient instance.
+     * @throws Exception Exception during HttpClient creation.
+     */
+    private HttpClient createHttpClient(RobotConfigModel robotConfig) throws Exception {
+        SSLContext sslContext = SSLContext.getInstance("TLS");
+        sslContext.init(null, new TrustManager[]{MOCK_TRUST_MANAGER}, new SecureRandom());
+        return HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_1_1)
+                .followRedirects(HttpClient.Redirect.NORMAL)
+                .proxy(robotConfig.getProxySelector())
+                .sslContext(sslContext)
+                .build();
     }
 
 }
