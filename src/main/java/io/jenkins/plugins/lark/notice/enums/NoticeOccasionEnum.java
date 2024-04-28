@@ -7,6 +7,7 @@ import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Enum representing the various occasions on which a notification might be sent during the build process.
@@ -74,7 +75,7 @@ public enum NoticeOccasionEnum {
      * @return The corresponding {@link NoticeOccasionEnum}, or null if no match is found.
      */
     public static NoticeOccasionEnum getNoticeOccasion(Result result) {
-        return RESULT_TO_ENUM_MAP.get(result);
+        return RESULT_TO_ENUM_MAP.get(Objects.nonNull(result) ? result : Result.SUCCESS);
     }
 
     /**
