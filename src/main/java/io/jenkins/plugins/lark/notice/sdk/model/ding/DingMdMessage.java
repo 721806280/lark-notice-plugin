@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 /**
  * @author xm.z
  */
@@ -31,7 +33,7 @@ public class DingMdMessage extends BaseDingMessage {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class MarkdownContent {
+    public static class MarkdownContent implements Serializable {
 
         private String title;
 

@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 /**
  * @author xm.z
  */
@@ -28,7 +30,7 @@ public class LarkTextMessage extends BaseLarkMessage {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class TextContent {
+    public static class TextContent implements Serializable {
 
         private String text;
 

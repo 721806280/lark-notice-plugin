@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang.StringUtils;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -42,7 +43,7 @@ public class DingCardMessage extends BaseDingMessage {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class ActionCardContent {
+    public static class ActionCardContent implements Serializable {
 
         private String title;
 
@@ -71,7 +72,7 @@ public class DingCardMessage extends BaseDingMessage {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class Button {
+    public static class Button implements Serializable {
 
         private String title;
 

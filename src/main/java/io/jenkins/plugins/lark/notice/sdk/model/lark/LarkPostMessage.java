@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 /**
  * 富文本消息 类型
  *
@@ -36,7 +38,7 @@ public class LarkPostMessage extends BaseLarkMessage {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class PostContent {
+    public static class PostContent implements Serializable {
 
         /**
          * 富文本消息

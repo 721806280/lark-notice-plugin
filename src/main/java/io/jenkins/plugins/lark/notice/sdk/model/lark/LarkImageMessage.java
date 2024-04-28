@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 /**
  * @author xm.z
  */
@@ -28,7 +30,7 @@ public class LarkImageMessage extends BaseLarkMessage {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class ImageContent {
+    public static class ImageContent implements Serializable {
 
         @JsonProperty("image_key")
         private String imageKey;

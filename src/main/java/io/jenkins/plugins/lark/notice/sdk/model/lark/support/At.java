@@ -2,6 +2,7 @@ package io.jenkins.plugins.lark.notice.sdk.model.lark.support;
 
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +12,7 @@ import java.util.List;
  * @author xm.z
  */
 @Data
-public class At {
+public class At implements Serializable {
 
     /**
      * 是否 @ 所有人

@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 /**
  * 群名片消息 类型
  *
@@ -30,7 +32,7 @@ public class LarkShareChatMessage extends BaseLarkMessage {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class ShareChatContent {
+    public static class ShareChatContent implements Serializable {
 
         @JsonProperty(value = "share_chat_id")
         private String shareChatId;
