@@ -18,7 +18,7 @@
         <changelist>M1</changelist>
         <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
         <jenkins.version>2.440.3</jenkins.version>
-        <lombok.version>1.18.32</lombok.version>
+        <lombok.version>1.18.34</lombok.version>
     </properties>
 
     <name>${project.artifactId}</name>
