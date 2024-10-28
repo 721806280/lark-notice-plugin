@@ -45,8 +45,8 @@ public class Utils {
      * @return A list of {@link Button} objects, each representing an action that can be taken from the UI.
      */
     public static List<Button> createDefaultButtons(String jobUrl) {
-        String changeLog = jobUrl + "/changes";
-        String console = jobUrl + "/console";
+        String changeLog = jobUrl + "changes";
+        String console = jobUrl + "console";
 
         List<Button> buttons = new ArrayList<>();
         buttons.add(Button.of("更改记录", changeLog));

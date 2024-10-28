@@ -17,7 +17,7 @@
         <revision>2.0.0</revision>
         <changelist>M1</changelist>
         <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-        <jenkins.version>2.452.4</jenkins.version>
+        <jenkins.version>2.479.1</jenkins.version>
         <lombok.version>1.18.34</lombok.version>
     </properties>
 
@@ -68,8 +68,8 @@
         <dependencies>
             <dependency>
                 <groupId>io.jenkins.tools.bom</groupId>
-                <artifactId>bom-2.452.x</artifactId>
-                <version>3532.v8059503f6b_23</version>
+                <artifactId>bom-2.479.x</artifactId>
+                <version>3559.vb_5b_81183b_d23</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
