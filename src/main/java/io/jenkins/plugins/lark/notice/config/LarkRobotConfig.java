@@ -30,7 +30,6 @@ import org.kohsuke.stapler.QueryParameter;
 import java.net.ProxySelector;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.DEFAULT_TITLE;
 import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.NOTICE_ICON;
@@ -194,22 +193,19 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
         /**
          * Tests whether the robot configuration works properly.
          *
-         * @param id      The robot ID.
-         * @param name    The robot's name.
-         * @param webhook The Webhook key.
-         * @param proxy   The proxy settings.
-         * @param keyword The keyword.
-         * @param secret  The encryption key.
+         * @param id              The robot ID.
+         * @param name            The robot's name.
+         * @param webhook         The Webhook key.
+         * @param proxy           The proxy settings.
+         * @param securityConfigs The security configs.
          * @return Returns the test result. If the test passes, it returns FormValidation.respond(Kind.OK); otherwise, it returns an error message.
          */
-        public FormValidation doTest(@QueryParameter("id") String id, @QueryParameter("name") String name,
-                                     @QueryParameter("webhook") String webhook, @QueryParameter("proxy") String proxy,
-                                     @QueryParameter("keyword") String keyword, @QueryParameter("secret") String secret) {
+        public FormValidation doTest(@QueryParameter String id, @QueryParameter String name,
+                                     @QueryParameter String webhook, @QueryParameter String proxy,
+                                     @QueryParameter String securityConfigs) {
 
-            List<LarkSecurityPolicyConfig> securityPolicyConfigs = Stream.of(keyword, secret)
-                    .map(json -> JsonUtils.readValue(json, LarkSecurityPolicyConfig.class))
-                    .filter(Objects::nonNull).filter(config -> StringUtils.isNotBlank(config.getValue()))
-                    .collect(Collectors.toList());
+            List<LarkSecurityPolicyConfig> securityPolicyConfigs = JsonUtils.readList(securityConfigs, LarkSecurityPolicyConfig.class)
+                    .stream().filter(config -> StringUtils.isNotBlank(config.getValue())).toList();
 
             LarkRobotConfig robotConfig = new LarkRobotConfig(id, name, webhook, securityPolicyConfigs);
 

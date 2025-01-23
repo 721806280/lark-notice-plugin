@@ -31,8 +31,8 @@ public final class HttpClientFactory {
      * @param proxySelector The proxy selector to configure on the HttpClient, or null to use the default system proxy.
      * @return A new HttpClient instance configured with default SSL settings.
      */
-    public static HttpClient buildHttpClient(ProxySelector proxySelector) {
-        return buildHttpClient(proxySelector, false);
+    public static HttpClient build(ProxySelector proxySelector) {
+        return build(proxySelector, false);
     }
 
     /**
@@ -44,7 +44,7 @@ public final class HttpClientFactory {
      * @return A new HttpClient instance configured according to the parameters.
      * @throws RuntimeException if there is an error during the creation of the HttpClient.
      */
-    public static HttpClient buildHttpClient(ProxySelector proxySelector, boolean disableSslVerify) {
+    public static HttpClient build(ProxySelector proxySelector, boolean disableSslVerify) {
         try {
             HttpClient.Builder builder = HttpClient.newBuilder()
                     .version(HttpClient.Version.HTTP_1_1)

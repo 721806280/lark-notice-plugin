@@ -14,7 +14,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
-import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerRequest2;
 
 import java.net.ProxySelector;
 import java.util.ArrayList;
@@ -126,7 +126,7 @@ public class LarkGlobalConfig extends Descriptor<LarkGlobalConfig> implements De
      * @throws FormException If there's an error processing the form submission.
      */
     @Override
-    public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
+    public boolean configure(StaplerRequest2 req, JSONObject json) throws FormException {
         Object robotConfigObj = json.get("robotConfigs");
         if (robotConfigObj == null) {
             json.put("robotConfigs", new JSONArray());

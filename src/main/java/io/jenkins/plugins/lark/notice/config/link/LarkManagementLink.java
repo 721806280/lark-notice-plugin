@@ -7,12 +7,12 @@ import hudson.model.ManagementLink;
 import hudson.util.FormApply;
 import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.config.LarkGlobalConfig;
+import jakarta.servlet.ServletException;
 import jenkins.model.Jenkins;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 import org.kohsuke.stapler.verb.POST;
 
-import javax.servlet.ServletException;
 import java.io.IOException;
 
 /**
@@ -77,8 +77,8 @@ public class LarkManagementLink extends ManagementLink {
      * @throws IOException      If an I/O error occurs.
      */
     @POST
-    public void doConfigure(StaplerRequest req, StaplerResponse res)
-            throws ServletException, FormException, IOException {
+    public void doConfigure(StaplerRequest2 req, StaplerResponse2 res)
+            throws FormException, IOException, jakarta.servlet.ServletException {
         if (Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
             getLarkGlobalConfigDescriptor().configure(req, req.getSubmittedForm());
             FormApply.success(req.getContextPath() + "/manage").generateResponse(req, res, null);

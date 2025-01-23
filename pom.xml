@@ -17,7 +17,7 @@
         <revision>2.0.0</revision>
         <changelist>M1</changelist>
         <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-        <jenkins.version>2.479.1</jenkins.version>
+        <jenkins.version>2.479.3</jenkins.version>
         <lombok.version>1.18.36</lombok.version>
     </properties>
 

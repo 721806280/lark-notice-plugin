@@ -1,6 +1,5 @@
 package io.jenkins.plugins.lark.notice.sdk.impl;
 
-import io.jenkins.cli.shaded.org.apache.commons.lang.StringUtils;
 import io.jenkins.plugins.lark.notice.enums.RobotType;
 import io.jenkins.plugins.lark.notice.model.RobotConfigModel;
 import io.jenkins.plugins.lark.notice.sdk.HttpClientFactory;
@@ -14,7 +13,6 @@ import org.springframework.http.MediaType;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.URI;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
@@ -47,21 +45,17 @@ public abstract class AbstractMessageSender implements MessageSender {
      * @return A SendResult object containing either the response from the Lark API or error details.
      */
     protected SendResult sendMessage(String jsonBody, String... headers) {
-        RobotConfigModel robotConfig = getRobotConfig();
-        String webhookUrl = robotConfig.getWebhook();
-
+        RobotConfigModel robotConfig = this.getRobotConfig();
         try {
-            HttpRequest.Builder requestBuilder = createHttpRequest(webhookUrl, jsonBody);
-            configureCustomHeaders(requestBuilder, robotConfig, headers);
-
-            HttpClient httpClient = HttpClientFactory.buildHttpClient(robotConfig.getProxySelector(), robotConfig.getNoSsl());
-            HttpResponse<String> response = httpClient.send(requestBuilder.build(), HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = HttpClientFactory
+                    .build(robotConfig.getProxySelector(), robotConfig.getNoSsl())
+                    .send(this.createHttpRequest(robotConfig, jsonBody, headers), HttpResponse.BodyHandlers.ofString());
 
             SendResult sendResult = JsonUtils.readValue(response.body(), SendResult.class);
             Optional.ofNullable(sendResult).ifPresent(result -> result.setRequestBody(jsonBody));
             return sendResult;
         } catch (ConnectException e) {
-            log.error("Connection refused or unable to establish: {}, Webhook URL: {}", e.getMessage(), webhookUrl, e);
+            log.error("Connection refused or unable to establish: {}, Webhook URL: {}", e.getMessage(), robotConfig.getWebhook(), e);
             return SendResult.fail("Connection refused or unable to establish: " + e.getMessage());
         } catch (IOException e) {
             log.error("IO error occurred while sending Lark message: {}", e.getMessage(), e);
@@ -73,17 +67,22 @@ public abstract class AbstractMessageSender implements MessageSender {
     }
 
     /**
-     * Creates an HTTP request with the specified webhook URL and JSON body.
+     * Constructs an HttpRequest to send a message to the Lark API.
      *
-     * @param webhookUrl The URL of the Lark webhook.
-     * @param jsonBody   The JSON string representing the message body.
-     * @return An HttpRequest.Builder configured with the necessary settings.
+     * @param robotConfig Configuration details of the robot, including the webhook URL.
+     * @param jsonBody    The JSON-formatted body of the message to be sent.
+     * @param headers     Optional HTTP headers to include in the request. For DingTalk robots, specific headers can modify the webhook URL.
+     * @return A configured HttpRequest ready to be sent.
      */
-    private HttpRequest.Builder createHttpRequest(String webhookUrl, String jsonBody) {
-        return HttpRequest.newBuilder()
-                .uri(URI.create(webhookUrl)).timeout(DEFAULT_TIMEOUT)
+    private HttpRequest createHttpRequest(RobotConfigModel robotConfig, String jsonBody, String[] headers) {
+        HttpRequest.Builder builder = HttpRequest.newBuilder()
+                .uri(URI.create(robotConfig.getWebhook())).timeout(DEFAULT_TIMEOUT)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .POST(HttpRequest.BodyPublishers.ofString(StringUtils.defaultString(jsonBody)));
+                .POST(HttpRequest.BodyPublishers.ofString(jsonBody));
+
+        configureCustomHeaders(builder, robotConfig, headers);
+
+        return builder.build();
     }
 
     /**

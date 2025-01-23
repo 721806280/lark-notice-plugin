@@ -45,13 +45,15 @@ function getParams(robot) {
     };
 
     // 获取安全策略配置
-    var securityConfigs = robot.querySelectorAll('.security-config-container');
-    var securityPolicyConfigs = Array.from(securityConfigs).map(function (el) {
-        return {
-            type: el.querySelector('input[name="type"]').value, // 获取策略类型
-            value: el.querySelector('input[name="value"]').value, // 获取策略值
-        };
-    });
+    var securityConfigs = Array.from(robot.querySelectorAll('.security-config-container'))
+        .map(function (el) {
+            // 获取策略类型以及值
+            var type = el.querySelector('input[name="type"]').value;
+            var valueElement = el.querySelector('input[name="value"]');
+            var value = valueElement.type === 'checkbox' ? valueElement.checked : valueElement.value;
+            var desc = el.querySelector('input[name="desc"]').value;
+            return {type: type, value: value, desc: desc};
+        });
 
     // 创建一个空数组来存储请求参数
     var params = new URLSearchParams();
@@ -60,9 +62,8 @@ function getParams(robot) {
     params.append('id', robot.querySelector('input[name="id"]').value);
     params.append('name', robot.querySelector('input[name="name"]').value);
     params.append('webhook', robot.querySelector('input[name="webhook"]').value);
-    params.append('keyword', JSON.stringify(securityPolicyConfigs[0])); // 关键词
-    params.append('secret', JSON.stringify(securityPolicyConfigs[1]));  // 加密密钥
-    params.append('proxy', JSON.stringify(proxyConfig)); // 添加代理配置
+    params.append('proxy', JSON.stringify(proxyConfig));                // 代理配置
+    params.append('securityConfigs', JSON.stringify(securityConfigs));  // 安全配置
 
     // 返回表单请求参数
     return params;

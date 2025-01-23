@@ -9,7 +9,7 @@ import hudson.model.UserPropertyDescriptor;
 import io.jenkins.plugins.lark.notice.Messages;
 import lombok.Getter;
 import net.sf.json.JSONObject;
-import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerRequest2;
 
 /**
  * Represents a user property for storing Lark-specific information about a Jenkins user.
@@ -79,7 +79,7 @@ public class LarkUserProperty extends UserProperty {
          * @return A new instance of LarkUserProperty initialized with form data.
          */
         @Override
-        public UserProperty newInstance(@Nullable StaplerRequest req, @NonNull JSONObject formData) {
+        public UserProperty newInstance(@Nullable StaplerRequest2 req, @NonNull JSONObject formData) {
             return new LarkUserProperty(formData.optString("mobile"), formData.optString("openId"));
         }
     }
