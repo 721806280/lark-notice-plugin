@@ -25,9 +25,37 @@ import java.util.concurrent.ConcurrentHashMap;
 public class MessageDispatcher {
 
     /**
-     * Cache of MessageSender instances for each robot.
+     * The single instance of the MessageDispatcher, ensuring that only one instance of this class exists.
+     */
+    private static final MessageDispatcher INSTANCE = new MessageDispatcher();
+
+    /**
+     * A thread-safe map used as a cache for storing MessageSender instances. Each entry in the map is identified by a unique robot ID.
      */
     private final Map<String, MessageSender> senders = new ConcurrentHashMap<>();
+
+    private MessageDispatcher() {
+        // Prevents instantiation from outside the class.
+    }
+
+    /**
+     * Provides access to the single instance of MessageDispatcher.
+     *
+     * @return the single instance of MessageDispatcher.
+     */
+    public static MessageDispatcher getInstance() {
+        return INSTANCE;
+    }
+
+    /**
+     * Clears all {@link MessageSender} instances from the senders cache.
+     * This method may include additional checks to ensure that clearing is appropriate,
+     * such as verifying global configurations or current system state.
+     */
+    public void clearSenders() {
+        // Proceed to clear the senders map.
+        senders.clear();
+    }
 
     /**
      * Retrieves or creates a MessageSender instance for the given robot ID.

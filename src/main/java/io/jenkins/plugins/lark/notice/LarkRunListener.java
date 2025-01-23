@@ -44,7 +44,7 @@ public class LarkRunListener extends RunListener<Run<?, ?>> {
     /**
      * Instance of the Lark messaging service.
      */
-    private final MessageDispatcher service = new MessageDispatcher();
+    private final MessageDispatcher service = MessageDispatcher.getInstance();
 
     /**
      * Root path of the Jenkins instance.

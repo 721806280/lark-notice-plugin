@@ -5,8 +5,18 @@
 
     <div class="security-config-container">
         <f:entry title="${desc}" field="value"
-                 help="${type == 'KEY' ? '/descriptor/io.jenkins.plugins.lark.notice.config.LarkSecurityPolicyConfig/help/key' : null}">
-            <f:textbox name="value"/>
+                 help="${type == 'KEY' ? '/descriptor/io.jenkins.plugins.lark.notice.config.LarkSecurityPolicyConfig/help/key' :
+                       type == 'NO_SSL' ? '/descriptor/io.jenkins.plugins.lark.notice.config.LarkSecurityPolicyConfig/help/no_ssl' : null}">
+            <j:choose>
+                <j:when test="${type == 'NO_SSL'}">
+                    <!-- Checkbox for NO_SSL type -->
+                    <f:checkbox name="value" checked="${instance.getValue()}"/>
+                </j:when>
+                <j:otherwise>
+                    <!-- Textbox for other types -->
+                    <f:textbox name="value"/>
+                </j:otherwise>
+            </j:choose>
         </f:entry>
         <f:invisibleEntry>
             <input type="hidden" name="type" value="${type}"/>

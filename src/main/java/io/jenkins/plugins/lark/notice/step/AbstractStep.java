@@ -24,7 +24,7 @@ public abstract class AbstractStep extends Step {
     /**
      * An instance of the service class.
      */
-    protected final MessageDispatcher service = new MessageDispatcher();
+    protected final MessageDispatcher service = MessageDispatcher.getInstance();
 
     /**
      * The absolute URL of Jenkins, such as {@code http://localhost/jenkins/}.

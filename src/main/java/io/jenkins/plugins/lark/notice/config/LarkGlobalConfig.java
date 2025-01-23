@@ -6,6 +6,7 @@ import hudson.model.Descriptor;
 import io.jenkins.cli.shaded.org.apache.commons.lang.StringUtils;
 import io.jenkins.plugins.lark.notice.config.LarkRobotConfig.LarkRobotConfigDescriptor;
 import io.jenkins.plugins.lark.notice.enums.NoticeOccasionEnum;
+import io.jenkins.plugins.lark.notice.sdk.MessageDispatcher;
 import jenkins.model.Jenkins;
 import lombok.Getter;
 import lombok.ToString;
@@ -111,6 +112,7 @@ public class LarkGlobalConfig extends Descriptor<LarkGlobalConfig> implements De
 
     @DataBoundSetter
     public void setRobotConfigs(ArrayList<LarkRobotConfig> robotConfigs) {
+        MessageDispatcher.getInstance().clearSenders();
         this.robotConfigs = robotConfigs;
     }
 

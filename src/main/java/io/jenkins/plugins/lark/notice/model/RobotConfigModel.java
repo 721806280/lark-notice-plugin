@@ -52,6 +52,11 @@ public class RobotConfigModel {
     private String sign;
 
     /**
+     * Secret used for authentication.
+     */
+    private Boolean noSsl;
+
+    /**
      * Creates a RobotConfigModel object based on the LarkRobotConfig object and proxy selector.
      *
      * @param robotConfig   LarkRobotConfig object representing the configuration of a Lark robot
@@ -79,6 +84,9 @@ public class RobotConfigModel {
                             break;
                         case SECRET:
                             meta.setSign(config.getValue());
+                            break;
+                        case NO_SSL:
+                            meta.setNoSsl(Boolean.parseBoolean(config.getValue()));
                             break;
                         default:
                             throw new IllegalArgumentException("Invalid security policy type: " + type);

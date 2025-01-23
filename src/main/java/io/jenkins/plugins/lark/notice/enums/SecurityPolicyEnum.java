@@ -17,6 +17,11 @@ import lombok.ToString;
 public enum SecurityPolicyEnum {
 
     /**
+     * Security policy with SSL verification disabled.
+     */
+    NO_SSL(Messages.security_policy_type_no_ssl()),
+
+    /**
      * Represents a security policy based on keys. This can be used for mechanisms where
      * public/private keys or similar key-based strategies are employed for authentication or encryption.
      */
