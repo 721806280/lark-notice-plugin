@@ -1,3 +1,18 @@
+<p align="center">
+   <a href="https://721806280.github.io/lark-notice-plugin-doc">
+       <img src="src/main/webapp/images/logo.png" alt="logo">
+   </a>
+</p>
+
+<p align="center">
+   <img src="https://img.shields.io/badge/JDK-17-success" alt="JDK">
+   <img src="https://img.shields.io/badge/Jenkins-2.479-blue.svg" alt="License">
+   <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License">
+   <img src="https://img.shields.io/badge/Author-xm.z-success" alt="Author">
+</p>
+
+<h1 align="center">Lark - Jenkins builds notification plugins</h1>
+
 ## 🌐 Plugin Introduction
 
 `lark-notice-plugin` is a `build notification robot` notification plug-in for `Jenkins`, which can push the `Jenkins`

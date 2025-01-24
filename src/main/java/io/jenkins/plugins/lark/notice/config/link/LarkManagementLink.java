@@ -77,8 +77,7 @@ public class LarkManagementLink extends ManagementLink {
      * @throws IOException      If an I/O error occurs.
      */
     @POST
-    public void doConfigure(StaplerRequest2 req, StaplerResponse2 res)
-            throws FormException, IOException, jakarta.servlet.ServletException {
+    public void doConfigure(StaplerRequest2 req, StaplerResponse2 res) throws FormException, IOException, ServletException {
         if (Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
             getLarkGlobalConfigDescriptor().configure(req, req.getSubmittedForm());
             FormApply.success(req.getContextPath() + "/manage").generateResponse(req, res, null);
