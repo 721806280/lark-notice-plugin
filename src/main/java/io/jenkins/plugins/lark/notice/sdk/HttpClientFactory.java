@@ -53,7 +53,7 @@ public final class HttpClientFactory {
                     .proxy(Objects.requireNonNullElse(proxySelector, ProxySelector.getDefault()));
 
             if (disableSslVerify) {
-                builder.sslContext(createInsecureSSLContextForTesting());
+                builder.sslContext(createInsecureSslContextForTesting());
             }
 
             return builder.build();
@@ -72,8 +72,8 @@ public final class HttpClientFactory {
      * @return An initialized SSLContext configured to bypass SSL certificate checks.
      * @throws Exception if the SSL context cannot be created or initialized.
      */
-    @SuppressWarnings("all")
-    private static SSLContext createInsecureSSLContextForTesting() throws Exception {
+    @SuppressWarnings("lgtm[jenkins/unsafe-calls]")
+    private static SSLContext createInsecureSslContextForTesting() throws Exception {
         SSLContext sslContext = SSLContext.getInstance("TLS");
         TrustManager[] trustManagers = new TrustManager[]{new BypassingTrustManager()};
         sslContext.init(null, trustManagers, new SecureRandom());

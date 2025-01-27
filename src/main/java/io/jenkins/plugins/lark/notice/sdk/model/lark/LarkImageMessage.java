@@ -33,6 +33,7 @@ public class LarkImageMessage extends BaseLarkMessage {
     public static class ImageContent implements Serializable {
 
         @JsonProperty("image_key")
+        @SuppressWarnings("lgtm[jenkins/plaintext-storage]")
         private String imageKey;
 
     }

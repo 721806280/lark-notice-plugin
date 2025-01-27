@@ -44,6 +44,7 @@ public class RobotConfigModel {
     /**
      * Security key used for authentication.
      */
+    @SuppressWarnings("lgtm[jenkins/plaintext-storage]")
     private String keys;
 
     /**

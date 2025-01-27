@@ -24,6 +24,7 @@ public class ImgElement {
      * 图片的key
      */
     @JsonProperty(value = "img_key")
+    @SuppressWarnings("lgtm[jenkins/plaintext-storage]")
     private String imgKey;
 
     /**

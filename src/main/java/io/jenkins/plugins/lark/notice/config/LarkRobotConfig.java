@@ -26,6 +26,7 @@ import lombok.ToString;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.interceptor.RequirePOST;
 
 import java.net.ProxySelector;
 import java.util.*;
@@ -174,7 +175,11 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
          * @param value Robot name
          * @return Validation result, returns FormValidation.ok() if validation passes, otherwise returns an error message
          */
+        @RequirePOST
         public FormValidation doCheckName(@QueryParameter String value) {
+            if (!Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
+                return FormValidation.error("You do not have permission to access this resource");
+            }
             return StringUtils.isNotBlank(value) ? FormValidation.ok() :
                     FormValidation.error(Messages.form_validation_name());
         }
@@ -185,7 +190,11 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
          * @param value Webhook key
          * @return Validation result, returns FormValidation.ok() if validation passes, otherwise returns an error message
          */
+        @RequirePOST
         public FormValidation doCheckWebhook(@QueryParameter String value) {
+            if (!Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
+                return FormValidation.error("You do not have permission to access this resource");
+            }
             return StringUtils.isBlank(value) || Objects.isNull(RobotType.fromUrl(value)) ?
                     FormValidation.error(Messages.form_validation_webhook()) : FormValidation.ok();
         }
@@ -200,9 +209,13 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
          * @param securityConfigs The security configs.
          * @return Returns the test result. If the test passes, it returns FormValidation.respond(Kind.OK); otherwise, it returns an error message.
          */
+        @RequirePOST
         public FormValidation doTest(@QueryParameter String id, @QueryParameter String name,
                                      @QueryParameter String webhook, @QueryParameter String proxy,
                                      @QueryParameter String securityConfigs) {
+            if (!Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
+                return FormValidation.error("You do not have permission to access this resource");
+            }
 
             List<LarkSecurityPolicyConfig> securityPolicyConfigs = JsonUtils.readList(securityConfigs, LarkSecurityPolicyConfig.class)
                     .stream().filter(config -> StringUtils.isNotBlank(config.getValue())).toList();

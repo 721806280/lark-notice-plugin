@@ -60,6 +60,7 @@ public class LarkStep extends AbstractStep {
     /**
      * The image key to be displayed in an IMAGE message.
      */
+    @SuppressWarnings("lgtm[jenkins/plaintext-storage]")
     private String imageKey;
 
     /**

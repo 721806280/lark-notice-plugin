@@ -22,6 +22,7 @@ public class ImgModel extends AbstractDescribableImpl<ImgModel> {
     /**
      * The unique key associated with the image. This key is typically used to fetch or reference the image.
      */
+    @SuppressWarnings("lgtm[jenkins/plaintext-storage]")
     private String imgKey;
 
     /**
