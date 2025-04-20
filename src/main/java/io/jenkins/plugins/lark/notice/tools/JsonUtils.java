@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.type.CollectionLikeType;
 import com.fasterxml.jackson.databind.type.MapType;
 import io.jenkins.plugins.lark.notice.tools.function.CheckedConsumer;
 import lombok.SneakyThrows;
-import org.springframework.lang.Nullable;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
@@ -30,7 +29,6 @@ import java.util.*;
  *
  * @author xm.z
  */
-@SuppressWarnings(value = "all")
 public class JsonUtils {
 
     /**
@@ -39,9 +37,8 @@ public class JsonUtils {
      * @param object javaBean
      * @return jsonString json字符串
      */
-    @Nullable
     @SneakyThrows(JsonProcessingException.class)
-    public static String toJson(@Nullable Object object) {
+    public static String toJson(Object object) {
         if (object == null) {
             return null;
         }
@@ -55,9 +52,8 @@ public class JsonUtils {
      * @param serializationView serializationView
      * @return jsonString json字符串
      */
-    @Nullable
     @SneakyThrows(JsonProcessingException.class)
-    public static String toJsonWithView(@Nullable Object object, Class<?> serializationView) {
+    public static String toJsonWithView(Object object, Class<?> serializationView) {
         if (object == null) {
             return null;
         }
@@ -70,9 +66,8 @@ public class JsonUtils {
      * @param object javaBean
      * @return jsonString json字符串
      */
-    @Nullable
     @SneakyThrows(JsonProcessingException.class)
-    public static String toPrettyJson(@Nullable Object object) {
+    public static String toPrettyJson(Object object) {
         if (object == null) {
             return null;
         }
@@ -86,7 +81,7 @@ public class JsonUtils {
      * @return jsonString json字符串
      */
     @SneakyThrows(JsonProcessingException.class)
-    public static byte[] toJsonAsBytes(@Nullable Object object) {
+    public static byte[] toJsonAsBytes(Object object) {
         if (object == null) {
             return new byte[0];
         }
@@ -100,7 +95,7 @@ public class JsonUtils {
      * @return jsonString json字符串
      */
     @SneakyThrows(JsonProcessingException.class)
-    public static byte[] toJsonAsBytesWithView(@Nullable Object object, Class<?> serializationView) {
+    public static byte[] toJsonAsBytesWithView(Object object, Class<?> serializationView) {
         if (object == null) {
             return new byte[0];
         }
@@ -170,9 +165,8 @@ public class JsonUtils {
      * @param <T>       T 泛型标记
      * @return Bean
      */
-    @Nullable
     @SneakyThrows(IOException.class)
-    public static <T> T readValue(@Nullable byte[] content, Class<T> valueType) {
+    public static <T> T readValue(byte[] content, Class<T> valueType) {
         if (ObjectUtils.isEmpty(content)) {
             return null;
         }
@@ -187,9 +181,8 @@ public class JsonUtils {
      * @param <T>        T 泛型标记
      * @return Bean
      */
-    @Nullable
     @SneakyThrows(IOException.class)
-    public static <T> T readValue(@Nullable String jsonString, Class<T> valueType) {
+    public static <T> T readValue(String jsonString, Class<T> valueType) {
         if (!StringUtils.hasText(jsonString)) {
             return null;
         }
@@ -204,9 +197,8 @@ public class JsonUtils {
      * @param <T>       T 泛型标记
      * @return Bean
      */
-    @Nullable
     @SneakyThrows(IOException.class)
-    public static <T> T readValue(@Nullable InputStream in, Class<T> valueType) {
+    public static <T> T readValue(InputStream in, Class<T> valueType) {
         if (in == null) {
             return null;
         }
@@ -221,9 +213,8 @@ public class JsonUtils {
      * @param <T>       T 泛型标记
      * @return Bean
      */
-    @Nullable
     @SneakyThrows(IOException.class)
-    public static <T> T readValue(@Nullable Reader reader, Class<T> valueType) {
+    public static <T> T readValue(Reader reader, Class<T> valueType) {
         if (reader == null) {
             return null;
         }
@@ -239,9 +230,8 @@ public class JsonUtils {
      * @param <T>           T 泛型标记
      * @return Bean
      */
-    @Nullable
     @SneakyThrows(IOException.class)
-    public static <T> T readValue(@Nullable byte[] content, TypeReference<T> typeReference) {
+    public static <T> T readValue(byte[] content, TypeReference<T> typeReference) {
         if (ObjectUtils.isEmpty(content)) {
             return null;
         }
@@ -256,9 +246,8 @@ public class JsonUtils {
      * @param <T>           T 泛型标记
      * @return Bean
      */
-    @Nullable
     @SneakyThrows(IOException.class)
-    public static <T> T readValue(@Nullable String jsonString, TypeReference<T> typeReference) {
+    public static <T> T readValue(String jsonString, TypeReference<T> typeReference) {
         if (!StringUtils.hasText(jsonString)) {
             return null;
         }
@@ -273,9 +262,8 @@ public class JsonUtils {
      * @param <T>           T 泛型标记
      * @return Bean
      */
-    @Nullable
     @SneakyThrows(IOException.class)
-    public static <T> T readValue(@Nullable InputStream in, TypeReference<T> typeReference) {
+    public static <T> T readValue(InputStream in, TypeReference<T> typeReference) {
         if (in == null) {
             return null;
         }
@@ -290,9 +278,8 @@ public class JsonUtils {
      * @param <T>           T 泛型标记
      * @return Bean
      */
-    @Nullable
     @SneakyThrows(IOException.class)
-    public static <T> T readValue(@Nullable Reader reader, TypeReference<T> typeReference) {
+    public static <T> T readValue(Reader reader, TypeReference<T> typeReference) {
         if (reader == null) {
             return null;
         }
@@ -307,9 +294,8 @@ public class JsonUtils {
      * @param <T>      T 泛型标记
      * @return Bean
      */
-    @Nullable
     @SneakyThrows(IOException.class)
-    public static <T> T readValue(@Nullable byte[] content, JavaType javaType) {
+    public static <T> T readValue(byte[] content, JavaType javaType) {
         if (ObjectUtils.isEmpty(content)) {
             return null;
         }
@@ -324,9 +310,8 @@ public class JsonUtils {
      * @param <T>        T 泛型标记
      * @return Bean
      */
-    @Nullable
     @SneakyThrows(IOException.class)
-    public static <T> T readValue(@Nullable String jsonString, JavaType javaType) {
+    public static <T> T readValue(String jsonString, JavaType javaType) {
         if (!StringUtils.hasText(jsonString)) {
             return null;
         }
@@ -341,9 +326,8 @@ public class JsonUtils {
      * @param <T>      T 泛型标记
      * @return Bean
      */
-    @Nullable
     @SneakyThrows(IOException.class)
-    public static <T> T readValue(@Nullable InputStream in, JavaType javaType) {
+    public static <T> T readValue(InputStream in, JavaType javaType) {
         if (in == null) {
             return null;
         }
@@ -358,9 +342,8 @@ public class JsonUtils {
      * @param <T>      T 泛型标记
      * @return Bean
      */
-    @Nullable
     @SneakyThrows(IOException.class)
-    public static <T> T readValue(@Nullable Reader reader, JavaType javaType) {
+    public static <T> T readValue(Reader reader, JavaType javaType) {
         if (reader == null) {
             return null;
         }
@@ -447,7 +430,7 @@ public class JsonUtils {
      * @return 集合
      */
     @SneakyThrows(IOException.class)
-    public static <T> List<T> readList(@Nullable byte[] content, Class<T> elementClass) {
+    public static <T> List<T> readList(byte[] content, Class<T> elementClass) {
         if (ObjectUtils.isEmpty(content)) {
             return Collections.emptyList();
         }
@@ -463,7 +446,7 @@ public class JsonUtils {
      * @return 集合
      */
     @SneakyThrows(IOException.class)
-    public static <T> List<T> readList(@Nullable InputStream content, Class<T> elementClass) {
+    public static <T> List<T> readList(InputStream content, Class<T> elementClass) {
         if (content == null) {
             return Collections.emptyList();
         }
@@ -479,7 +462,7 @@ public class JsonUtils {
      * @return 集合
      */
     @SneakyThrows(IOException.class)
-    public static <T> List<T> readList(@Nullable Reader reader, Class<T> elementClass) {
+    public static <T> List<T> readList(Reader reader, Class<T> elementClass) {
         if (reader == null) {
             return Collections.emptyList();
         }
@@ -495,7 +478,7 @@ public class JsonUtils {
      * @return 集合
      */
     @SneakyThrows(IOException.class)
-    public static <T> List<T> readList(@Nullable String content, Class<T> elementClass) {
+    public static <T> List<T> readList(String content, Class<T> elementClass) {
         if (!StringUtils.hasText(content)) {
             return Collections.emptyList();
         }
@@ -508,7 +491,7 @@ public class JsonUtils {
      * @param content bytes
      * @return 集合
      */
-    public static Map<String, Object> readMap(@Nullable byte[] content) {
+    public static Map<String, Object> readMap(byte[] content) {
         return readMap(content, Object.class);
     }
 
@@ -518,7 +501,7 @@ public class JsonUtils {
      * @param content InputStream
      * @return 集合
      */
-    public static Map<String, Object> readMap(@Nullable InputStream content) {
+    public static Map<String, Object> readMap(InputStream content) {
         return readMap(content, Object.class);
     }
 
@@ -528,7 +511,7 @@ public class JsonUtils {
      * @param reader java.io.Reader
      * @return 集合
      */
-    public static Map<String, Object> readMap(@Nullable Reader reader) {
+    public static Map<String, Object> readMap(Reader reader) {
         return readMap(reader, Object.class);
     }
 
@@ -538,7 +521,7 @@ public class JsonUtils {
      * @param content bytes
      * @return 集合
      */
-    public static Map<String, Object> readMap(@Nullable String content) {
+    public static Map<String, Object> readMap(String content) {
         return readMap(content, Object.class);
     }
 
@@ -550,7 +533,7 @@ public class JsonUtils {
      * @param <V>        泛型
      * @return 集合
      */
-    public static <V> Map<String, V> readMap(@Nullable byte[] content, Class<?> valueClass) {
+    public static <V> Map<String, V> readMap(byte[] content, Class<?> valueClass) {
         return readMap(content, String.class, valueClass);
     }
 
@@ -562,7 +545,7 @@ public class JsonUtils {
      * @param <V>        泛型
      * @return 集合
      */
-    public static <V> Map<String, V> readMap(@Nullable InputStream content, Class<?> valueClass) {
+    public static <V> Map<String, V> readMap(InputStream content, Class<?> valueClass) {
         return readMap(content, String.class, valueClass);
     }
 
@@ -574,7 +557,7 @@ public class JsonUtils {
      * @param <V>        泛型
      * @return 集合
      */
-    public static <V> Map<String, V> readMap(@Nullable Reader reader, Class<?> valueClass) {
+    public static <V> Map<String, V> readMap(Reader reader, Class<?> valueClass) {
         return readMap(reader, String.class, valueClass);
     }
 
@@ -586,7 +569,7 @@ public class JsonUtils {
      * @param <V>        泛型
      * @return 集合
      */
-    public static <V> Map<String, V> readMap(@Nullable String content, Class<?> valueClass) {
+    public static <V> Map<String, V> readMap(String content, Class<?> valueClass) {
         return readMap(content, String.class, valueClass);
     }
 
@@ -601,7 +584,7 @@ public class JsonUtils {
      * @return 集合
      */
     @SneakyThrows(IOException.class)
-    public static <K, V> Map<K, V> readMap(@Nullable byte[] content, Class<?> keyClass, Class<?> valueClass) {
+    public static <K, V> Map<K, V> readMap(byte[] content, Class<?> keyClass, Class<?> valueClass) {
         if (ObjectUtils.isEmpty(content)) {
             return Collections.emptyMap();
         }
@@ -619,7 +602,7 @@ public class JsonUtils {
      * @return 集合
      */
     @SneakyThrows(IOException.class)
-    public static <K, V> Map<K, V> readMap(@Nullable InputStream content, Class<?> keyClass, Class<?> valueClass) {
+    public static <K, V> Map<K, V> readMap(InputStream content, Class<?> keyClass, Class<?> valueClass) {
         if (content == null) {
             return Collections.emptyMap();
         }
@@ -637,7 +620,7 @@ public class JsonUtils {
      * @return 集合
      */
     @SneakyThrows(IOException.class)
-    public static <K, V> Map<K, V> readMap(@Nullable Reader reader, Class<?> keyClass, Class<?> valueClass) {
+    public static <K, V> Map<K, V> readMap(Reader reader, Class<?> keyClass, Class<?> valueClass) {
         if (reader == null) {
             return Collections.emptyMap();
         }
@@ -655,7 +638,7 @@ public class JsonUtils {
      * @return 集合
      */
     @SneakyThrows(IOException.class)
-    public static <K, V> Map<K, V> readMap(@Nullable String content, Class<?> keyClass, Class<?> valueClass) {
+    public static <K, V> Map<K, V> readMap(String content, Class<?> keyClass, Class<?> valueClass) {
         if (!StringUtils.hasText(content)) {
             return Collections.emptyMap();
         }
@@ -731,7 +714,7 @@ public class JsonUtils {
      * @param <T>       泛型标记
      * @return 转换结果
      */
-    public static <T extends JsonNode> T valueToTree(@Nullable Object fromValue) {
+    public static <T extends JsonNode> T valueToTree(Object fromValue) {
         return getInstance().valueToTree(fromValue);
     }
 
@@ -741,7 +724,7 @@ public class JsonUtils {
      * @param value 对象
      * @return 是否可以序列化
      */
-    public static boolean canSerialize(@Nullable Object value) {
+    public static boolean canSerialize(Object value) {
         if (value == null) {
             return true;
         }

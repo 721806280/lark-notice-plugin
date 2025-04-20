@@ -80,17 +80,10 @@ public class RobotConfigModel {
                     String type = config.getType();
                     SecurityPolicyEnum securityPolicyEnum = SecurityPolicyEnum.valueOf(type);
                     switch (securityPolicyEnum) {
-                        case KEY:
-                            meta.setKeys(config.getValue());
-                            break;
-                        case SECRET:
-                            meta.setSign(config.getValue());
-                            break;
-                        case NO_SSL:
-                            meta.setNoSsl(Boolean.parseBoolean(config.getValue()));
-                            break;
-                        default:
-                            throw new IllegalArgumentException("Invalid security policy type: " + type);
+                        case KEY -> meta.setKeys(config.getValue());
+                        case SECRET -> meta.setSign(config.getValue());
+                        case NO_SSL -> meta.setNoSsl(Boolean.parseBoolean(config.getValue()));
+                        default -> throw new IllegalArgumentException("Invalid security policy type: " + type);
                     }
                 });
         return meta;

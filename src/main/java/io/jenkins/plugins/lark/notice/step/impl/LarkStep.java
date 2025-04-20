@@ -195,16 +195,12 @@ public class LarkStep extends AbstractStep {
      * @return The message content to be sent.
      */
     private String buildText() {
-        switch (type) {
-            case IMAGE:
-                return imageKey;
-            case SHARE_CHAT:
-                return shareChatId;
-            case POST:
-                return JsonUtils.toJson(post);
-            default:
-                return Utils.join(text);
-        }
+        return switch (type) {
+            case IMAGE -> imageKey;
+            case SHARE_CHAT -> shareChatId;
+            case POST -> JsonUtils.toJson(post);
+            default -> Utils.join(text);
+        };
     }
 
     /**
