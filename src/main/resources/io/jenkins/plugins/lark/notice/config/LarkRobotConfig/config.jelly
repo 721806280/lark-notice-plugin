@@ -7,8 +7,6 @@
                 src="${rootURL}/plugin/lark-notice/scripts/robotConfigValidator.js"/>
     </st:once>
 
-    <link rel="stylesheet" href="${rootURL}/plugin/lark-notice/css/ui.css" type="text/css"/>
-
     <div class="robot-config-container">
         <f:entry title="id" field="id">
             <f:textbox name="id"/>
@@ -37,17 +35,19 @@
             </f:entry>
         </j:scope>
 
-        <div class="robot-config-validate-msg"><!-- this is where the error message goes --></div>
+        <st:adjunct includes="io.jenkins.plugins.lark.notice.config.LarkRobotConfig.validate-robot-config-onclick"/>
+        <div class="robot-config-validate-msg"
+             style="white-space: pre-wrap;"><!-- this is where the error message goes --></div>
         <div style="text-align: right;">
-            <input
+            <button
                     type="button"
-                    value="测试"
-                    class="robot-config-validate-btn"
+                    class="jenkins-button robot-config-validate-btn"
                     data-validate-button-descriptor-url="${descriptor.descriptorFullUrl}"
                     data-validate-button-method="test"
                     data-validate-button-with="${with}"
-                    onclick="validateRobotConfig(this)"
-            />
+            >
+                ${%test}
+            </button>
         </div>
     </div>
 </j:jelly>

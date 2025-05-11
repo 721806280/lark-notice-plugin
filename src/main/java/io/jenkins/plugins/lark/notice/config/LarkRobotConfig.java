@@ -5,7 +5,6 @@ import hudson.model.Describable;
 import hudson.model.Descriptor;
 import hudson.model.User;
 import hudson.util.FormValidation;
-import hudson.util.FormValidation.Kind;
 import hudson.util.Secret;
 import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.enums.BuildStatusEnum;
@@ -210,11 +209,11 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
          * @return Returns the test result. If the test passes, it returns FormValidation.respond(Kind.OK); otherwise, it returns an error message.
          */
         @RequirePOST
-        public FormValidation doTest(@QueryParameter String id, @QueryParameter String name,
+        public String doTest(@QueryParameter String id, @QueryParameter String name,
                                      @QueryParameter String webhook, @QueryParameter String proxy,
                                      @QueryParameter String securityConfigs) {
             if (!Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
-                return FormValidation.error("You do not have permission to access this resource");
+                return "Error: You do not have permission to access this resource.";
             }
 
             List<LarkSecurityPolicyConfig> securityPolicyConfigs = JsonUtils.readList(securityConfigs, LarkSecurityPolicyConfig.class)
@@ -227,14 +226,13 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
 
             RobotType robotType = robotConfig.obtainRobotType();
             if (Objects.isNull(robotType)) {
-                return FormValidation.error(Messages.form_validation_webhook());
+                return "Error: " + Messages.form_validation_webhook();
             }
 
             MessageSender sender = robotType.obtainInstance(RobotConfigModel.of(robotConfig, proxySelector));
             SendResult sendResult = sender.sendCard(buildTestMessage(robotType));
 
-            return !sendResult.isOk() ? FormValidation.error(sendResult.getMsg()) :
-                    FormValidation.respond(Kind.OK, "<span style='color:#52c41a;font-weight:bold;'>Test Successful</span>");
+            return sendResult.isOk() ? Messages.form_validation_test_success() : "Error: " + sendResult.getMsg();
         }
 
         /**

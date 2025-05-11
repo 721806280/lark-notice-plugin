@@ -1,7 +1,8 @@
 async function validateRobotConfig(_this) {
     var robot = _this.closest('.robot-config-container');
-    var msg = robot.querySelector('.robot-config-validate-msg');
-    msg.innerHTML = '';
+    var validateMsg = robot.querySelector('.robot-config-validate-msg');
+    validateMsg.innerHTML = '';
+    validateMsg.className = 'robot-config-validate-msg'
 
     try {
         var checkUrl = _this.getAttribute('data-validate-button-descriptor-url') + '/' + _this.getAttribute('data-validate-button-method');
@@ -18,13 +19,13 @@ async function validateRobotConfig(_this) {
 
         var message = await response.text();
         if (response.ok) {
-            msg.innerHTML = message;
-            layoutUpdateCallback.call();
-        } else {
-            var id = 'valerr' + iota++; // 这里的 iota 是一个全局计数器，你需要在其他地方定义并初始化它。
-            msg.innerHTML = '<a href="" onclick="document.getElementById(\'' + id + '\').style.display=\'block\';return false">ERROR</a><div id="' + id + '" style="display:none"><pre>' + message + '</pre></div>';
+            validateMsg.innerHTML = message;
         }
-        Behaviour.applySubtree(msg);
+
+        var classStyle = message.startsWith('Error:') ? 'danger' : 'success';
+        validateMsg.classList.add('jenkins-alert', 'jenkins-alert-' + classStyle)
+
+        Behaviour.applySubtree($validateMsg);
     } catch (error) {
         console.error(error);
     }
