@@ -25,6 +25,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.springframework.util.CollectionUtils;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -208,8 +209,8 @@ public class LarkStep extends AbstractStep {
      * This class provides Jenkins with information about the LarkStep, such as the required context,
      * the function name to be used in Jenkinsfiles, and the display name shown in the Jenkins UI.
      */
-    @Extension
-    public static class LarkStepDescriptor extends StepDescriptor {
+    @Extension(optional = true)
+    public static class LarkStepDescriptor extends StepDescriptor implements Serializable {
 
         /**
          * Returns the set of context classes that this step requires.

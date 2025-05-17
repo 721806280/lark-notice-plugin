@@ -1,5 +1,6 @@
 package io.jenkins.plugins.lark.notice.config.link;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import hudson.model.Descriptor;
 import hudson.model.Descriptor.FormException;
@@ -22,7 +23,7 @@ import java.io.IOException;
  *
  * @author xm.z
  */
-@Extension(ordinal = Double.MAX_VALUE)
+@Extension
 public class LarkManagementLink extends ManagementLink {
 
     /**
@@ -64,6 +65,17 @@ public class LarkManagementLink extends ManagementLink {
     @Override
     public String getDescription() {
         return Messages.plugin_management_description();
+    }
+
+    /**
+     * Category for management link, uses {@code String} so it can be done with core dependency pre-dating the version this feature was added.
+     *
+     * @return An enum value of {@link Category}.
+     */
+    @NonNull
+    @Override
+    public Category getCategory() {
+        return Category.UNCATEGORIZED;
     }
 
     /**

@@ -21,6 +21,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.springframework.util.CollectionUtils;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -193,8 +194,8 @@ public class DingTalkStep extends AbstractStep {
      * This class provides Jenkins with information about the DingTalkStep, such as the required context,
      * the function name to be used in Jenkinsfiles, and the display name shown in the Jenkins UI.
      */
-    @Extension
-    public static class DingTalkStepDescriptor extends StepDescriptor {
+    @Extension(optional = true)
+    public static class DingTalkStepDescriptor extends StepDescriptor implements Serializable {
 
         /**
          * Returns the set of context classes that this step requires.
