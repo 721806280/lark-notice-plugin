@@ -9,8 +9,11 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.model.listeners.RunListener;
 import io.jenkins.plugins.lark.notice.config.LarkGlobalConfig;
+import io.jenkins.plugins.lark.notice.config.LarkNotifierConfig;
 import io.jenkins.plugins.lark.notice.config.LarkRobotConfig;
+import io.jenkins.plugins.lark.notice.config.property.LarkBranchJobProperty;
 import io.jenkins.plugins.lark.notice.config.property.LarkJobProperty;
+import io.jenkins.plugins.lark.notice.config.property.LarkNotifierProvider;
 import io.jenkins.plugins.lark.notice.context.PipelineEnvContext;
 import io.jenkins.plugins.lark.notice.enums.NoticeOccasionEnum;
 import io.jenkins.plugins.lark.notice.enums.RobotType;
@@ -23,8 +26,12 @@ import jenkins.model.Jenkins;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.jenkinsci.plugins.workflow.job.WorkflowJob;
+import org.jenkinsci.plugins.workflow.multibranch.BranchJobProperty;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.DEFAULT_TITLE;
@@ -93,9 +100,9 @@ public class LarkRunListener extends RunListener<Run<?, ?>> {
     private void send(Run<?, ?> run, TaskListener listener, NoticeOccasionEnum noticeOccasion) {
         Job<?, ?> job = run.getParent();
 
-        LarkJobProperty property = job.getProperty(LarkJobProperty.class);
-        if (property == null) {
-            Logger.log(listener, "当前任务未配置机器人，已跳过");
+        List<LarkNotifierConfig> availableLarkNotifierConfigs = getAvailableLarkNotifierConfigs(job);
+        if (availableLarkNotifierConfigs == null || availableLarkNotifierConfigs.isEmpty()) {
+            Logger.log(listener, "No Lark notifier configured for this job. Skipping notification.");
             return;
         }
 
@@ -117,7 +124,7 @@ public class LarkRunListener extends RunListener<Run<?, ?>> {
         EnvVars envVars = fetchUpdateEnvVariables(run, listener, buildJobModel);
 
         // 遍历所有可用的通知器配置
-        property.getAvailableNotifierConfigs().stream()
+        availableLarkNotifierConfigs.stream()
                 // 根据配置决定是否跳过当前项
                 .filter(config -> config.getNoticeOccasions().contains(noticeOccasion.name()))
                 .forEach(config -> {
@@ -142,6 +149,21 @@ public class LarkRunListener extends RunListener<Run<?, ?>> {
 
                     service.send(listener, config.getRobotId(), messageModel);
                 });
+    }
+
+    private List<LarkNotifierConfig> getAvailableLarkNotifierConfigs(Job<?, ?> job) {
+        LarkNotifierProvider larkNotifierProvider;
+
+        if (job instanceof WorkflowJob) {
+            larkNotifierProvider = Optional.ofNullable(job.getProperty(BranchJobProperty.class))
+                    .map(BranchJobProperty::getBranch)
+                    .map(branch -> branch.getProperty(LarkBranchJobProperty.class))
+                    .orElse(null);
+        } else {
+            larkNotifierProvider = job.getProperty(LarkJobProperty.class);
+        }
+
+        return larkNotifierProvider == null ? List.of() : larkNotifierProvider.getAvailableLarkNotifierConfigs();
     }
 
     /**
