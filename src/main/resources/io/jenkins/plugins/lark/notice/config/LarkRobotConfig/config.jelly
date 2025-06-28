@@ -8,13 +8,13 @@
     </st:once>
 
     <div class="robot-config-container">
-        <f:entry title="id" field="id">
+        <f:entry title="ID" field="id">
             <f:textbox name="id"/>
         </f:entry>
-        <f:entry title="名称" field="name">
+        <f:entry title="Name" field="name">
             <f:textbox name="name"/>
         </f:entry>
-        <f:entry title="webhook" field="webhook">
+        <f:entry title="Webhook" field="webhook">
             <f:textbox name="webhook"/>
         </f:entry>
 
@@ -22,8 +22,8 @@
             <j:set var="securityPolicyConfigDescriptor"
                    value="${descriptor.getLarkSecurityPolicyConfigDescriptor()}"/>
             <j:set var="securityPolicyConfigs"
-                   value="${instance != null ? instance.getSecurityPolicyConfigs(): descriptor.getDefaultSecurityPolicyConfigs()}"/>
-            <f:entry title="安全设置">
+                   value="${instance != null ? instance.getSecurityPolicyConfigs() : descriptor.getDefaultSecurityPolicyConfigs()}"/>
+            <f:entry title="Security Settings">
                 <f:repeatable
                         header=""
                         name="securityPolicyConfigs"
@@ -46,7 +46,7 @@
                     data-validate-button-method="test"
                     data-validate-button-with="${with}"
             >
-                ${%test}
+                ${%Test}
             </button>
         </div>
     </div>

@@ -2,15 +2,15 @@
 <j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
 
     <div id="proxyConfigContainer">
-        <f:entry title="代理类型" field="type">
+        <f:entry title="Proxy Type" field="type">
             <f:enum>
                 ${it.name()}
             </f:enum>
         </f:entry>
-        <f:entry title="代理服务" field="host">
+        <f:entry title="Proxy Server" field="host">
             <f:textbox name="host"/>
         </f:entry>
-        <f:entry title="代理端口" field="port">
+        <f:entry title="Proxy Port" field="port">
             <f:number name="port"/>
         </f:entry>
     </div>

@@ -6,7 +6,7 @@
     <j:set var="notifierConfigs"
            value="${instance == null ? descriptor.getDefaultNotifierConfigs() : instance.getNotifierConfigs()}"/>
     <j:set var="checkedNotifierConfigs"
-           value="${instance.getCheckedNotifierConfigs()}"/>
+           value="${instance.getEnabledLarkNotifierConfigs()}"/>
 
     <d:taglib uri="local">
         <d:tag name="body">
@@ -16,7 +16,7 @@
         </d:tag>
     </d:taglib>
 
-    <f:entry title="机器人">
+    <f:entry title="Lark Bot Configuration">
         <div class="jenkins-form-item hetero-list-container one-each">
             <!-- display existing items -->
             <j:forEach var="config"
@@ -49,7 +49,7 @@
                 </j:forEach>
             </div>
             <div>
-                <input type="button" value="添加机器人" class="hetero-list-add"/>
+                <input type="button" value="Add Bot" class="hetero-list-add"/>
             </div>
         </div>
     </f:entry>

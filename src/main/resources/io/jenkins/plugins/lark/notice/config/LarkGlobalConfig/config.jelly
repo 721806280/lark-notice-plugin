@@ -1,12 +1,12 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
          xmlns:f="/lib/form">
-    <f:section title="通知时机">
+    <f:section title="Notification Triggers">
         <f:entry>
             <j:scope>
-                <!-- 通知时机列表 -->
+                <!-- List of all notification triggers -->
                 <j:set var="allNoticeOccasions" value="${descriptor.getAllNoticeOccasions()}"/>
-                <!-- 用户选择的通知时机-->
+                <!-- Notification triggers selected by the user -->
                 <j:set var="checkedNoticeOccasions"
                        value="${descriptor.getNoticeOccasions()}"/>
                 <j:forEach var="noticeOccasionItem" items="${allNoticeOccasions}">
@@ -23,18 +23,18 @@
         </f:entry>
     </f:section>
 
-    <f:section title="日志">
+    <f:section title="Logging">
         <f:entry field="verbose">
-            <f:checkbox title="详细日志"/>
+            <f:checkbox title="Enable Verbose Logging"/>
         </f:entry>
     </f:section>
 
-    <f:section title="代理">
+    <f:section title="Proxy">
         <f:property field="proxyConfig"
                     propertyDescriptor="${descriptor.getLarkProxyConfigDescriptor()}"/>
     </f:section>
 
-    <f:section title="机器人">
+    <f:section title="Bots">
         <j:scope>
             <j:set var="robotConfigs" value="${descriptor.robotConfigs}"/>
             <j:set var="robotConfigDescriptor"
