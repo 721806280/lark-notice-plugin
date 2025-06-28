@@ -1,8 +1,6 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:f="/lib/form"
          xmlns:local="local">
-    <st:adjunct includes="lib.form.hetero-list.hetero-list"/>
-
     <j:set var="notifierConfigs"
            value="${instance == null ? descriptor.getDefaultNotifierConfigs() : instance.getNotifierConfigs()}"/>
     <j:set var="checkedNotifierConfigs"
