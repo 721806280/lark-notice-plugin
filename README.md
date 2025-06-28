@@ -1,17 +1,22 @@
-<p align="center">
-   <a href="https://721806280.github.io/lark-notice-plugin-doc">
-       <img src="src/main/webapp/images/logo.png" alt="logo">
-   </a>
-</p>
+<div align="center">
+   <p align="center">
+      <a href="https://721806280.github.io/lark-notice-plugin-doc">
+          <img src="src/main/webapp/images/logo.png" alt="logo">
+      </a>
+   </p>
+   <p align="center">
+      <img src="https://img.shields.io/badge/JDK-17-success" alt="JDK">
+      <img src="https://img.shields.io/badge/Jenkins-2.492-blue.svg" alt="License">
+      <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License">
+      <img src="https://img.shields.io/badge/Author-xm.z-success" alt="Author">
+   </p>
 
-<p align="center">
-   <img src="https://img.shields.io/badge/JDK-17-success" alt="JDK">
-   <img src="https://img.shields.io/badge/Jenkins-2.479-blue.svg" alt="License">
-   <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License">
-   <img src="https://img.shields.io/badge/Author-xm.z-success" alt="Author">
-</p>
-
-<h1 align="center">Lark - 云雀Jenkins构建通知插件</h1>
+   <div align="center">
+      <a href="https://721806280.github.io/lark-notice-plugin-doc">
+         <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=26&pause=1000&multiline=true&repeat=false&random=true&width=435&height=46&lines=Lark+-+%E4%BA%91%E9%9B%80Jenkins%E6%9E%84%E5%BB%BA%E9%80%9A%E7%9F%A5%E6%8F%92%E4%BB%B6" alt="Typing SVG" />
+      </a>
+   </div>
+</div>
 
 ## 🌐 插件简介
 
