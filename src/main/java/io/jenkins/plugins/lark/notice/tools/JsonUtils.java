@@ -719,29 +719,6 @@ public class JsonUtils {
     }
 
     /**
-     * 判断是否可以序列化
-     *
-     * @param value 对象
-     * @return 是否可以序列化
-     */
-    public static boolean canSerialize(Object value) {
-        if (value == null) {
-            return true;
-        }
-        return getInstance().canSerialize(value.getClass());
-    }
-
-    /**
-     * 判断是否可以反序列化
-     *
-     * @param type JavaType
-     * @return 是否可以反序列化
-     */
-    public static boolean canDeserialize(JavaType type) {
-        return getInstance().canDeserialize(type);
-    }
-
-    /**
      * 检验 json 格式
      *
      * @param jsonString json 字符串
