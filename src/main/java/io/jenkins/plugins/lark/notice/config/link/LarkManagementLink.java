@@ -92,7 +92,7 @@ public class LarkManagementLink extends ManagementLink {
     public void doConfigure(StaplerRequest2 req, StaplerResponse2 res) throws FormException, IOException, ServletException {
         if (Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
             getLarkGlobalConfigDescriptor().configure(req, req.getSubmittedForm());
-            FormApply.success(req.getContextPath() + "/manage").generateResponse(req, res, null);
+            FormApply.success("..").generateResponse(req, res, null);
         }
     }
 
