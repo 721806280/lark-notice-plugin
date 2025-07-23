@@ -57,13 +57,11 @@
 
 ## ✅ 开发约定
 
-1. 使用 [Alibaba Java Coding Guidelines](https://plugins.jetbrains.com/plugin/10046-alibaba-java-coding-guidelines/)
-   校验代码规范。
+1. 使用 [Alibaba Java Coding Guidelines](https://plugins.jetbrains.com/plugin/10046-alibaba-java-coding-guidelines/) 校验代码规范。
 2. 使用 [Google Style Guide](https://github.com/google/styleguide) 统一代码风格。
 
 > `IDEA`
->
-下载 [intellij-java-google-style.xml](https://github.com/google/styleguide/blob/gh-pages/intellij-java-google-style.xml)
+> 下载 [intellij-java-google-style.xml](https://github.com/google/styleguide/blob/gh-pages/intellij-java-google-style.xml)
 > 通过 `Settings` -> `Editor` `Code Style` 进行导入。
 
 ## 🔍️ 相关链接
@@ -71,9 +69,3 @@
 - [Plugin tutorial](https://wiki.jenkins.io/display/JENKINS/Plugin+tutorial#Plugintutorial-SettingUpEnvironment)
 - [Jenkins 插件开发之旅：两天内从 idea 到发布(上篇)](https://jenkins-zh.cn/wechat/articles/2019/05/2019-05-06-jenkins-plugin-develop-within-two-days-part01/)
 - [Jenkins 插件开发之旅：两天内从 idea 到发布(下篇)](https://jenkins-zh.github.io/wechat/articles/2019/05/2019-05-08-jenkins-plugin-develop-within-two-days-part02/)
-
-## 💚 鸣谢
-
-感谢 JetBrains 提供的免费开源 License
-
-[![JetBrains](docs/img/jetbrains.png)](https://www.jetbrains.com/?from=lark-notice-plugin)

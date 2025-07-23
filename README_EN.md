@@ -61,25 +61,15 @@ Add `hpi:run` to the startup configuration in the `maven` control panel on the r
 
 ## ✅ Development Agreement
 
-1. Use [Alibaba Java Coding Guidelines](https://plugins.jetbrains.com/plugin/10046-alibaba-java-coding-guidelines/)
-   Verify code specifications.
+1. Use [Alibaba Java Coding Guidelines](https://plugins.jetbrains.com/plugin/10046-alibaba-java-coding-guidelines/) Verify code specifications.
 2. Use the [Google Style Guide](https://github.com/google/styleguide) to unify the code style.
 
 > `IDEA`
->
-download [intellij-java-google-style.xml](https://github.com/google/styleguide/blob/gh-pages/intellij-java-google-style.xml)
+> download [intellij-java-google-style.xml](https://github.com/google/styleguide/blob/gh-pages/intellij-java-google-style.xml)
 > Import via `Settings` -> `Editor` `Code Style`.
 
 ## 🔍️ Related Links
 
 - [Plugin tutorial](https://wiki.jenkins.io/display/JENKINS/Plugin+tutorial#Plugintutorial-SettingUpEnvironment)
-- [Jenkins plug-in development journey: from idea to release in two days (Part 1)](https://jenkins-zh.cn/wechat/articles/2019/05/2019-05-06-jenkins-plugin-develop-
-  within-two-days-part01/)
-- [Jenkins plug-in development journey: from idea to release in two days (Part 2)](https://jenkins-zh.github.io/wechat/articles/2019/05/2019-05-08-jenkins-plugin-
-  develop-within-two-days-part02/)
-
-## 💚 Thanks
-
-Thanks to JetBrains for the free open source license
-
-[![JetBrains](docs/img/jetbrains.png)](https://www.jetbrains.com/?from=lark-notice-plugin)
+- [Jenkins plug-in development journey: from idea to release in two days (Part 1)](https://jenkins-zh.cn/wechat/articles/2019/05/2019-05-06-jenkins-plugin-develop-within-two-days-part01/)
+- [Jenkins plug-in development journey: from idea to release in two days (Part 2)](https://jenkins-zh.github.io/wechat/articles/2019/05/2019-05-08-jenkins-plugin-develop-within-two-days-part02/)
