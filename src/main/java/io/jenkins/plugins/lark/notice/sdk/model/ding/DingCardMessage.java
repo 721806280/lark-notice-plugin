@@ -1,7 +1,7 @@
 package io.jenkins.plugins.lark.notice.sdk.model.ding;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.jenkins.plugins.lark.notice.sdk.model.lark.support.At;
+import io.jenkins.plugins.lark.notice.sdk.model.lark.support.at.At;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

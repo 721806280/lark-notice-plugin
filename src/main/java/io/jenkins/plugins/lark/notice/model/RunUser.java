@@ -80,13 +80,17 @@ public class RunUser {
 
         Optional<LarkUserProperty> userPropertyOpt = Optional.ofNullable(user.getProperty(LarkUserProperty.class));
 
-        Optional<String> mobileOpt = userPropertyOpt.map(LarkUserProperty::getMobile);
-        mobileOpt.ifPresent(mobile -> Logger.log(listener, "用户【%s】暂未设置手机号码，请前往 %s 添加。", name, user.getAbsoluteUrl() + "/configure"));
+        String mobile = userPropertyOpt.map(LarkUserProperty::getMobile).orElse("");
+        if (StringUtils.isBlank(mobile)) {
+            Logger.log(listener, "用户【%s】暂未设置手机号码，请前往 %s 添加。", name, user.getAbsoluteUrl() + "/configure");
+        }
 
-        Optional<String> openIdOpt = userPropertyOpt.map(LarkUserProperty::getOpenId);
-        openIdOpt.ifPresent(openId -> Logger.log(listener, "用户【%s】暂未设置OpenId，请前往 %s 添加。", name, user.getAbsoluteUrl() + "/configure"));
+        String openId = userPropertyOpt.map(LarkUserProperty::getOpenId).orElse("");
+        if (StringUtils.isBlank(openId)) {
+            Logger.log(listener, "用户【%s】暂未设置OpenId，请前往 %s 添加。", name, user.getAbsoluteUrl() + "/configure");
+        }
 
-        return new RunUser(name, mobileOpt.orElse(""), openIdOpt.orElse(""));
+        return new RunUser(name, mobile, openId);
     }
 
 

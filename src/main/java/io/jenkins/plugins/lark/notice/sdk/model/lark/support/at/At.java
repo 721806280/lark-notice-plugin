@@ -1,4 +1,4 @@
-package io.jenkins.plugins.lark.notice.sdk.model.lark.support;
+package io.jenkins.plugins.lark.notice.sdk.model.lark.support.at;
 
 import lombok.Data;
 

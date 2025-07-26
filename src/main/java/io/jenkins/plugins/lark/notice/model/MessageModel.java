@@ -2,9 +2,9 @@ package io.jenkins.plugins.lark.notice.model;
 
 import io.jenkins.plugins.lark.notice.enums.BuildStatusEnum;
 import io.jenkins.plugins.lark.notice.enums.MsgTypeEnum;
-import io.jenkins.plugins.lark.notice.sdk.model.lark.support.At;
 import io.jenkins.plugins.lark.notice.sdk.model.lark.support.Button;
-import io.jenkins.plugins.lark.notice.sdk.model.lark.support.ImgElement;
+import io.jenkins.plugins.lark.notice.sdk.model.lark.support.at.At;
+import io.jenkins.plugins.lark.notice.sdk.model.lark.support.view.img.ImgElement;
 import io.jenkins.plugins.lark.notice.tools.Utils;
 import lombok.Builder;
 import lombok.Getter;

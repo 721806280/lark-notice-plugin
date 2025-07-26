@@ -21,14 +21,13 @@ import io.jenkins.plugins.lark.notice.model.BuildJobModel;
 import io.jenkins.plugins.lark.notice.model.MessageModel;
 import io.jenkins.plugins.lark.notice.model.RunUser;
 import io.jenkins.plugins.lark.notice.sdk.MessageDispatcher;
+import io.jenkins.plugins.lark.notice.sdk.model.SendResult;
 import io.jenkins.plugins.lark.notice.tools.Logger;
 import jenkins.model.Jenkins;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.jenkinsci.plugins.workflow.multibranch.BranchJobProperty;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -37,9 +36,9 @@ import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.DEFAULT_TITL
 import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.LF;
 
 /**
- * A listener for Jenkins job run events that sends notifications to Lark at various stages of the job lifecycle.
- * This includes when a job starts, completes, or fails. The notifications are customizable and can include details
- * such as the job name, status, and links to the job console or change log.
+ * A Jenkins RunListener that sends notifications to Lark at various stages of a job's lifecycle,
+ * such as when the job starts, completes, or fails. Notifications can be customized to include
+ * build metadata, executor information, and links to the build.
  *
  * @author xm.z
  */
@@ -48,108 +47,132 @@ import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.LF;
 public class LarkRunListener extends RunListener<Run<?, ?>> {
 
     /**
-     * Instance of the Lark messaging service.
+     * The messaging service used to dispatch messages to Lark.
      */
-    private final MessageDispatcher service = MessageDispatcher.getInstance();
+    private final MessageDispatcher messageDispatcher = MessageDispatcher.getInstance();
 
     /**
-     * Root path of the Jenkins instance.
-     * This path is used when constructing URLs for sending messages.
+     * The root URL of the Jenkins instance, used for constructing links.
      */
-    private final String rootPath = Jenkins.get().getRootUrl();
+    private final String jenkinsRootUrl = Jenkins.get().getRootUrl();
 
     /**
-     * Sends a start notification when a job begins execution.
+     * Triggered when a job starts.
+     * Sends a notification to Lark indicating the job has started.
      *
-     * @param run      The current job run instance.
-     * @param listener The listener for job output streams.
+     * @param run      the current job run
+     * @param listener the task listener for logging
      */
     @Override
     public void onStarted(Run<?, ?> run, TaskListener listener) {
-        this.send(run, listener, NoticeOccasionEnum.START);
+        sendNotification(run, listener, NoticeOccasionEnum.START);
     }
 
     /**
-     * Sends a completion or failure notification when a job finishes execution.
-     * The type of notification depends on the result of the job run.
+     * Triggered when a job completes.
+     * Determines the appropriate notification type based on the build result,
+     * and sends the message to Lark.
      *
-     * @param run      The current job run instance.
-     * @param listener The listener for job output streams.
+     * @param run      the current job run
+     * @param listener the task listener for logging
      */
     @Override
     public void onCompleted(Run<?, ?> run, @NonNull TaskListener listener) {
         Result result = run.getResult();
-        NoticeOccasionEnum noticeOccasion = NoticeOccasionEnum.getNoticeOccasion(result);
+        sendNotification(run, listener, NoticeOccasionEnum.getNoticeOccasion(result));
+    }
+
+    /**
+     * Sends a Lark notification based on the specified occasion.
+     *
+     * @param run      the current job run
+     * @param listener the task listener for logging
+     * @param occasion the notification occasion (start, success, failure, etc.)
+     */
+    private void sendNotification(Run<?, ?> run, TaskListener listener, NoticeOccasionEnum occasion) {
         try {
-            this.send(run, listener, noticeOccasion);
+            Job<?, ?> job = run.getParent();
+
+            List<LarkNotifierConfig> configs = getAvailableLarkNotifierConfigs(job);
+            if (configs == null || configs.isEmpty()) {
+                Logger.log(listener, "No Lark notifier configured for this job. Skipping notification.");
+                return;
+            }
+
+            RunUser executor = RunUser.getExecutor(run, listener);
+
+            BuildJobModel model = BuildJobModel.builder()
+                    .projectName(job.getFullDisplayName())
+                    .projectUrl(job.getAbsoluteUrl())
+                    .jobName(run.getDisplayName())
+                    .jobUrl(jenkinsRootUrl + run.getUrl())
+                    .duration(run.getDurationString())
+                    .executorName(executor.getName())
+                    .executorMobile(executor.getMobile())
+                    .executorOpenId(executor.getOpenId())
+                    .statusType(occasion.buildStatus())
+                    .build();
+
+            EnvVars envVars = EnvVarsResolver.resolveBuildEnvVars(run, listener, model);
+
+            configs.stream()
+                    .filter(config -> config.getNoticeOccasions().contains(occasion.name()))
+                    .forEach(config -> sendMessageToLark(run, listener, envVars, model, config, executor));
         } catch (Exception e) {
-            Logger.log(listener, "发送消息时报错: %s", e);
+            Logger.log(listener, "Failed to send Lark notification: %s", e.getMessage());
         } finally {
             PipelineEnvContext.reset();
         }
     }
 
     /**
-     * Sends a Lark message based on the specified occasion (start, completion, failure).
+     * Sends a message to Lark using the given configuration.
      *
-     * @param run            The current job run instance.
-     * @param listener       The listener for job output streams.
-     * @param noticeOccasion The occasion for the notification (start, complete, fail).
+     * @param run      the current job run
+     * @param listener the task listener for logging
+     * @param envVars  the environment variables of the build
+     * @param model    the build job model containing metadata
+     * @param config   the Lark notifier configuration
+     * @param executor the executor of the build
      */
-    private void send(Run<?, ?> run, TaskListener listener, NoticeOccasionEnum noticeOccasion) {
-        Job<?, ?> job = run.getParent();
+    private void sendMessageToLark(Run<?, ?> run, TaskListener listener, EnvVars envVars,
+                                   BuildJobModel model, LarkNotifierConfig config, RunUser executor) {
+        RobotType robotType = LarkGlobalConfig.getRobot(config.getRobotId())
+                .map(LarkRobotConfig::obtainRobotType)
+                .orElseThrow(() -> new IllegalStateException("Robot not found for ID: " + config.getRobotId()));
 
-        List<LarkNotifierConfig> availableLarkNotifierConfigs = getAvailableLarkNotifierConfigs(job);
-        if (availableLarkNotifierConfigs == null || availableLarkNotifierConfigs.isEmpty()) {
-            Logger.log(listener, "No Lark notifier configured for this job. Skipping notification.");
-            return;
+        Set<String> atUserIds = config.resolveAtUserIds(envVars);
+
+        if (StringUtils.isNotBlank(executor.getOpenId())) {
+            atUserIds.add(executor.getOpenId());
         }
 
-        // 执行人信息
-        RunUser user = RunUser.getExecutor(run, listener);
+        if (StringUtils.isNotBlank(executor.getMobile())) {
+            atUserIds.add(executor.getMobile());
+        }
 
-        // 构建任务信息
-        BuildJobModel buildJobModel = BuildJobModel.builder()
-                // 项目信息
-                .projectName(job.getFullDisplayName()).projectUrl(job.getAbsoluteUrl())
-                // 构建信息
-                .jobName(run.getDisplayName()).jobUrl(rootPath + run.getUrl()).duration(run.getDurationString())
-                // 执行人信息
-                .executorName(user.getName()).executorMobile(user.getMobile()).executorOpenId(user.getOpenId())
-                // 构建状态
-                .statusType(noticeOccasion.buildStatus()).build();
+        model.setTitle(envVars.expand(StringUtils.defaultIfBlank(config.getTitle(), DEFAULT_TITLE)));
+        model.setContent(envVars.expand(config.getContent()).replaceAll("\\\\n", LF));
+        String messageText = config.isRaw() ? envVars.expand(config.getMessage()) : model.toMarkdown(robotType);
 
-        // 获取并更新环境变量
-        EnvVars envVars = fetchUpdateEnvVariables(run, listener, buildJobModel);
+        MessageModel messageModel = model.messageModelBuilder()
+                .atAll(config.isAtAll())
+                .atUserIds(atUserIds)
+                .text(messageText)
+                .build();
 
-        // 遍历所有可用的通知器配置
-        availableLarkNotifierConfigs.stream()
-                // 根据配置决定是否跳过当前项
-                .filter(config -> config.getNoticeOccasions().contains(noticeOccasion.name()))
-                .forEach(config -> {
-                    RobotType robotType = LarkGlobalConfig.getRobot(config.getRobotId())
-                            .map(LarkRobotConfig::obtainRobotType).orElseThrow();
-
-                    Set<String> atUserIds = config.resolveAtUserIds(envVars);
-                    if (StringUtils.isNotBlank(user.getOpenId())) {
-                        atUserIds.add(user.getOpenId());
-                    }
-
-                    if (StringUtils.isNotBlank(user.getMobile())) {
-                        atUserIds.add(user.getMobile());
-                    }
-
-                    buildJobModel.setTitle(envVars.expand(StringUtils.defaultIfBlank(config.getTitle(), DEFAULT_TITLE)));
-                    buildJobModel.setContent(envVars.expand(config.getContent()).replaceAll("\\\\n", LF));
-                    String text = config.isRaw() ? envVars.expand(config.getMessage()) : buildJobModel.toMarkdown(robotType);
-
-                    MessageModel messageModel = buildJobModel.messageModelBuilder()
-                            .atAll(config.isAtAll()).atUserIds(atUserIds).text(text).build();
-
-                    service.send(listener, config.getRobotId(), messageModel);
-                });
+        SendResult result = messageDispatcher.send(listener, config.getRobotId(), messageModel);
+        if (!result.isOk()) {
+            run.setResult(Result.FAILURE);
+        }
     }
 
+    /**
+     * Retrieves available Lark notifier configurations for the given job.
+     *
+     * @param job the Jenkins job
+     * @return a list of Lark notifier configurations, or an empty list if none found
+     */
     private List<LarkNotifierConfig> getAvailableLarkNotifierConfigs(Job<?, ?> job) {
         return Optional.ofNullable(job.getProperty(LarkJobProperty.class))
                 .map(LarkNotifierProvider::getAvailableLarkNotifierConfigs)
@@ -159,47 +182,4 @@ public class LarkRunListener extends RunListener<Run<?, ?>> {
                         .map(LarkNotifierProvider::getAvailableLarkNotifierConfigs))
                 .orElse(List.of());
     }
-
-    /**
-     * Retrieves the environment variables for a given job run.
-     *
-     * @param run      The current job run instance.
-     * @param listener The listener for job output streams.
-     * @return A map of environment variable names to their values.
-     */
-    private EnvVars getEnvVars(Run<?, ?> run, TaskListener listener) {
-        EnvVars envVars = new EnvVars();
-        try {
-            envVars = run.getEnvironment(listener);
-            envVars.overrideAll(PipelineEnvContext.get());
-        } catch (IOException | InterruptedException e) {
-            Logger.log(listener, "获取 Job 任务的环境变量时发生异常");
-            Logger.log(listener, ExceptionUtils.getStackTrace(e));
-        }
-        return envVars;
-    }
-
-    /**
-     * Updates environment variables with information from the given Run object and BuildJobModel.
-     * This includes executor details, project information, and job status.
-     *
-     * @param run           The current build run object.
-     * @param listener      The task listener for logging and error reporting.
-     * @param buildJobModel The model containing build and job information to set in the environment variables.
-     * @return The updated environment variables object.
-     */
-    private EnvVars fetchUpdateEnvVariables(Run<?, ?> run, TaskListener listener, BuildJobModel buildJobModel) {
-        EnvVars envVars = getEnvVars(run, listener);
-        envVars.put("EXECUTOR_NAME", StringUtils.defaultIfBlank(buildJobModel.getExecutorName(), ""));
-        envVars.put("EXECUTOR_MOBILE", StringUtils.defaultIfBlank(buildJobModel.getExecutorMobile(), ""));
-        envVars.put("EXECUTOR_OPENID", StringUtils.defaultIfBlank(buildJobModel.getExecutorOpenId(), ""));
-        envVars.put("PROJECT_NAME", buildJobModel.getProjectName());
-        envVars.put("PROJECT_URL", buildJobModel.getProjectUrl());
-        envVars.put("JOB_NAME", buildJobModel.getJobName());
-        envVars.put("JOB_URL", buildJobModel.getJobUrl());
-        envVars.put("JOB_DURATION", buildJobModel.getDuration());
-        envVars.put("JOB_STATUS", buildJobModel.getStatusType().getLabel());
-        return envVars;
-    }
-
 }

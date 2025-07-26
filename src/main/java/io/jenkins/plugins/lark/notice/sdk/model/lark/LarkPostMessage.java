@@ -1,7 +1,7 @@
 package io.jenkins.plugins.lark.notice.sdk.model.lark;
 
-import io.jenkins.plugins.lark.notice.sdk.model.lark.support.Content;
-import io.jenkins.plugins.lark.notice.sdk.model.lark.support.RichText;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.jenkins.plugins.lark.notice.tools.JsonUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -44,6 +44,35 @@ public class LarkPostMessage extends BaseLarkMessage {
          * 富文本消息
          */
         private RichText post;
+
+    }
+
+    /**
+     * Content
+     *
+     * @author xm.z
+     */
+    @Data
+    public static class Content implements Serializable {
+
+        private String title;
+
+        private JsonNode content;
+
+    }
+
+    /**
+     * RichText
+     *
+     * @author xm.z
+     */
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RichText implements Serializable {
+
+        @JsonProperty(value = "zh_cn")
+        private Content zhCn;
 
     }
 

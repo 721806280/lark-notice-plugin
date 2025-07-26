@@ -210,8 +210,8 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
          */
         @RequirePOST
         public String doTest(@QueryParameter String id, @QueryParameter String name,
-                                     @QueryParameter String webhook, @QueryParameter String proxy,
-                                     @QueryParameter String securityConfigs) {
+                             @QueryParameter String webhook, @QueryParameter String proxy,
+                             @QueryParameter String securityConfigs) {
             if (!Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
                 return "Error: You do not have permission to access this resource.";
             }

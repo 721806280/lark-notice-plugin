@@ -99,7 +99,7 @@ public class DingMessageSender extends AbstractMessageSender {
             message = DingCardMessage.build(msg.getAt(), msg.getTitle(), msg.getText(), singleTitle, msg.getSingleUrl());
         } else {
             List<DingCardMessage.Button> buttons = CollectionUtils.isEmpty(msg.getButtons()) ? null : msg.getButtons().stream()
-                    .map(button -> new DingCardMessage.Button(button.getText().getContent(), button.getUrl()))
+                    .map(button -> new DingCardMessage.Button(button.getText(), button.getUrl()))
                     .collect(Collectors.toList());
             message = DingCardMessage.build(msg.getAt(), msg.getTitle(), text, msg.getBtnOrientation(), buttons);
         }

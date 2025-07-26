@@ -49,8 +49,8 @@ public class Utils {
         String console = jobUrl + "console";
 
         List<Button> buttons = new ArrayList<>();
-        buttons.add(Button.of("更改记录", changeLog));
-        buttons.add(Button.of("控制台", console));
+        buttons.add(new Button("更改记录", changeLog, "primary_filled"));
+        buttons.add(new Button("控制台", console, "default"));
 
         return buttons;
     }

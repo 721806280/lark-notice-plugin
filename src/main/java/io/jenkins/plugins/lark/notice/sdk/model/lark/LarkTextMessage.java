@@ -1,6 +1,6 @@
 package io.jenkins.plugins.lark.notice.sdk.model.lark;
 
-import io.jenkins.plugins.lark.notice.sdk.model.lark.support.At;
+import io.jenkins.plugins.lark.notice.sdk.model.lark.support.at.At;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

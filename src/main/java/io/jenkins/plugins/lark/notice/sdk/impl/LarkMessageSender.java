@@ -12,9 +12,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Objects;
-import java.util.Optional;
-
 /**
  * Lark implementation for sending Lark messages.
  *
@@ -37,14 +34,14 @@ public class LarkMessageSender extends AbstractMessageSender {
      * @return The request parameters for the Lark API.
      */
     protected String signToJson(Object message) {
+        ObjectNode objectNode = JsonUtils.valueToTree(message);
         if (StringUtils.isNotBlank(robotConfig.getSign())) {
-            ObjectNode objectNode = JsonUtils.valueToTree(message);
             long timestamp = System.currentTimeMillis() / 1000L;
             objectNode.put("timestamp", String.valueOf(timestamp));
             objectNode.put("sign", robotConfig.createSign(timestamp));
             return JsonUtils.toJson(objectNode);
         }
-        return JsonUtils.toJson(message);
+        return JsonUtils.toJson(objectNode);
     }
 
     /**
@@ -94,8 +91,8 @@ public class LarkMessageSender extends AbstractMessageSender {
      */
     @Override
     public SendResult sendMarkdown(MessageModel msg) {
-        String title = addKeyWord(msg.getTitle(), robotConfig.getKeys());
-        LarkCardMessage message = LarkCardMessage.build(msg.getAt(), title, msg.getText(), msg.getButtons());
+        msg.setTitle(addKeyWord(msg.getTitle(), robotConfig.getKeys()));
+        LarkCardMessage message = LarkCardMessage.build(msg);
         return sendMessage(signToJson(message));
     }
 
@@ -122,17 +119,12 @@ public class LarkMessageSender extends AbstractMessageSender {
     public SendResult sendCard(MessageModel msg) {
         String text = msg.getText();
         if (JsonUtils.isValidJson(text)) {
-            Card card = Optional.ofNullable(JsonUtils.readValue(text, Card.class)).orElseGet(Card::new);
-            Optional.ofNullable(card.getHeader())
-                    .filter(header -> Objects.nonNull(header.getTemplate()) && StringUtils.isBlank(header.getTemplate()))
-                    .ifPresent(header -> header.setTemplate(msg.obtainHeaderTemplate()));
-            if (Objects.nonNull(card.getElements())) {
-                return sendMessage(signToJson(new LarkCardMessage(card)));
-            }
+            Card card = JsonUtils.readValue(text, Card.class);
+            LarkCardMessage message = new LarkCardMessage(card);
+            return sendMessage(signToJson(message));
         }
-        String title = addKeyWord(msg.getTitle(), robotConfig.getKeys());
-        LarkCardMessage message = LarkCardMessage.build(msg.getAt(), msg.obtainHeaderTemplate(), title, text,
-                msg.getTopImg(), msg.getBottomImg(), msg.getButtons());
+        msg.setTitle(addKeyWord(msg.getTitle(), robotConfig.getKeys()));
+        LarkCardMessage message = LarkCardMessage.build(msg);
         return sendMessage(signToJson(message));
     }
 

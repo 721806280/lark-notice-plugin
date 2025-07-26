@@ -17,16 +17,12 @@ public class Button {
 
     private String type;
 
-    private TagContent text;
+    private String text;
 
     public Button(String content, String url, String type) {
         this.url = url;
-        this.text = new TagContent("plain_text", content);
-        this.type = StringUtils.defaultIfBlank(type, "primary");
-    }
-
-    public static Button of(String title, String url) {
-        return new Button(title, url, null);
+        this.text = content;
+        this.type = StringUtils.defaultIfBlank(type, "primary_filled");
     }
 
 }

@@ -12,9 +12,10 @@ import io.jenkins.plugins.lark.notice.model.ButtonModel;
 import io.jenkins.plugins.lark.notice.model.ImgModel;
 import io.jenkins.plugins.lark.notice.model.MessageModel;
 import io.jenkins.plugins.lark.notice.sdk.model.SendResult;
-import io.jenkins.plugins.lark.notice.sdk.model.lark.support.Alt;
 import io.jenkins.plugins.lark.notice.sdk.model.lark.support.Button;
-import io.jenkins.plugins.lark.notice.sdk.model.lark.support.ImgElement;
+import io.jenkins.plugins.lark.notice.sdk.model.lark.support.form.TextElement;
+import io.jenkins.plugins.lark.notice.sdk.model.lark.support.view.img.ImgElement;
+import io.jenkins.plugins.lark.notice.sdk.model.lark.support.view.title.TitleElement;
 import io.jenkins.plugins.lark.notice.step.AbstractStep;
 import io.jenkins.plugins.lark.notice.tools.JsonUtils;
 import io.jenkins.plugins.lark.notice.tools.Utils;
@@ -164,10 +165,19 @@ public class LarkStep extends AbstractStep {
         }
         ImgElement imgElement = new ImgElement();
         imgElement.setImgKey(imgModel.getImgKey());
-        imgElement.setMode(imgModel.getMode());
-        imgElement.setCompactWidth(imgModel.isCompactWidth());
-        imgElement.setCustomWidth(imgModel.getCustomWidth());
-        imgElement.setAlt(Alt.build(envVars.expand(imgModel.getAltContent())));
+        imgElement.setAlt(TextElement.of(imgModel.getAltContent()));
+        imgElement.setTitle(new TitleElement());
+
+        imgElement.setCornerRadius("");
+        imgElement.setScaleType("");
+        imgElement.setSize("");
+        imgElement.setTransparent(false);
+        imgElement.setPreview(false);
+
+        TextElement textElement = new TextElement();
+        textElement.setContent(envVars.expand(imgModel.getAltContent()));
+
+        imgElement.setAlt(textElement);
         return imgElement;
     }
 

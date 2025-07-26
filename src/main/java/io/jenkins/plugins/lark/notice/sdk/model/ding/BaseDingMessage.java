@@ -2,7 +2,7 @@ package io.jenkins.plugins.lark.notice.sdk.model.ding;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.jenkins.cli.shaded.org.apache.commons.lang.StringUtils;
-import io.jenkins.plugins.lark.notice.sdk.model.lark.support.At;
+import io.jenkins.plugins.lark.notice.sdk.model.lark.support.at.At;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
