@@ -28,6 +28,9 @@ public class TitleElement implements Serializable {
      * 辅助方法：创建 plain_text 类型的标题构建器
      */
     public static TitleElement buildPlainText(String content) {
+        if (content == null) {
+            return null;
+        }
         TitleElement titleElement = new TitleElement();
         titleElement.setTag("plain_text");
         titleElement.setContent(content);
@@ -38,6 +41,9 @@ public class TitleElement implements Serializable {
      * 辅助方法：创建 lark_md 类型的标题构建器
      */
     public static TitleElement buildLarkMd(String content) {
+        if (content == null) {
+            return null;
+        }
         TitleElement titleElement = new TitleElement();
         titleElement.setTag("lark_md");
         titleElement.setContent(content);

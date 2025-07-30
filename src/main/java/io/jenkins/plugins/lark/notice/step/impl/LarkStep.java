@@ -166,13 +166,13 @@ public class LarkStep extends AbstractStep {
         ImgElement imgElement = new ImgElement();
         imgElement.setImgKey(imgModel.getImgKey());
         imgElement.setAlt(TextElement.of(imgModel.getAltContent()));
-        imgElement.setTitle(new TitleElement());
+        imgElement.setTitle(TitleElement.buildPlainText(imgModel.getTitle()));
 
-        imgElement.setCornerRadius("");
-        imgElement.setScaleType("");
-        imgElement.setSize("");
-        imgElement.setTransparent(false);
-        imgElement.setPreview(false);
+        imgElement.setCornerRadius(imgModel.getCornerRadius());
+        imgElement.setScaleType(imgModel.getScaleType());
+        imgElement.setSize(imgModel.getSize());
+        imgElement.setTransparent(imgModel.getTransparent());
+        imgElement.setPreview(imgModel.getPreview());
 
         TextElement textElement = new TextElement();
         textElement.setContent(envVars.expand(imgModel.getAltContent()));

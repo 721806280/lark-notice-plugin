@@ -37,19 +37,30 @@ public class ImgElement {
     private TitleElement title;
 
     /**
-     * 图片的圆角半径，单位是像素（px）
+     * 图片的圆角半径，单位是像素（px）或 百分比（%）
      */
     @JsonProperty("corner_radius")
     private String cornerRadius;
 
     /**
      * 图片的裁剪模式，当 size 字段的比例和图片的比例不一致时会触发裁剪
+     * <p>
+     * 1. crop_center：居中裁剪
+     * 2. crop_top：顶部裁剪
+     * 3. fit_horizontal：完整展示不裁剪
      */
     @JsonProperty("scale_type")
     private String scaleType;
 
     /**
      * 图片尺寸。仅在 scale_type 字段为 crop_center 或 crop_top 时生效
+     * <p>
+     * 1. stretch：超大图，适用于高宽比小于 16:9 的图片。
+     * 2. large：大图，尺寸为 160 × 160，适用于多图混排。
+     * 3. medium：中图，尺寸为 80 × 80，适用于图文混排的封面图。
+     * 4. small：小图，尺寸为 40 × 40，适用于人员头像。
+     * 4. tiny：超小图，尺寸为 16 × 16，适用于图标、备注。
+     * 5. [1,1000]px [1,1000]px：自定义图片尺寸，单位为像素，中间用空格分隔。
      */
     private String size;
 

@@ -22,6 +22,10 @@ public class TextElement {
     private String content;
 
     public static TextElement of(String text) {
+        if (text == null) {
+            return null;
+        }
+
         TextElement textElement = new TextElement();
         textElement.setContent(text);
         return textElement;
