@@ -15,6 +15,7 @@ public class UdIcon {
     /**
      * 图标的 token
      */
+    @SuppressWarnings("lgtm[jenkins/plaintext-storage]")
     private String token;
 
     /**

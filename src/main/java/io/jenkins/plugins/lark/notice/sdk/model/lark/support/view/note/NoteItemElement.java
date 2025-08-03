@@ -21,6 +21,7 @@ public class NoteItemElement {
     /**
      * 图标 token，仅在 tag 为 standard_icon 时生效
      */
+    @SuppressWarnings("lgtm[jenkins/plaintext-storage]")
     private String token;
 
     /**
@@ -32,6 +33,7 @@ public class NoteItemElement {
      * 图片的 key，仅在 tag 为 custom_icon 时生效
      */
     @JsonProperty("img_key")
+    @SuppressWarnings("lgtm[jenkins/plaintext-storage]")
     private String imgKey;
 
     /**

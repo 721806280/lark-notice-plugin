@@ -17,6 +17,7 @@ public class ImgCombinationItem {
      * 图片的 Key。可通过上传图片接口或在搭建工具中上传图片后获得。
      */
     @JsonProperty("img_key")
+    @SuppressWarnings("lgtm[jenkins/plaintext-storage]")
     private String imgKey;
 
 }
