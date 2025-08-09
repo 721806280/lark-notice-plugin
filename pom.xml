@@ -11,11 +11,10 @@
     </parent>
     <groupId>io.jenkins.plugins</groupId>
     <artifactId>lark-notice</artifactId>
-    <version>${revision}-${changelist}</version>
+    <version>${revision}</version>
     <packaging>hpi</packaging>
     <properties>
         <revision>2.1.2</revision>
-        <changelist>M1</changelist>
         <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
         <jenkins.baseline>2.504</jenkins.baseline>
         <jenkins.version>${jenkins.baseline}.3</jenkins.version>
