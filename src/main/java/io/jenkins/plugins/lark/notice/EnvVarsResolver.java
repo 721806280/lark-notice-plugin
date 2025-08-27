@@ -3,11 +3,11 @@ package io.jenkins.plugins.lark.notice;
 import hudson.EnvVars;
 import hudson.model.Run;
 import hudson.model.TaskListener;
-import io.jenkins.cli.shaded.org.apache.commons.lang.StringUtils;
-import io.jenkins.cli.shaded.org.apache.commons.lang.exception.ExceptionUtils;
 import io.jenkins.plugins.lark.notice.context.PipelineEnvContext;
 import io.jenkins.plugins.lark.notice.model.BuildJobModel;
 import io.jenkins.plugins.lark.notice.tools.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.io.IOException;
 

@@ -1,6 +1,5 @@
 package io.jenkins.plugins.lark.notice.sdk.impl;
 
-import io.jenkins.cli.shaded.org.apache.commons.lang.StringUtils;
 import io.jenkins.plugins.lark.notice.model.MessageModel;
 import io.jenkins.plugins.lark.notice.model.RobotConfigModel;
 import io.jenkins.plugins.lark.notice.sdk.model.SendResult;
@@ -13,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;

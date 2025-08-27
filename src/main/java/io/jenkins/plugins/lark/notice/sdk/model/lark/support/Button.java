@@ -1,7 +1,7 @@
 package io.jenkins.plugins.lark.notice.sdk.model.lark.support;
 
 import lombok.Data;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Button

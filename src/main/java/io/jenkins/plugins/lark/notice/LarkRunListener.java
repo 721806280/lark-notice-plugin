@@ -25,7 +25,7 @@ import io.jenkins.plugins.lark.notice.sdk.model.SendResult;
 import io.jenkins.plugins.lark.notice.tools.Logger;
 import jenkins.model.Jenkins;
 import lombok.extern.log4j.Log4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jenkinsci.plugins.workflow.multibranch.BranchJobProperty;
 
 import java.util.List;

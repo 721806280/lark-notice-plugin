@@ -15,7 +15,7 @@ import io.jenkins.plugins.lark.notice.sdk.model.lark.support.Button;
 import io.jenkins.plugins.lark.notice.step.AbstractStep;
 import io.jenkins.plugins.lark.notice.tools.Utils;
 import lombok.Getter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jenkinsci.plugins.workflow.steps.StepDescriptor;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;

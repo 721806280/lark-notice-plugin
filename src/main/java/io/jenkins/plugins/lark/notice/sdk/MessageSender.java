@@ -1,8 +1,8 @@
 package io.jenkins.plugins.lark.notice.sdk;
 
-import io.jenkins.cli.shaded.org.apache.commons.lang.StringUtils;
 import io.jenkins.plugins.lark.notice.model.MessageModel;
 import io.jenkins.plugins.lark.notice.sdk.model.SendResult;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * MessageSender is an interface designed to abstract the process of sending various types of messages.

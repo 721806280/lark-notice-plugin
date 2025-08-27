@@ -1,7 +1,6 @@
 package io.jenkins.plugins.lark.notice.sdk.impl;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.jenkins.cli.shaded.org.apache.commons.lang.StringUtils;
 import io.jenkins.plugins.lark.notice.model.MessageModel;
 import io.jenkins.plugins.lark.notice.model.RobotConfigModel;
 import io.jenkins.plugins.lark.notice.sdk.model.SendResult;
@@ -11,6 +10,7 @@ import io.jenkins.plugins.lark.notice.tools.JsonUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Lark implementation for sending Lark messages.

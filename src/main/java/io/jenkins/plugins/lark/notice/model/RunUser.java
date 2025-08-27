@@ -1,11 +1,11 @@
 package io.jenkins.plugins.lark.notice.model;
 
 import hudson.model.*;
-import io.jenkins.cli.shaded.org.apache.commons.lang.StringUtils;
 import io.jenkins.plugins.lark.notice.config.property.LarkUserProperty;
 import io.jenkins.plugins.lark.notice.tools.Logger;
 import jenkins.model.Jenkins;
 import lombok.*;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Objects;
 import java.util.Optional;
