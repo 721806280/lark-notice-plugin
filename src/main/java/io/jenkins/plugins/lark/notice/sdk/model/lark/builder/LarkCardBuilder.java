@@ -115,7 +115,7 @@ public class LarkCardBuilder {
      * @return 构建器自身
      */
     public LarkCardBuilder withPersonList(At at) {
-        if (at == null || at.getAtUserIds().isEmpty()) {
+        if (at == null || at.getAtUserIds() == null || at.getAtUserIds().isEmpty()) {
             return this;
         }
 
