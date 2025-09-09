@@ -30,9 +30,7 @@ public class LarkCardMessage extends BaseLarkMessage {
                 .withImage(msg.getTopImg())
                 .withMarkdown(markdownContent)
                 .withImage(msg.getBottomImg())
-                .withSeparator()
                 .withPersonList(msg.getAt())
-                .withSeparator()
                 .withButtons(msg.getButtons())
                 .build();
 

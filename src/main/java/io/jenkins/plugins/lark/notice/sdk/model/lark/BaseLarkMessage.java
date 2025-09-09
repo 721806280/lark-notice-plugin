@@ -45,7 +45,7 @@ public abstract class BaseLarkMessage implements Serializable {
 
         List<String> atContents = atUserIds.stream().map(v -> String.format(atTemplate, v)).collect(Collectors.toList());
         String atContent = StringUtils.join(atContents, "");
-        return (StringUtils.endsWith(content, LF) ? content : content + LF) + atContent;
+        return (content.endsWith(LF) ? content : content + LF) + atContent;
     }
 
 }

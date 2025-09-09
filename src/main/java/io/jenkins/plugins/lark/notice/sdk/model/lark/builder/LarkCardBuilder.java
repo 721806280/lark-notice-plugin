@@ -134,7 +134,7 @@ public class LarkCardBuilder {
         personList.setPersons(persons);
 
         elements.add(personList);
-        return this;
+        return this.withSeparator();
     }
 
     /**
@@ -198,7 +198,7 @@ public class LarkCardBuilder {
             this.withSeparator();
             elements.add(img);
         }
-        return this;
+        return this.withSeparator();
     }
 
     /**

@@ -156,7 +156,7 @@ public class LarkNotifierConfig extends AbstractDescribableImpl<LarkNotifierConf
      * @return Set of resolved atUserIds
      */
     public Set<String> resolveAtUserIds(EnvVars envVars) {
-        if (StringUtils.isEmpty(atUserId)) {
+        if (StringUtils.isBlank(atUserId)) {
             return new HashSet<>(16);
         }
         String realOpenId = envVars.expand(atUserId);
