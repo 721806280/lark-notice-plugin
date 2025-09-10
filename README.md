@@ -69,3 +69,7 @@
 - [Plugin tutorial](https://wiki.jenkins.io/display/JENKINS/Plugin+tutorial#Plugintutorial-SettingUpEnvironment)
 - [Jenkins 插件开发之旅：两天内从 idea 到发布(上篇)](https://jenkins-zh.cn/wechat/articles/2019/05/2019-05-06-jenkins-plugin-develop-within-two-days-part01/)
 - [Jenkins 插件开发之旅：两天内从 idea 到发布(下篇)](https://jenkins-zh.github.io/wechat/articles/2019/05/2019-05-08-jenkins-plugin-develop-within-two-days-part02/)
+
+## ⭐ 星标历史
+
+[![Star History Chart](https://api.star-history.com/svg?repos=721806280/lark-notice-plugin&type=Date)](https://www.star-history.com/#721806280/lark-notice-plugin&Date)
