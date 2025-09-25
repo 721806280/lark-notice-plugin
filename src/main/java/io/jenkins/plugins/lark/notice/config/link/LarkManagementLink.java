@@ -4,10 +4,13 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import hudson.model.Descriptor;
 import hudson.model.Descriptor.FormException;
+import hudson.model.ManageJenkinsAction;
 import hudson.model.ManagementLink;
+import hudson.security.Permission;
 import hudson.util.FormApply;
 import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.config.LarkGlobalConfig;
+import io.jenkins.plugins.lark.notice.config.security.LarkPermissions;
 import jakarta.servlet.ServletException;
 import jenkins.model.Jenkins;
 import org.kohsuke.stapler.StaplerRequest2;
@@ -79,6 +82,27 @@ public class LarkManagementLink extends ManagementLink {
     }
 
     /**
+     * Returns the permission required for user to see this management link on the "Manage Jenkins" page ({@link ManageJenkinsAction}).
+     *
+     * @return the permission required for the link to be shown on "Manage Jenkins".
+     */
+    @NonNull
+    @Override
+    public Permission getRequiredPermission() {
+        return LarkPermissions.CONFIGURE;
+    }
+
+    /**
+     * Retrieves the descriptor instance for the LarkGlobalConfig class, which contains
+     * the configuration logic and data for the Lark plugin.
+     *
+     * @return The descriptor instance for LarkGlobalConfig.
+     */
+    public Descriptor<LarkGlobalConfig> getLarkGlobalConfigDescriptor() {
+        return Jenkins.get().getDescriptorByType(LarkGlobalConfig.class);
+    }
+
+    /**
      * Processes the configuration submission for the Lark plugin. If the user has administrative
      * permissions, this method updates the plugin's global configuration based on the submitted form data.
      *
@@ -90,20 +114,10 @@ public class LarkManagementLink extends ManagementLink {
      */
     @POST
     public void doConfigure(StaplerRequest2 req, StaplerResponse2 res) throws FormException, IOException, ServletException {
-        if (Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
-            getLarkGlobalConfigDescriptor().configure(req, req.getSubmittedForm());
-            FormApply.success("..").generateResponse(req, res, null);
-        }
-    }
-
-    /**
-     * Retrieves the descriptor instance for the LarkGlobalConfig class, which contains
-     * the configuration logic and data for the Lark plugin.
-     *
-     * @return The descriptor instance for LarkGlobalConfig.
-     */
-    public Descriptor<LarkGlobalConfig> getLarkGlobalConfigDescriptor() {
-        return Jenkins.get().getDescriptorByType(LarkGlobalConfig.class);
+        // Check configuration permission
+        Jenkins.get().checkPermission(LarkPermissions.CONFIGURE);
+        getLarkGlobalConfigDescriptor().configure(req, req.getSubmittedForm());
+        FormApply.success("..").generateResponse(req, res, null);
     }
 
 }

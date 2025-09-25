@@ -1,7 +1,7 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
          xmlns:l="/lib/layout" xmlns:f="/lib/form">
-    <l:layout permission="${app.ADMINISTER}" norefresh="true" title="Lark Bot Configuration">
+    <l:layout permission="${it.requiredPermission}" norefresh="true" title="Lark Bot Configuration">
         <st:include it="${app}" page="sidepanel.jelly"/>
         <l:main-panel>
             <h1>Lark Notice</h1>

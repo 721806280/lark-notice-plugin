@@ -4,6 +4,7 @@ import hudson.Extension;
 import hudson.model.Describable;
 import hudson.model.Descriptor;
 import io.jenkins.plugins.lark.notice.config.LarkRobotConfig.LarkRobotConfigDescriptor;
+import io.jenkins.plugins.lark.notice.config.security.LarkPermissions;
 import io.jenkins.plugins.lark.notice.enums.NoticeOccasionEnum;
 import io.jenkins.plugins.lark.notice.sdk.MessageDispatcher;
 import jenkins.model.Jenkins;
@@ -127,6 +128,9 @@ public class LarkGlobalConfig extends Descriptor<LarkGlobalConfig> implements De
      */
     @Override
     public boolean configure(StaplerRequest2 req, JSONObject json) throws FormException {
+        // At the beginning of your Stapler web method
+        Jenkins.get().checkPermission(LarkPermissions.CONFIGURE);
+
         Object robotConfigObj = json.get("robotConfigs");
         if (robotConfigObj == null) {
             json.put("robotConfigs", new JSONArray());
@@ -138,6 +142,7 @@ public class LarkGlobalConfig extends Descriptor<LarkGlobalConfig> implements De
                 return StringUtils.isEmpty(webhook);
             });
         }
+
         req.bindJSON(this, json);
         // Additional form processing can be done here
         save(); // Save the configuration to disk

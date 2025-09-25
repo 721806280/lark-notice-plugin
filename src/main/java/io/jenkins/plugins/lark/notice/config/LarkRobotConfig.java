@@ -7,6 +7,7 @@ import hudson.model.User;
 import hudson.util.FormValidation;
 import hudson.util.Secret;
 import io.jenkins.plugins.lark.notice.Messages;
+import io.jenkins.plugins.lark.notice.config.security.LarkPermissions;
 import io.jenkins.plugins.lark.notice.enums.BuildStatusEnum;
 import io.jenkins.plugins.lark.notice.enums.MsgTypeEnum;
 import io.jenkins.plugins.lark.notice.enums.RobotType;
@@ -176,7 +177,7 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
          */
         @RequirePOST
         public FormValidation doCheckName(@QueryParameter String value) {
-            if (!Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
+            if (!Jenkins.get().hasPermission(LarkPermissions.CONFIGURE)) {
                 return FormValidation.error("You do not have permission to access this resource");
             }
             return StringUtils.isNotBlank(value) ? FormValidation.ok() :
@@ -191,7 +192,7 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
          */
         @RequirePOST
         public FormValidation doCheckWebhook(@QueryParameter String value) {
-            if (!Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
+            if (!Jenkins.get().hasPermission(LarkPermissions.CONFIGURE)) {
                 return FormValidation.error("You do not have permission to access this resource");
             }
             return StringUtils.isBlank(value) || Objects.isNull(RobotType.fromUrl(value)) ?
@@ -212,9 +213,8 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
         public String doTest(@QueryParameter String id, @QueryParameter String name,
                              @QueryParameter String webhook, @QueryParameter String proxy,
                              @QueryParameter String securityConfigs) {
-            if (!Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
-                return "Error: You do not have permission to access this resource.";
-            }
+            // Check configuration permission
+            Jenkins.get().checkPermission(LarkPermissions.CONFIGURE);
 
             List<LarkSecurityPolicyConfig> securityPolicyConfigs = JsonUtils.readList(securityConfigs, LarkSecurityPolicyConfig.class)
                     .stream().filter(config -> StringUtils.isNotBlank(config.getValue())).toList();
