@@ -1,12 +1,11 @@
 package io.jenkins.plugins.lark.notice.config;
 
 import hudson.Extension;
-import hudson.model.Describable;
-import hudson.model.Descriptor;
 import io.jenkins.plugins.lark.notice.config.LarkRobotConfig.LarkRobotConfigDescriptor;
 import io.jenkins.plugins.lark.notice.config.security.LarkPermissions;
 import io.jenkins.plugins.lark.notice.enums.NoticeOccasionEnum;
 import io.jenkins.plugins.lark.notice.sdk.MessageDispatcher;
+import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
 import lombok.Getter;
 import lombok.ToString;
@@ -34,7 +33,7 @@ import java.util.stream.Collectors;
 @ToString
 @Extension
 @SuppressWarnings("unused")
-public class LarkGlobalConfig extends Descriptor<LarkGlobalConfig> implements Describable<LarkGlobalConfig> {
+public class LarkGlobalConfig extends GlobalConfiguration {
 
     private LarkProxyConfig proxyConfig;
     private boolean verbose;
@@ -62,7 +61,6 @@ public class LarkGlobalConfig extends Descriptor<LarkGlobalConfig> implements De
      * Default constructor that loads saved configurations or initializes the class with default values.
      */
     public LarkGlobalConfig() {
-        super(LarkGlobalConfig.class);
         load(); // Load saved configuration from disk
     }
 
@@ -156,11 +154,6 @@ public class LarkGlobalConfig extends Descriptor<LarkGlobalConfig> implements De
      */
     public NoticeOccasionEnum[] getAllNoticeOccasions() {
         return NoticeOccasionEnum.values();
-    }
-
-    @Override
-    public Descriptor<LarkGlobalConfig> getDescriptor() {
-        return this;
     }
 
     /**

@@ -2,7 +2,6 @@ package io.jenkins.plugins.lark.notice.config.link;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
-import hudson.model.Descriptor;
 import hudson.model.Descriptor.FormException;
 import hudson.model.ManageJenkinsAction;
 import hudson.model.ManagementLink;
@@ -98,7 +97,7 @@ public class LarkManagementLink extends ManagementLink {
      *
      * @return The descriptor instance for LarkGlobalConfig.
      */
-    public Descriptor<LarkGlobalConfig> getLarkGlobalConfigDescriptor() {
+    public LarkGlobalConfig getLarkGlobalConfigDescriptor() {
         return Jenkins.get().getDescriptorByType(LarkGlobalConfig.class);
     }
 
