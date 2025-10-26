@@ -46,9 +46,10 @@ public abstract class AbstractMessageSender implements MessageSender {
      */
     protected SendResult sendMessage(String jsonBody, String... headers) {
         RobotConfigModel robotConfig = this.getRobotConfig();
+        Boolean noSsl = robotConfig.getNoSsl();
         try {
             HttpResponse<String> response = HttpClientFactory
-                    .build(robotConfig.getProxySelector(), robotConfig.getNoSsl())
+                    .build(robotConfig.getProxySelector(), noSsl != null && noSsl)
                     .send(this.createHttpRequest(robotConfig, jsonBody, headers), HttpResponse.BodyHandlers.ofString());
 
             SendResult sendResult = JsonUtils.readValue(response.body(), SendResult.class);
