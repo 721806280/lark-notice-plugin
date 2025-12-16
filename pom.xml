@@ -16,7 +16,7 @@
     <properties>
         <revision>2.1.4</revision>
         <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-        <jenkins.baseline>2.504</jenkins.baseline>
+        <jenkins.baseline>2.516</jenkins.baseline>
         <jenkins.version>${jenkins.baseline}.3</jenkins.version>
         <lombok.version>1.18.42</lombok.version>
     </properties>
