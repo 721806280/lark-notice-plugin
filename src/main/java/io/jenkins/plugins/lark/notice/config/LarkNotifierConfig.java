@@ -2,7 +2,7 @@ package io.jenkins.plugins.lark.notice.config;
 
 import hudson.EnvVars;
 import hudson.Extension;
-import hudson.model.AbstractDescribableImpl;
+import hudson.model.Describable;
 import hudson.model.Descriptor;
 import io.jenkins.plugins.lark.notice.enums.NoticeOccasionEnum;
 import lombok.Getter;
@@ -30,7 +30,7 @@ import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.LF;
 @Setter
 @ToString
 @NoArgsConstructor
-public class LarkNotifierConfig extends AbstractDescribableImpl<LarkNotifierConfig> {
+public class LarkNotifierConfig implements Describable<LarkNotifierConfig> {
 
     /**
      * Whether to use the raw message format.

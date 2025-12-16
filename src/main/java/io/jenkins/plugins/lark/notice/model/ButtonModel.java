@@ -1,7 +1,7 @@
 package io.jenkins.plugins.lark.notice.model;
 
 import hudson.Extension;
-import hudson.model.AbstractDescribableImpl;
+import hudson.model.Describable;
 import hudson.model.Descriptor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -10,13 +10,13 @@ import org.kohsuke.stapler.DataBoundConstructor;
 /**
  * Model for storing button-related information. This class represents a button element that can be used in various UI contexts,
  * containing properties such as the button's title, the URL to be requested upon clicking, and the button's visual style type.
- * It extends {@link AbstractDescribableImpl} to allow for easy integration with Jenkins' configuration system.
+ * It extends {@link Describable} to allow for easy integration with Jenkins' configuration system.
  *
  * @author xm.z
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class ButtonModel extends AbstractDescribableImpl<ButtonModel> {
+public class ButtonModel implements Describable<ButtonModel> {
 
     /**
      * The title of the button. This is typically displayed as the button's text.
