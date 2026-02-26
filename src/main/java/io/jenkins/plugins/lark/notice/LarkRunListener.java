@@ -94,7 +94,7 @@ public class LarkRunListener extends RunListener<Run<?, ?>> {
             Job<?, ?> job = run.getParent();
 
             List<LarkNotifierConfig> configs = getAvailableLarkNotifierConfigs(job);
-            if (configs == null || configs.isEmpty()) {
+            if (configs.isEmpty()) {
                 Logger.log(listener, "No Lark notifier configured for this job. Skipping notification.");
                 return;
             }
