@@ -4,6 +4,7 @@ import hudson.model.TaskListener;
 import io.jenkins.plugins.lark.notice.config.LarkGlobalConfig;
 
 import java.io.PrintStream;
+import java.util.StringJoiner;
 
 /**
  * Provides logging utilities for error and debug message handling within the application.
@@ -15,6 +16,8 @@ import java.io.PrintStream;
  */
 public class Logger {
 
+    private static final String PREFIX = "[Lark]";
+
     /**
      * Formats a message with given arguments. Prepends a standard error prefix to the message.
      *
@@ -23,7 +26,7 @@ public class Logger {
      * @return A formatted string with the specified message and arguments, including a standard prefix.
      */
     public static String format(String msg, Object... args) {
-        return String.format("[Lark] error: %s", String.format(msg, args));
+        return String.format("%s error: %s", PREFIX, String.format(msg, args));
     }
 
     /**
@@ -35,7 +38,10 @@ public class Logger {
      * @param args     Arguments for the message template.
      */
     public static void error(TaskListener listener, String msg, Object... args) {
-        listener.error("[Lark] error: %s", String.format(msg, args));
+        if (listener == null) {
+            return;
+        }
+        listener.error(PREFIX + " error: %s", String.format(msg, args));
     }
 
     /**
@@ -47,9 +53,11 @@ public class Logger {
      * @param args     Arguments for the message template.
      */
     public static void debug(TaskListener listener, String msg, Object... args) {
+        if (listener == null) {
+            return;
+        }
         PrintStream logger = listener.getLogger();
-        logger.println(); // Ensure the message starts on a new line.
-        logger.printf((msg) + "%n", args);
+        logger.printf(msg + "%n", args);
     }
 
     /**
@@ -62,10 +70,54 @@ public class Logger {
      * @param args     Arguments for the message template.
      */
     public static void log(TaskListener listener, String msg, Object... args) {
-        LarkGlobalConfig globalConfig = LarkGlobalConfig.getInstance();
-        if (globalConfig.isVerbose()) {
-            Logger.debug(listener, "[Lark] " + msg, args);
+        if (isVerboseEnabled()) {
+            Logger.debug(listener, PREFIX + " " + msg, args);
         }
+    }
+
+    /**
+     * Logs a structured event when verbose mode is enabled.
+     *
+     * @param listener task listener
+     * @param event    short event name such as "notify.prepare"
+     * @param pairs    key/value pairs, e.g. "job", "demo", "run", "#12"
+     */
+    public static void event(TaskListener listener, String event, Object... pairs) {
+        if (!isVerboseEnabled()) {
+            return;
+        }
+        Logger.debug(listener, "%s [%s] %s", PREFIX, event, toKvString(pairs));
+    }
+
+    /**
+     * Safely truncates long text for verbose logs.
+     */
+    public static String clip(String value, int maxLength) {
+        if (value == null || value.length() <= maxLength) {
+            return value;
+        }
+        if (maxLength <= 3) {
+            return value.substring(0, Math.max(maxLength, 0));
+        }
+        return value.substring(0, maxLength - 3) + "...";
+    }
+
+    private static boolean isVerboseEnabled() {
+        LarkGlobalConfig globalConfig = LarkGlobalConfig.getInstance();
+        return globalConfig != null && globalConfig.isVerbose();
+    }
+
+    private static String toKvString(Object... pairs) {
+        if (pairs == null || pairs.length == 0) {
+            return "";
+        }
+        StringJoiner joiner = new StringJoiner(" ");
+        for (int i = 0; i < pairs.length; i += 2) {
+            Object key = pairs[i];
+            Object value = i + 1 < pairs.length ? pairs[i + 1] : "<missing>";
+            joiner.add(String.format("%s=%s", key, value));
+        }
+        return joiner.toString();
     }
 
 }

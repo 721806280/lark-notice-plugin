@@ -1,7 +1,9 @@
 package io.jenkins.plugins.lark.notice.model;
 
 import hudson.model.*;
+import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.config.property.LarkUserProperty;
+import io.jenkins.plugins.lark.notice.tools.LogEvent;
 import io.jenkins.plugins.lark.notice.tools.Logger;
 import jenkins.model.Jenkins;
 import lombok.*;
@@ -82,12 +84,14 @@ public class RunUser {
 
         String mobile = userPropertyOpt.map(LarkUserProperty::getMobile).orElse("");
         if (StringUtils.isBlank(mobile)) {
-            Logger.log(listener, "用户【%s】暂未设置手机号码，请前往 %s 添加。", name, user.getAbsoluteUrl() + "/configure");
+            Logger.log(listener, Messages.run_user_missing_mobile(), name, user.getAbsoluteUrl() + "/configure");
+            Logger.event(listener, LogEvent.RUN_USER_MISSING_MOBILE, "user", name, "url", user.getAbsoluteUrl() + "/configure");
         }
 
         String openId = userPropertyOpt.map(LarkUserProperty::getOpenId).orElse("");
         if (StringUtils.isBlank(openId)) {
-            Logger.log(listener, "用户【%s】暂未设置OpenId，请前往 %s 添加。", name, user.getAbsoluteUrl() + "/configure");
+            Logger.log(listener, Messages.run_user_missing_openid(), name, user.getAbsoluteUrl() + "/configure");
+            Logger.event(listener, LogEvent.RUN_USER_MISSING_OPENID, "user", name, "url", user.getAbsoluteUrl() + "/configure");
         }
 
         return new RunUser(name, mobile, openId);
@@ -102,8 +106,12 @@ public class RunUser {
      */
     private static RunUser getExecutorFromRemote(Run<?, ?> run) {
         Cause.RemoteCause remoteCause = run.getCause(Cause.RemoteCause.class);
-        return remoteCause == null ? null :
-                new RunUser(String.format("%s %s", remoteCause.getAddr(), remoteCause.getNote()), "", "");
+        if (remoteCause == null) {
+            return null;
+        }
+        String note = StringUtils.defaultString(remoteCause.getNote()).trim();
+        String name = StringUtils.isBlank(note) ? remoteCause.getAddr() : remoteCause.getAddr() + " " + note;
+        return new RunUser(name, "", "");
     }
 
     /**
@@ -135,7 +143,7 @@ public class RunUser {
      * @return The executor information
      */
     private static RunUser getExecutorFromBuild(Run<?, ?> run) {
-        String name = run.getCauses().stream().map(Cause::getShortDescription).collect(Collectors.joining());
+        String name = run.getCauses().stream().map(Cause::getShortDescription).collect(Collectors.joining(" | "));
         return new RunUser(name, "", "");
     }
 }

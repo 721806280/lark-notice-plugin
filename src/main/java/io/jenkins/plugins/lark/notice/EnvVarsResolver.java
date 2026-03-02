@@ -5,6 +5,7 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import io.jenkins.plugins.lark.notice.context.PipelineEnvContext;
 import io.jenkins.plugins.lark.notice.model.BuildJobModel;
+import io.jenkins.plugins.lark.notice.tools.LogEvent;
 import io.jenkins.plugins.lark.notice.tools.Logger;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -36,6 +37,11 @@ public final class EnvVarsResolver {
     public static EnvVars resolveBuildEnvVars(Run<?, ?> run, TaskListener listener, BuildJobModel model) {
         EnvVars envVars = getBuildEnvironment(run, listener);
         injectBuildInfoToEnvVars(envVars, model);
+        Logger.event(listener, LogEvent.ENV_RESOLVE,
+                "run", run.getExternalizableId(),
+                "project", model.getProjectName(),
+                "job", model.getJobName(),
+                "envCount", envVars.size());
         return envVars;
     }
 
@@ -53,8 +59,14 @@ public final class EnvVarsResolver {
             envVars = run.getEnvironment(listener);
             envVars.overrideAll(PipelineEnvContext.get());
         } catch (IOException | InterruptedException e) {
-            Logger.log(listener, "Failed to retrieve environment variables for the job: %s", e.getMessage());
-            Logger.log(listener, ExceptionUtils.getStackTrace(e));
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
+            Logger.event(listener, LogEvent.ENV_RESOLVE_FAILED,
+                    "run", run.getExternalizableId(),
+                    "errorType", e.getClass().getSimpleName(),
+                    "error", e.getMessage());
+            Logger.log(listener, "env.resolve.failed.stack=%s", ExceptionUtils.getStackTrace(e));
         }
         return envVars;
     }

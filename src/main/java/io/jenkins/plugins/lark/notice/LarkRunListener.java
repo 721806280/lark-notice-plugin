@@ -24,6 +24,7 @@ import io.jenkins.plugins.lark.notice.model.MessageModel;
 import io.jenkins.plugins.lark.notice.model.RunUser;
 import io.jenkins.plugins.lark.notice.sdk.MessageDispatcher;
 import io.jenkins.plugins.lark.notice.sdk.model.SendResult;
+import io.jenkins.plugins.lark.notice.tools.LogEvent;
 import io.jenkins.plugins.lark.notice.tools.Logger;
 import jenkins.model.Jenkins;
 import lombok.extern.log4j.Log4j;
@@ -48,15 +49,12 @@ import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.LF;
 @Extension
 public class LarkRunListener extends RunListener<Run<?, ?>> {
 
+    private static final String SOURCE = "run-listener";
+
     /**
      * The messaging service used to dispatch messages to Lark.
      */
     private final MessageDispatcher messageDispatcher = MessageDispatcher.getInstance();
-
-    /**
-     * The root URL of the Jenkins instance, used for constructing links.
-     */
-    private final String jenkinsRootUrl = Jenkins.get().getRootUrl();
 
     /**
      * Triggered when a job starts.
@@ -96,18 +94,30 @@ public class LarkRunListener extends RunListener<Run<?, ?>> {
             Job<?, ?> job = run.getParent();
 
             List<LarkNotifierConfig> configs = getAvailableLarkNotifierConfigs(job);
+            Logger.event(listener, LogEvent.NOTIFY_PREPARE,
+                    "source", SOURCE,
+                    "job", job.getFullName(),
+                    "run", run.getExternalizableId(),
+                    "build", run.getNumber(),
+                    "occasion", occasion.name(),
+                    "configCount", configs.size());
             if (configs.isEmpty()) {
                 Logger.log(listener, Messages.notifier_log_no_config());
                 return;
             }
 
             RunUser executor = RunUser.getExecutor(run, listener);
+            Logger.event(listener, LogEvent.NOTIFY_EXECUTOR,
+                    "source", SOURCE,
+                    "executor", executor.getName(),
+                    "hasMobile", StringUtils.isNotBlank(executor.getMobile()),
+                    "hasOpenId", StringUtils.isNotBlank(executor.getOpenId()));
 
             BuildJobModel model = BuildJobModel.builder()
                     .projectName(job.getFullDisplayName())
                     .projectUrl(job.getAbsoluteUrl())
                     .jobName(run.getDisplayName())
-                    .jobUrl(jenkinsRootUrl + run.getUrl())
+                    .jobUrl(buildRunUrl(run))
                     .duration(run.getDurationString())
                     .executorName(executor.getName())
                     .executorMobile(executor.getMobile())
@@ -117,10 +127,23 @@ public class LarkRunListener extends RunListener<Run<?, ?>> {
 
             EnvVars envVars = EnvVarsResolver.resolveBuildEnvVars(run, listener, model);
 
-            configs.stream()
+            List<LarkNotifierConfig> matchedConfigs = configs.stream()
                     .filter(config -> config.getNoticeOccasions().contains(occasion.name()))
-                    .forEach(config -> sendMessageToLark(run, listener, envVars, model, config, executor));
+                    .toList();
+
+            Logger.event(listener, LogEvent.NOTIFY_MATCH,
+                    "source", SOURCE,
+                    "occasion", occasion.name(),
+                    "matchedConfigCount", matchedConfigs.size());
+
+            matchedConfigs.forEach(config -> sendMessageToLark(run, listener, envVars, model, config, executor, occasion));
         } catch (Exception e) {
+            Logger.event(listener, LogEvent.NOTIFY_EXCEPTION,
+                    "source", SOURCE,
+                    "run", run.getExternalizableId(),
+                    "occasion", occasion.name(),
+                    "errorType", e.getClass().getSimpleName(),
+                    "error", e.getMessage());
             Logger.log(listener, Messages.notifier_log_send_failed(), e.getMessage());
         } finally {
             PipelineEnvContext.reset();
@@ -136,9 +159,11 @@ public class LarkRunListener extends RunListener<Run<?, ?>> {
      * @param model    the build job model containing metadata
      * @param config   the Lark notifier configuration
      * @param executor the executor of the build
+     * @param occasion the notification occasion
      */
     private void sendMessageToLark(Run<?, ?> run, TaskListener listener, EnvVars envVars,
-                                   BuildJobModel model, LarkNotifierConfig config, RunUser executor) {
+                                   BuildJobModel model, LarkNotifierConfig config, RunUser executor,
+                                   NoticeOccasionEnum occasion) {
         RobotType robotType = LarkGlobalConfig.getRobot(config.getRobotId())
                 .map(LarkRobotConfig::obtainRobotType)
                 .orElseThrow(() -> new IllegalStateException(
@@ -154,6 +179,17 @@ public class LarkRunListener extends RunListener<Run<?, ?>> {
             atUserIds.add(executor.getMobile());
         }
 
+        Logger.event(listener, LogEvent.NOTIFY_DISPATCH,
+                "source", SOURCE,
+                "job", run.getParent().getFullName(),
+                "build", run.getNumber(),
+                "occasion", occasion.name(),
+                "robotId", config.getRobotId(),
+                "robotType", robotType,
+                "raw", config.isRaw(),
+                "atAll", config.isAtAll(),
+                "atUserCount", atUserIds.size());
+
         model.setTitle(envVars.expand(StringUtils.defaultIfBlank(config.getTitle(), DEFAULT_TITLE)));
         model.setContent(envVars.expand(config.getContent()).replaceAll("\\\\n", LF));
         String messageText = config.isRaw() ? envVars.expand(config.getMessage()) : model.toMarkdown(robotType);
@@ -165,9 +201,35 @@ public class LarkRunListener extends RunListener<Run<?, ?>> {
                 .build();
 
         SendResult result = messageDispatcher.send(listener, config.getRobotId(), messageModel);
-        if (!result.isOk()) {
+        Logger.event(listener, LogEvent.NOTIFY_RESULT,
+                "source", SOURCE,
+                "job", run.getParent().getFullName(),
+                "build", run.getNumber(),
+                "occasion", occasion.name(),
+                "robotId", config.getRobotId(),
+                "ok", result != null && result.isOk(),
+                "code", result == null ? "<null>" : result.getCode(),
+                "msg", result == null ? "<null>" : Logger.clip(result.getMsg(), 200));
+
+        if (result == null || !result.isOk()) {
             run.setResult(Result.FAILURE);
+            Logger.event(listener, LogEvent.NOTIFY_MARK_BUILD_FAILURE,
+                    "source", SOURCE,
+                    "job", run.getParent().getFullName(),
+                    "build", run.getNumber(),
+                    "robotId", config.getRobotId());
         }
+    }
+
+    /**
+     * Builds an absolute run URL. Jenkins root URL may be empty in some local setups.
+     */
+    private String buildRunUrl(Run<?, ?> run) {
+        String rootUrl = Jenkins.get().getRootUrl();
+        if (StringUtils.isNotBlank(rootUrl)) {
+            return rootUrl + run.getUrl();
+        }
+        return StringUtils.defaultString(run.getParent().getAbsoluteUrl()) + run.getNumber() + "/";
     }
 
     /**
