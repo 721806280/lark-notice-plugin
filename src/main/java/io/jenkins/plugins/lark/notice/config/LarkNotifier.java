@@ -19,6 +19,7 @@ import io.jenkins.plugins.lark.notice.model.MessageModel;
 import io.jenkins.plugins.lark.notice.model.RunUser;
 import io.jenkins.plugins.lark.notice.sdk.MessageDispatcher;
 import io.jenkins.plugins.lark.notice.sdk.model.SendResult;
+import io.jenkins.plugins.lark.notice.tools.LogEvent;
 import io.jenkins.plugins.lark.notice.tools.Logger;
 import jenkins.model.Jenkins;
 import jenkins.tasks.SimpleBuildStep;
@@ -28,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -47,6 +49,8 @@ import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.LF;
 @Log4j
 public class LarkNotifier extends Notifier implements SimpleBuildStep, LarkNotifierProvider {
 
+    private static final String SOURCE = "post-build";
+
     /**
      * Runtime-only dispatcher. Must not be serialized with job config.
      */
@@ -57,7 +61,7 @@ public class LarkNotifier extends Notifier implements SimpleBuildStep, LarkNotif
 
     @DataBoundConstructor
     public LarkNotifier(List<LarkNotifierConfig> notifierConfigs) {
-        this.larkNotifierConfigs = notifierConfigs;
+        this.larkNotifierConfigs = toMutableList(notifierConfigs);
     }
 
     @Override
@@ -99,20 +103,31 @@ public class LarkNotifier extends Notifier implements SimpleBuildStep, LarkNotif
     private void sendNotification(Run<?, ?> run, TaskListener listener, NoticeOccasionEnum occasion) {
         try {
             List<LarkNotifierConfig> configs = getAvailableLarkNotifierConfigs();
+            Job<?, ?> job = run.getParent();
+            Logger.event(listener, LogEvent.NOTIFY_PREPARE,
+                    "source", SOURCE,
+                    "job", job.getFullName(),
+                    "run", run.getExternalizableId(),
+                    "build", run.getNumber(),
+                    "occasion", occasion.name(),
+                    "configCount", configs.size());
             if (configs.isEmpty()) {
                 Logger.log(listener, Messages.notifier_log_no_config());
                 return;
             }
 
-            Job<?, ?> job = run.getParent();
-            String jenkinsRootUrl = Jenkins.get().getRootUrl();
             RunUser executor = RunUser.getExecutor(run, listener);
+            Logger.event(listener, LogEvent.NOTIFY_EXECUTOR,
+                    "source", SOURCE,
+                    "executor", executor.getName(),
+                    "hasMobile", StringUtils.isNotBlank(executor.getMobile()),
+                    "hasOpenId", StringUtils.isNotBlank(executor.getOpenId()));
 
             BuildJobModel model = BuildJobModel.builder()
                     .projectName(job.getFullDisplayName())
                     .projectUrl(job.getAbsoluteUrl())
                     .jobName(run.getDisplayName())
-                    .jobUrl(jenkinsRootUrl + run.getUrl())
+                    .jobUrl(buildRunUrl(run))
                     .duration(run.getDurationString())
                     .executorName(executor.getName())
                     .executorMobile(executor.getMobile())
@@ -122,10 +137,23 @@ public class LarkNotifier extends Notifier implements SimpleBuildStep, LarkNotif
 
             EnvVars envVars = EnvVarsResolver.resolveBuildEnvVars(run, listener, model);
 
-            configs.stream()
+            List<LarkNotifierConfig> matchedConfigs = configs.stream()
                     .filter(config -> config.getNoticeOccasions().contains(occasion.name()))
-                    .forEach(config -> sendMessageToLark(run, listener, envVars, model, config, executor));
+                    .toList();
+
+            Logger.event(listener, LogEvent.NOTIFY_MATCH,
+                    "source", SOURCE,
+                    "occasion", occasion.name(),
+                    "matchedConfigCount", matchedConfigs.size());
+
+            matchedConfigs.forEach(config -> sendMessageToLark(run, listener, envVars, model, config, executor, occasion));
         } catch (Exception e) {
+            Logger.event(listener, LogEvent.NOTIFY_EXCEPTION,
+                    "source", SOURCE,
+                    "run", run.getExternalizableId(),
+                    "occasion", occasion.name(),
+                    "errorType", e.getClass().getSimpleName(),
+                    "error", e.getMessage());
             Logger.log(listener, Messages.notifier_log_send_failed(), e.getMessage());
         } finally {
             PipelineEnvContext.reset();
@@ -134,9 +162,12 @@ public class LarkNotifier extends Notifier implements SimpleBuildStep, LarkNotif
 
     /**
      * Sends a message to Lark using the given configuration.
+     *
+     * @param occasion the notification occasion
      */
     private void sendMessageToLark(Run<?, ?> run, TaskListener listener, EnvVars envVars,
-                                   BuildJobModel model, LarkNotifierConfig config, RunUser executor) {
+                                   BuildJobModel model, LarkNotifierConfig config, RunUser executor,
+                                   NoticeOccasionEnum occasion) {
         RobotType robotType = LarkGlobalConfig.getRobot(config.getRobotId())
                 .map(LarkRobotConfig::obtainRobotType)
                 .orElseThrow(() -> new IllegalStateException(
@@ -152,6 +183,17 @@ public class LarkNotifier extends Notifier implements SimpleBuildStep, LarkNotif
             atUserIds.add(executor.getMobile());
         }
 
+        Logger.event(listener, LogEvent.NOTIFY_DISPATCH,
+                "source", SOURCE,
+                "job", run.getParent().getFullName(),
+                "build", run.getNumber(),
+                "occasion", occasion.name(),
+                "robotId", config.getRobotId(),
+                "robotType", robotType,
+                "raw", config.isRaw(),
+                "atAll", config.isAtAll(),
+                "atUserCount", atUserIds.size());
+
         model.setTitle(envVars.expand(StringUtils.defaultIfBlank(config.getTitle(), DEFAULT_TITLE)));
         model.setContent(envVars.expand(config.getContent()).replaceAll("\\\\n", LF));
         String messageText = config.isRaw() ? envVars.expand(config.getMessage()) : model.toMarkdown(robotType);
@@ -163,16 +205,49 @@ public class LarkNotifier extends Notifier implements SimpleBuildStep, LarkNotif
                 .build();
 
         SendResult result = getMessageDispatcher().send(listener, config.getRobotId(), messageModel);
-        if (!result.isOk()) {
+        Logger.event(listener, LogEvent.NOTIFY_RESULT,
+                "source", SOURCE,
+                "job", run.getParent().getFullName(),
+                "build", run.getNumber(),
+                "occasion", occasion.name(),
+                "robotId", config.getRobotId(),
+                "ok", result != null && result.isOk(),
+                "code", result == null ? "<null>" : result.getCode(),
+                "msg", result == null ? "<null>" : Logger.clip(result.getMsg(), 200));
+
+        if (result == null || !result.isOk()) {
             run.setResult(Result.FAILURE);
+            Logger.event(listener, LogEvent.NOTIFY_MARK_BUILD_FAILURE,
+                    "source", SOURCE,
+                    "job", run.getParent().getFullName(),
+                    "build", run.getNumber(),
+                    "robotId", config.getRobotId());
         }
     }
 
+    /**
+     * Returns a stable absolute run URL even when Jenkins root URL is empty.
+     */
+    private String buildRunUrl(Run<?, ?> run) {
+        String rootUrl = Jenkins.get().getRootUrl();
+        if (StringUtils.isNotBlank(rootUrl)) {
+            return rootUrl + run.getUrl();
+        }
+        return StringUtils.defaultString(run.getParent().getAbsoluteUrl()) + run.getNumber() + "/";
+    }
+
+    /**
+     * Returns a lazily initialized dispatcher for runtime message sending.
+     */
     private MessageDispatcher getMessageDispatcher() {
         if (messageDispatcher == null) {
             messageDispatcher = MessageDispatcher.getInstance();
         }
         return messageDispatcher;
+    }
+
+    private static List<LarkNotifierConfig> toMutableList(List<LarkNotifierConfig> notifierConfigs) {
+        return notifierConfigs == null ? null : new ArrayList<>(notifierConfigs);
     }
 
     @Extension

@@ -19,6 +19,7 @@ import org.kohsuke.stapler.StaplerRequest2;
 import java.net.ProxySelector;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -53,8 +54,8 @@ public class LarkGlobalConfig extends GlobalConfiguration {
                             Set<String> noticeOccasions, ArrayList<LarkRobotConfig> robotConfigs) {
         this.proxyConfig = proxyConfig;
         this.verbose = verbose;
-        this.noticeOccasions = noticeOccasions;
-        this.robotConfigs = robotConfigs;
+        setNoticeOccasions(noticeOccasions);
+        setRobotConfigs(robotConfigs);
     }
 
     /**
@@ -101,7 +102,9 @@ public class LarkGlobalConfig extends GlobalConfiguration {
 
     @DataBoundSetter
     public void setNoticeOccasions(Set<String> noticeOccasions) {
-        this.noticeOccasions = noticeOccasions;
+        this.noticeOccasions = noticeOccasions == null
+                ? Arrays.stream(NoticeOccasionEnum.values()).map(Enum::name).collect(Collectors.toSet())
+                : new HashSet<>(noticeOccasions);
     }
 
     @DataBoundSetter
@@ -112,7 +115,7 @@ public class LarkGlobalConfig extends GlobalConfiguration {
     @DataBoundSetter
     public void setRobotConfigs(ArrayList<LarkRobotConfig> robotConfigs) {
         MessageDispatcher.getInstance().clearSenders();
-        this.robotConfigs = robotConfigs;
+        this.robotConfigs = robotConfigs == null ? new ArrayList<>() : new ArrayList<>(robotConfigs);
     }
 
     /**

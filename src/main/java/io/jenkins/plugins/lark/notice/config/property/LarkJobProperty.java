@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.kohsuke.stapler.DataBoundConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,7 +49,7 @@ public class LarkJobProperty extends JobProperty<Job<?, ?>> implements LarkNotif
      */
     @DataBoundConstructor
     public LarkJobProperty(List<LarkNotifierConfig> notifierConfigs) {
-        this.larkNotifierConfigs = notifierConfigs;
+        this.larkNotifierConfigs = notifierConfigs == null ? null : new ArrayList<>(notifierConfigs);
     }
 
     /**

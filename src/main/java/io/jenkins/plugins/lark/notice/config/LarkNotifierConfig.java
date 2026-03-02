@@ -115,7 +115,7 @@ public class LarkNotifierConfig implements Describable<LarkNotifierConfig> {
         this.title = title;
         this.content = content;
         this.message = message;
-        this.noticeOccasions = noticeOccasions;
+        setNoticeOccasions(noticeOccasions);
     }
 
     /**
@@ -146,6 +146,10 @@ public class LarkNotifierConfig implements Describable<LarkNotifierConfig> {
      */
     public Set<String> getNoticeOccasions() {
         return noticeOccasions == null ? getDefaultNoticeOccasions() : noticeOccasions;
+    }
+
+    public void setNoticeOccasions(Set<String> noticeOccasions) {
+        this.noticeOccasions = noticeOccasions == null ? null : new HashSet<>(noticeOccasions);
     }
 
     /**
