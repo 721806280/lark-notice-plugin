@@ -34,7 +34,7 @@ public class RobotConfigModel {
     /**
      * Proxy selector used to handle network requests.
      */
-    private ProxySelector proxySelector;
+    private transient ProxySelector proxySelector;
 
     /**
      * Webhook URL for sending messages via the robot.
@@ -66,7 +66,6 @@ public class RobotConfigModel {
      */
     public static RobotConfigModel of(LarkRobotConfig robotConfig, ProxySelector proxySelector) {
         Objects.requireNonNull(robotConfig, "robotConfig must not be null");
-        Objects.requireNonNull(proxySelector, "proxySelector must not be null");
 
         RobotConfigModel meta = new RobotConfigModel();
         meta.setRobotType(robotConfig.obtainRobotType());

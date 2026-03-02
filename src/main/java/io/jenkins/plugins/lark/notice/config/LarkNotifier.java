@@ -1,20 +1,15 @@
-package io.jenkins.plugins.lark.notice;
+package io.jenkins.plugins.lark.notice.config;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.EnvVars;
 import hudson.Extension;
-import hudson.model.AbstractProject;
-import hudson.model.Job;
-import hudson.model.Result;
-import hudson.model.Run;
-import hudson.model.TaskListener;
-import hudson.model.listeners.RunListener;
-import io.jenkins.plugins.lark.notice.config.LarkGlobalConfig;
-import io.jenkins.plugins.lark.notice.config.LarkNotifier;
-import io.jenkins.plugins.lark.notice.config.LarkNotifierConfig;
-import io.jenkins.plugins.lark.notice.config.LarkRobotConfig;
-import io.jenkins.plugins.lark.notice.config.property.LarkBranchJobProperty;
-import io.jenkins.plugins.lark.notice.config.property.LarkJobProperty;
+import hudson.model.*;
+import hudson.tasks.BuildStepDescriptor;
+import hudson.tasks.BuildStepMonitor;
+import hudson.tasks.Notifier;
+import hudson.tasks.Publisher;
+import io.jenkins.plugins.lark.notice.EnvVarsResolver;
+import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.config.property.LarkNotifierProvider;
 import io.jenkins.plugins.lark.notice.context.PipelineEnvContext;
 import io.jenkins.plugins.lark.notice.enums.NoticeOccasionEnum;
@@ -26,81 +21,91 @@ import io.jenkins.plugins.lark.notice.sdk.MessageDispatcher;
 import io.jenkins.plugins.lark.notice.sdk.model.SendResult;
 import io.jenkins.plugins.lark.notice.tools.Logger;
 import jenkins.model.Jenkins;
+import jenkins.tasks.SimpleBuildStep;
+import lombok.Getter;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
-import org.jenkinsci.plugins.workflow.multibranch.BranchJobProperty;
+import org.kohsuke.stapler.DataBoundConstructor;
 
+import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.DEFAULT_TITLE;
 import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.LF;
 
 /**
- * A Jenkins RunListener that sends notifications to Lark at various stages of a job's lifecycle,
- * such as when the job starts, completes, or fails. Notifications can be customized to include
- * build metadata, executor information, and links to the build.
+ * A Jenkins Notifier (Post-build Action) that sends notifications to Lark
+ * at various stages of a job's lifecycle.
+ * <p>
+ * This class appears in the "Post-build Actions" dropdown menu of Freestyle jobs,
+ * providing a familiar configuration experience for Jenkins users.
  *
  * @author xm.z
  */
 @Log4j
-@Extension
-public class LarkRunListener extends RunListener<Run<?, ?>> {
+public class LarkNotifier extends Notifier implements SimpleBuildStep, LarkNotifierProvider {
 
     /**
-     * The messaging service used to dispatch messages to Lark.
+     * Runtime-only dispatcher. Must not be serialized with job config.
      */
-    private final MessageDispatcher messageDispatcher = MessageDispatcher.getInstance();
+    private transient MessageDispatcher messageDispatcher = MessageDispatcher.getInstance();
 
-    /**
-     * The root URL of the Jenkins instance, used for constructing links.
-     */
-    private final String jenkinsRootUrl = Jenkins.get().getRootUrl();
+    @Getter
+    private List<LarkNotifierConfig> larkNotifierConfigs;
 
-    /**
-     * Triggered when a job starts.
-     * Sends a notification to Lark indicating the job has started.
-     *
-     * @param run      the current job run
-     * @param listener the task listener for logging
-     */
+    @DataBoundConstructor
+    public LarkNotifier(List<LarkNotifierConfig> notifierConfigs) {
+        this.larkNotifierConfigs = notifierConfigs;
+    }
+
     @Override
-    public void onStarted(Run<?, ?> run, TaskListener listener) {
-        sendNotification(run, listener, NoticeOccasionEnum.START);
+    public BuildStepMonitor getRequiredMonitorService() {
+        return BuildStepMonitor.NONE;
     }
 
     /**
-     * Triggered when a job completes.
-     * Determines the appropriate notification type based on the build result,
-     * and sends the message to Lark.
-     *
-     * @param run      the current job run
-     * @param listener the task listener for logging
+     * Handles the START notification before the build begins.
      */
     @Override
-    public void onCompleted(Run<?, ?> run, @NonNull TaskListener listener) {
-        Result result = run.getResult();
-        sendNotification(run, listener, NoticeOccasionEnum.getNoticeOccasion(result));
+    public boolean prebuild(AbstractBuild<?, ?> build, BuildListener listener) {
+        sendNotification(build, listener, NoticeOccasionEnum.START);
+        return true;
+    }
+
+    /**
+     * 声明此构建步骤不需要工作空间上下文。
+     * 这将引导 Jenkins 调用 perform(Run, EnvVars, TaskListener) 方法，
+     * 从而避免 AbstractMethodError。
+     */
+    @Override
+    public boolean requiresWorkspace() {
+        return false;
+    }
+
+    /**
+     * Handles post-build notifications based on build result.
+     */
+    @Override
+    public void perform(@NonNull Run<?, ?> run, @NonNull EnvVars env, @NonNull TaskListener listener) throws InterruptedException, IOException {
+        NoticeOccasionEnum occasion = NoticeOccasionEnum.getNoticeOccasion(run.getResult());
+        sendNotification(run, listener, occasion);
     }
 
     /**
      * Sends a Lark notification based on the specified occasion.
-     *
-     * @param run      the current job run
-     * @param listener the task listener for logging
-     * @param occasion the notification occasion (start, success, failure, etc.)
      */
     private void sendNotification(Run<?, ?> run, TaskListener listener, NoticeOccasionEnum occasion) {
         try {
-            Job<?, ?> job = run.getParent();
-
-            List<LarkNotifierConfig> configs = getAvailableLarkNotifierConfigs(job);
+            List<LarkNotifierConfig> configs = getAvailableLarkNotifierConfigs();
             if (configs.isEmpty()) {
                 Logger.log(listener, "No Lark notifier configured for this job. Skipping notification.");
                 return;
             }
 
+            Job<?, ?> job = run.getParent();
+            String jenkinsRootUrl = Jenkins.get().getRootUrl();
             RunUser executor = RunUser.getExecutor(run, listener);
 
             BuildJobModel model = BuildJobModel.builder()
@@ -129,13 +134,6 @@ public class LarkRunListener extends RunListener<Run<?, ?>> {
 
     /**
      * Sends a message to Lark using the given configuration.
-     *
-     * @param run      the current job run
-     * @param listener the task listener for logging
-     * @param envVars  the environment variables of the build
-     * @param model    the build job model containing metadata
-     * @param config   the Lark notifier configuration
-     * @param executor the executor of the build
      */
     private void sendMessageToLark(Run<?, ?> run, TaskListener listener, EnvVars envVars,
                                    BuildJobModel model, LarkNotifierConfig config, RunUser executor) {
@@ -163,34 +161,38 @@ public class LarkRunListener extends RunListener<Run<?, ?>> {
                 .text(messageText)
                 .build();
 
-        SendResult result = messageDispatcher.send(listener, config.getRobotId(), messageModel);
+        SendResult result = getMessageDispatcher().send(listener, config.getRobotId(), messageModel);
         if (!result.isOk()) {
             run.setResult(Result.FAILURE);
         }
     }
 
-    /**
-     * Retrieves available Lark notifier configurations for the given job.
-     *
-     * @param job the Jenkins job
-     * @return a list of Lark notifier configurations, or an empty list if none found
-     */
-    private List<LarkNotifierConfig> getAvailableLarkNotifierConfigs(Job<?, ?> job) {
-        // If the job has LarkNotifier configured as a Post-build Action, skip RunListener
-        // to avoid duplicate notifications.
-        if (job instanceof AbstractProject) {
-            AbstractProject<?, ?> project = (AbstractProject<?, ?>) job;
-            if (project.getPublishersList().get(LarkNotifier.class) != null) {
-                return List.of();
-            }
+    private MessageDispatcher getMessageDispatcher() {
+        if (messageDispatcher == null) {
+            messageDispatcher = MessageDispatcher.getInstance();
+        }
+        return messageDispatcher;
+    }
+
+    @Extension
+    public static class DescriptorImpl extends BuildStepDescriptor<Publisher> {
+
+        @Override
+        public boolean isApplicable(Class<? extends AbstractProject> jobType) {
+            return true;
         }
 
-        return Optional.ofNullable(job.getProperty(LarkJobProperty.class))
-                .map(LarkNotifierProvider::getAvailableLarkNotifierConfigs)
-                .or(() -> Optional.ofNullable(job.getProperty(BranchJobProperty.class))
-                        .map(BranchJobProperty::getBranch)
-                        .map(branch -> branch.getProperty(LarkBranchJobProperty.class))
-                        .map(LarkNotifierProvider::getAvailableLarkNotifierConfigs))
-                .orElse(List.of());
+        @NonNull
+        @Override
+        public String getDisplayName() {
+            return Messages.plugin_display_name();
+        }
+
+        public List<LarkNotifierConfig> getDefaultNotifierConfigs() {
+            return LarkGlobalConfig.getInstance().getRobotConfigs()
+                    .stream()
+                    .map(LarkNotifierConfig::new)
+                    .collect(Collectors.toList());
+        }
     }
 }

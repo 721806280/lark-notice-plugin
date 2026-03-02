@@ -32,7 +32,7 @@ public class MessageDispatcher {
     /**
      * A thread-safe map used as a cache for storing MessageSender instances. Each entry in the map is identified by a unique robot ID.
      */
-    private final Map<String, MessageSender> senders = new ConcurrentHashMap<>();
+    private transient Map<String, MessageSender> senders = new ConcurrentHashMap<>();
 
     private MessageDispatcher() {
         // Prevents instantiation from outside the class.
@@ -54,7 +54,7 @@ public class MessageDispatcher {
      */
     public void clearSenders() {
         // Proceed to clear the senders map.
-        senders.clear();
+        getSenders().clear();
     }
 
     /**
@@ -68,7 +68,7 @@ public class MessageDispatcher {
      * configuration cannot be found.
      */
     private MessageSender getSender(String robotId) {
-        return senders.computeIfAbsent(robotId, id -> {
+        return getSenders().computeIfAbsent(robotId, id -> {
             LarkGlobalConfig globalConfig = LarkGlobalConfig.getInstance();
             ArrayList<LarkRobotConfig> robotConfigs = globalConfig.getRobotConfigs();
             Optional<LarkRobotConfig> robotConfigOptional =
@@ -82,6 +82,13 @@ public class MessageDispatcher {
             }
             return null;
         });
+    }
+
+    private Map<String, MessageSender> getSenders() {
+        if (senders == null) {
+            senders = new ConcurrentHashMap<>(8);
+        }
+        return senders;
     }
 
     /**
