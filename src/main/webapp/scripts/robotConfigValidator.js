@@ -25,7 +25,7 @@ async function validateRobotConfig(_this) {
         var classStyle = message.startsWith('Error:') ? 'danger' : 'success';
         validateMsg.classList.add('jenkins-alert', 'jenkins-alert-' + classStyle)
 
-        Behaviour.applySubtree($validateMsg);
+        Behaviour.applySubtree(validateMsg);
     } catch (error) {
         console.error(error);
     }

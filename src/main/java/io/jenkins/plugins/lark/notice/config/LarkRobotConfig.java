@@ -178,7 +178,7 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
         @RequirePOST
         public FormValidation doCheckName(@QueryParameter String value) {
             if (!Jenkins.get().hasPermission(LarkPermissions.CONFIGURE)) {
-                return FormValidation.error("You do not have permission to access this resource");
+                return FormValidation.error(Messages.form_validation_permission());
             }
             return StringUtils.isNotBlank(value) ? FormValidation.ok() :
                     FormValidation.error(Messages.form_validation_name());
@@ -193,7 +193,7 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
         @RequirePOST
         public FormValidation doCheckWebhook(@QueryParameter String value) {
             if (!Jenkins.get().hasPermission(LarkPermissions.CONFIGURE)) {
-                return FormValidation.error("You do not have permission to access this resource");
+                return FormValidation.error(Messages.form_validation_permission());
             }
             return StringUtils.isBlank(value) || Objects.isNull(RobotType.fromUrl(value)) ?
                     FormValidation.error(Messages.form_validation_webhook()) : FormValidation.ok();
@@ -244,13 +244,14 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
             String rootUrl = Jenkins.get().getRootUrl();
             User user = Optional.ofNullable(User.current()).orElse(User.getUnknown());
 
-            BuildJobModel buildJobModel = BuildJobModel.builder().projectName("Lark Notice Plugin").title(DEFAULT_TITLE)
-                    .projectUrl(rootUrl).jobName("System Configuration").jobUrl(rootUrl + "/configure")
+            BuildJobModel buildJobModel = BuildJobModel.builder()
+                    .projectName(Messages.robot_test_project_name()).title(DEFAULT_TITLE)
+                    .projectUrl(rootUrl).jobName(Messages.robot_test_job_name()).jobUrl(rootUrl + "/configure")
                     .statusType(BuildStatusEnum.SUCCESS).duration("-")
                     .executorName(user.getDisplayName()).build();
 
             return MessageModel.builder().type(MsgTypeEnum.CARD)
-                    .title(NOTICE_ICON + " Test Successful")
+                    .title(NOTICE_ICON + " " + Messages.robot_test_success_title())
                     .text(buildJobModel.toMarkdown(robotType))
                     .atAll(false).build();
         }

@@ -12,39 +12,41 @@
         </d:tag>
     </d:taglib>
 
-    <div class="jenkins-form-item hetero-list-container one-each">
-        <!-- display existing items -->
-        <j:forEach var="config"
-                   items="${checkedNotifierConfigs}">
-            <j:set var="instance" value="${config}"/>
-            <j:set var="descriptor" value="${config.descriptor}"/>
-            <div class="repeated-chunk" name="notifierConfigs" title="${config.robotName}"
-                 descriptorId="${config.robotId}">
-                <local:body title="${config.robotName}" instance="${config}">
-                    <st:include from="${descriptor}"
-                                page="${descriptor.configPage}" optional="true"/>
-                </local:body>
-            </div>
-        </j:forEach>
-        <div class="repeatable-insertion-point"/>
-        <div class="prototypes to-be-removed">
-            <j:forEach var="config" items="${notifierConfigs}" varStatus="loop">
+    <f:entry title="${%entry.lark.bot.configuration}">
+        <div class="jenkins-form-item hetero-list-container one-each">
+            <!-- display existing items -->
+            <j:forEach var="config"
+                       items="${checkedNotifierConfigs}">
                 <j:set var="instance" value="${config}"/>
                 <j:set var="descriptor" value="${config.descriptor}"/>
-                <div name="notifierConfigs" title="${config.robotName}" descriptorId="${config.robotId}">
-                    <local:body title="${config.robotName}">
-                        <l:renderOnDemand tag="div" clazz="config-page" capture="descriptor,it,instance">
-                            <l:ajax>
-                                <st:include from="${descriptor}"
-                                            page="${descriptor.configPage}" optional="true"/>
-                            </l:ajax>
-                        </l:renderOnDemand>
+                <div class="repeated-chunk" name="notifierConfigs" title="${config.robotName}"
+                     descriptorId="${config.robotId}">
+                    <local:body title="${config.robotName}" instance="${config}">
+                        <st:include from="${descriptor}"
+                                    page="${descriptor.configPage}" optional="true"/>
                     </local:body>
                 </div>
             </j:forEach>
+            <div class="repeatable-insertion-point"/>
+            <div class="prototypes to-be-removed">
+                <j:forEach var="config" items="${notifierConfigs}" varStatus="loop">
+                    <j:set var="instance" value="${config}"/>
+                    <j:set var="descriptor" value="${config.descriptor}"/>
+                    <div name="notifierConfigs" title="${config.robotName}" descriptorId="${config.robotId}">
+                        <local:body title="${config.robotName}">
+                            <l:renderOnDemand tag="div" clazz="config-page" capture="descriptor,it,instance">
+                                <l:ajax>
+                                    <st:include from="${descriptor}"
+                                                page="${descriptor.configPage}" optional="true"/>
+                                </l:ajax>
+                            </l:renderOnDemand>
+                        </local:body>
+                    </div>
+                </j:forEach>
+            </div>
+            <div>
+                <input type="button" value="${%button.add.bot}" class="hetero-list-add"/>
+            </div>
         </div>
-        <div>
-            <input type="button" value="Add Bot" class="hetero-list-add"/>
-        </div>
-    </div>
+    </f:entry>
 </j:jelly>

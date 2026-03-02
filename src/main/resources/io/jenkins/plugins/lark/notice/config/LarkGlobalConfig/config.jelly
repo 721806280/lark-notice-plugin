@@ -1,7 +1,7 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
          xmlns:f="/lib/form">
-    <f:section title="Notification Triggers">
+    <f:section title="${%section.notification.triggers}">
         <f:entry>
             <j:scope>
                 <!-- List of all notification triggers -->
@@ -23,18 +23,18 @@
         </f:entry>
     </f:section>
 
-    <f:section title="Logging">
+    <f:section title="${%section.logging}">
         <f:entry field="verbose">
-            <f:checkbox title="Enable Verbose Logging"/>
+            <f:checkbox title="${%field.verbose.enable}"/>
         </f:entry>
     </f:section>
 
-    <f:section title="Proxy">
+    <f:section title="${%section.proxy}">
         <f:property field="proxyConfig"
                     propertyDescriptor="${descriptor.getLarkProxyConfigDescriptor()}"/>
     </f:section>
 
-    <f:section title="Bots">
+    <f:section title="${%section.bots}">
         <j:scope>
             <j:set var="robotConfigs" value="${descriptor.robotConfigs}"/>
             <j:set var="robotConfigDescriptor"
@@ -51,8 +51,8 @@
     </f:section>
 
     <f:bottomButtonBar>
-        <f:submit value="Submit"/>
-        <f:apply value="Apply"/>
+        <f:submit value="${%button.submit}"/>
+        <f:apply value="${%button.apply}"/>
     </f:bottomButtonBar>
 
 </j:jelly>

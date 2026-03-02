@@ -11,13 +11,13 @@
 
     <f:entry title="${instance.getRobotName()}" class="">
         <f:advanced>
-            <f:entry title="Disabled" field="disabled">
+            <f:entry title="${%field.disabled}" field="disabled">
                 <f:checkbox checked="${instance.getDisabled()}"/>
             </f:entry>
-            <f:entry title="Disable Built-in Message" field="raw" class="notifier-config-raw">
+            <f:entry title="${%field.disable.builtin.message}" field="raw" class="notifier-config-raw">
                 <f:checkbox checked="${instance.getRaw()}"/>
             </f:entry>
-            <f:entry title="Notification Triggers" field="noticeOccasions">
+            <f:entry title="${%field.notification.triggers}" field="noticeOccasions">
                 <j:forEach var="noticeOccasionTypeItem" items="${noticeOccasionTypes}">
                     <j:scope>
                         <j:set var="name" value="${noticeOccasionTypeItem.name()}"/>
@@ -30,19 +30,19 @@
                 </j:forEach>
             </f:entry>
             <div class="raw-content" style="display: none;">
-                <f:entry field="message" title="Custom Message">
+                <f:entry field="message" title="${%field.custom.message}" description="${%field.custom.message.desc}">
                     <f:textarea/>
                 </f:entry>
             </div>
             <div class="none-raw-content">
-                <f:entry title="Mention Users" field="at">
-                    <f:checkbox title="@All" field="atAll"/>
+                <f:entry title="${%field.mention.users}" field="at" description="${%field.mention.users.desc}">
+                    <f:checkbox title="${%field.mention.all}" field="atAll"/>
                     <f:textarea field="atUserId"/>
                 </f:entry>
-                <f:entry field="title" title="Custom Title">
+                <f:entry field="title" title="${%field.custom.title}">
                     <f:textbox/>
                 </f:entry>
-                <f:entry field="content" title="Custom Content">
+                <f:entry field="content" title="${%field.custom.content}">
                     <f:textarea/>
                 </f:entry>
             </div>

@@ -100,7 +100,7 @@ public class LarkNotifier extends Notifier implements SimpleBuildStep, LarkNotif
         try {
             List<LarkNotifierConfig> configs = getAvailableLarkNotifierConfigs();
             if (configs.isEmpty()) {
-                Logger.log(listener, "No Lark notifier configured for this job. Skipping notification.");
+                Logger.log(listener, Messages.notifier_log_no_config());
                 return;
             }
 
@@ -126,7 +126,7 @@ public class LarkNotifier extends Notifier implements SimpleBuildStep, LarkNotif
                     .filter(config -> config.getNoticeOccasions().contains(occasion.name()))
                     .forEach(config -> sendMessageToLark(run, listener, envVars, model, config, executor));
         } catch (Exception e) {
-            Logger.log(listener, "Failed to send Lark notification: %s", e.getMessage());
+            Logger.log(listener, Messages.notifier_log_send_failed(), e.getMessage());
         } finally {
             PipelineEnvContext.reset();
         }
@@ -139,7 +139,8 @@ public class LarkNotifier extends Notifier implements SimpleBuildStep, LarkNotif
                                    BuildJobModel model, LarkNotifierConfig config, RunUser executor) {
         RobotType robotType = LarkGlobalConfig.getRobot(config.getRobotId())
                 .map(LarkRobotConfig::obtainRobotType)
-                .orElseThrow(() -> new IllegalStateException("Robot not found for ID: " + config.getRobotId()));
+                .orElseThrow(() -> new IllegalStateException(
+                        String.format(Messages.notifier_error_robot_not_found(), config.getRobotId())));
 
         Set<String> atUserIds = config.resolveAtUserIds(envVars);
 

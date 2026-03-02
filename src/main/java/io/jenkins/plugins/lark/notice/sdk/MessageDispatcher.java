@@ -1,6 +1,7 @@
 package io.jenkins.plugins.lark.notice.sdk;
 
 import hudson.model.TaskListener;
+import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.config.LarkGlobalConfig;
 import io.jenkins.plugins.lark.notice.config.LarkRobotConfig;
 import io.jenkins.plugins.lark.notice.enums.MsgTypeEnum;
@@ -106,20 +107,20 @@ public class MessageDispatcher {
     public SendResult send(TaskListener listener, String robotId, MessageModel msg) {
         MessageSender sender = getSender(robotId);
         if (sender == null) {
-            return SendResult.fail(String.format("Robot with ID %s does not exist.", robotId));
+            return SendResult.fail(String.format(Messages.dispatcher_error_robot_not_exist(), robotId));
         }
 
         MsgTypeEnum type = msg.getType();
         if (type == null) {
-            return SendResult.fail("Message type cannot be null.");
+            return SendResult.fail(Messages.dispatcher_error_message_type_null());
         }
 
-        Logger.log(listener, "Current robot information: %s",
+        Logger.log(listener, Messages.dispatcher_log_current_robot(),
                 LarkGlobalConfig.getRobot(robotId).map(LarkRobotConfig::getName));
 
         SendResult sendResult = type.send(sender, msg);
 
-        Logger.log(listener, "Send message details: %s", sendResult.getRequestBody());
+        Logger.log(listener, Messages.dispatcher_log_send_details(), sendResult.getRequestBody());
 
         if (!sendResult.isOk()) {
             Logger.error(listener, sendResult.getMsg());

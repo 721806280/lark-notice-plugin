@@ -12,7 +12,7 @@
         </d:tag>
     </d:taglib>
 
-    <f:entry title="Lark Bot Configuration">
+    <f:entry title="${%entry.lark.bot.configuration}">
         <div class="jenkins-form-item hetero-list-container one-each">
             <!-- display existing items -->
             <j:forEach var="config"
@@ -45,7 +45,7 @@
                 </j:forEach>
             </div>
             <div>
-                <input type="button" value="Add Bot" class="hetero-list-add"/>
+                <input type="button" value="${%button.add.bot}" class="hetero-list-add"/>
             </div>
         </div>
     </f:entry>

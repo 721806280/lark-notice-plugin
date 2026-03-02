@@ -97,7 +97,7 @@ public class LarkRunListener extends RunListener<Run<?, ?>> {
 
             List<LarkNotifierConfig> configs = getAvailableLarkNotifierConfigs(job);
             if (configs.isEmpty()) {
-                Logger.log(listener, "No Lark notifier configured for this job. Skipping notification.");
+                Logger.log(listener, Messages.notifier_log_no_config());
                 return;
             }
 
@@ -121,7 +121,7 @@ public class LarkRunListener extends RunListener<Run<?, ?>> {
                     .filter(config -> config.getNoticeOccasions().contains(occasion.name()))
                     .forEach(config -> sendMessageToLark(run, listener, envVars, model, config, executor));
         } catch (Exception e) {
-            Logger.log(listener, "Failed to send Lark notification: %s", e.getMessage());
+            Logger.log(listener, Messages.notifier_log_send_failed(), e.getMessage());
         } finally {
             PipelineEnvContext.reset();
         }
@@ -141,7 +141,8 @@ public class LarkRunListener extends RunListener<Run<?, ?>> {
                                    BuildJobModel model, LarkNotifierConfig config, RunUser executor) {
         RobotType robotType = LarkGlobalConfig.getRobot(config.getRobotId())
                 .map(LarkRobotConfig::obtainRobotType)
-                .orElseThrow(() -> new IllegalStateException("Robot not found for ID: " + config.getRobotId()));
+                .orElseThrow(() -> new IllegalStateException(
+                        String.format(Messages.notifier_error_robot_not_found(), config.getRobotId())));
 
         Set<String> atUserIds = config.resolveAtUserIds(envVars);
 
