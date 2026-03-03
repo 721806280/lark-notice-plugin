@@ -78,6 +78,12 @@ public enum NoticeOccasionEnum {
         return BuildStatusEnum.BUILD_STATUS_ENUM_MAP.getOrDefault(this, BuildStatusEnum.UNKNOWN);
     }
 
+    /**
+     * Returns the localized description for the current notice occasion.
+     * The value is resolved at call time so UI rendering follows the current locale.
+     *
+     * @return Localized description of this notice occasion.
+     */
     public String getDesc() {
         return switch (this) {
             case START -> Messages.notice_start();

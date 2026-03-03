@@ -29,6 +29,12 @@ public enum SecurityPolicyEnum {
      */
     SECRET;
 
+    /**
+     * Returns the localized description for the current security policy type.
+     * The value is resolved at call time so UI rendering follows the current locale.
+     *
+     * @return Localized description of this security policy type.
+     */
     public String getDesc() {
         return switch (this) {
             case NO_SSL -> Messages.security_policy_type_no_ssl();

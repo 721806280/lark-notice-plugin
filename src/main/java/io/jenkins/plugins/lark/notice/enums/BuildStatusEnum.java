@@ -77,6 +77,12 @@ public enum BuildStatusEnum {
      */
     private final String template;
 
+    /**
+     * Returns the localized label for the current build status.
+     * The value is resolved at call time so UI rendering follows the current locale.
+     *
+     * @return Localized label of this build status.
+     */
     public String getLabel() {
         return switch (this) {
             case START -> Messages.build_status_start();
