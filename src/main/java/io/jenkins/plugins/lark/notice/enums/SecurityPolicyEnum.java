@@ -1,8 +1,6 @@
 package io.jenkins.plugins.lark.notice.enums;
 
 import io.jenkins.plugins.lark.notice.Messages;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.ToString;
 
 /**
@@ -11,31 +9,32 @@ import lombok.ToString;
  *
  * @author xm.z
  */
-@Getter
 @ToString
-@AllArgsConstructor
 public enum SecurityPolicyEnum {
 
     /**
      * Security policy with SSL verification disabled.
      */
-    NO_SSL(Messages.security_policy_type_no_ssl()),
+    NO_SSL,
 
     /**
      * Represents a security policy based on keys. This can be used for mechanisms where
      * public/private keys or similar key-based strategies are employed for authentication or encryption.
      */
-    KEY(Messages.security_policy_type_key()),
+    KEY,
 
     /**
      * Represents a security policy based on secrets. This can be employed in contexts where
      * secret tokens, passwords, or similar confidential information is used for secure access or data protection.
      */
-    SECRET(Messages.security_policy_type_secret());
+    SECRET;
 
-    /**
-     * A descriptive text explaining the security policy type.
-     */
-    private final String desc;
+    public String getDesc() {
+        return switch (this) {
+            case NO_SSL -> Messages.security_policy_type_no_ssl();
+            case KEY -> Messages.security_policy_type_key();
+            case SECRET -> Messages.security_policy_type_secret();
+        };
+    }
 
 }

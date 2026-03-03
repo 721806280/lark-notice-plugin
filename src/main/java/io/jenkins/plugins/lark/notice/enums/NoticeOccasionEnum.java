@@ -2,8 +2,6 @@ package io.jenkins.plugins.lark.notice.enums;
 
 import hudson.model.Result;
 import io.jenkins.plugins.lark.notice.Messages;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,39 +13,37 @@ import java.util.Objects;
  *
  * @author xm.z
  */
-@Getter
-@AllArgsConstructor
 public enum NoticeOccasionEnum {
 
     /**
      * Indicates that the build has started.
      */
-    START(Messages.notice_start()),
+    START,
 
     /**
      * Indicates that the build was aborted.
      */
-    ABORTED(Messages.notice_aborted()),
+    ABORTED,
 
     /**
      * Indicates that the build has failed.
      */
-    FAILURE(Messages.notice_failure()),
+    FAILURE,
 
     /**
      * Indicates that the build was successful.
      */
-    SUCCESS(Messages.notice_success()),
+    SUCCESS,
 
     /**
      * Indicates that the build is unstable.
      */
-    UNSTABLE(Messages.notice_unstable()),
+    UNSTABLE,
 
     /**
      * Indicates that the build has not been built.
      */
-    NOT_BUILT(Messages.notice_not_built());
+    NOT_BUILT;
 
     /**
      * A static map to quickly find a {@link NoticeOccasionEnum} instance based on a {@link Result}.
@@ -62,11 +58,6 @@ public enum NoticeOccasionEnum {
                     Result.NOT_BUILT, NOT_BUILT
             )
     );
-
-    /**
-     * The description of the notice occasion.
-     */
-    private final String desc;
 
     /**
      * Retrieves the corresponding {@link NoticeOccasionEnum} for a given {@link Result}.
@@ -85,6 +76,17 @@ public enum NoticeOccasionEnum {
      */
     public BuildStatusEnum buildStatus() {
         return BuildStatusEnum.BUILD_STATUS_ENUM_MAP.getOrDefault(this, BuildStatusEnum.UNKNOWN);
+    }
+
+    public String getDesc() {
+        return switch (this) {
+            case START -> Messages.notice_start();
+            case ABORTED -> Messages.notice_aborted();
+            case FAILURE -> Messages.notice_failure();
+            case SUCCESS -> Messages.notice_success();
+            case UNSTABLE -> Messages.notice_unstable();
+            case NOT_BUILT -> Messages.notice_not_built();
+        };
     }
 
 }

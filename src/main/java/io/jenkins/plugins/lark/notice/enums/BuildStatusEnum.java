@@ -20,37 +20,37 @@ public enum BuildStatusEnum {
     /**
      * Indicates that the build has started.
      */
-    START(Messages.build_status_start(), "blue", "blue"),
+    START("blue", "blue"),
 
     /**
      * Indicates that the build has failed.
      */
-    FAILURE(Messages.build_status_failure(), "red", "red"),
+    FAILURE("red", "red"),
 
     /**
      * Indicates that the build was successful.
      */
-    SUCCESS(Messages.build_status_success(), "green", "green"),
+    SUCCESS("green", "green"),
 
     /**
      * Indicates that the build was aborted.
      */
-    ABORTED(Messages.build_status_aborted(), "neutral", "grey"),
+    ABORTED("neutral", "grey"),
 
     /**
      * Indicates that the build is unstable.
      */
-    UNSTABLE(Messages.build_status_unstable(), "yellow", "yellow"),
+    UNSTABLE("yellow", "yellow"),
 
     /**
      * Indicates that the build has not been built.
      */
-    NOT_BUILT(Messages.build_status_not_built(), "turquoise", "turquoise"),
+    NOT_BUILT("turquoise", "turquoise"),
 
     /**
      * Indicates an unknown build status.
      */
-    UNKNOWN(Messages.build_status_unknown(), "purple", "purple");
+    UNKNOWN("purple", "purple");
 
     /**
      * A static map to quickly find a {@link BuildStatusEnum} instance based on a {@link NoticeOccasionEnum}.
@@ -68,11 +68,6 @@ public enum BuildStatusEnum {
     );
 
     /**
-     * The human-readable label for the status.
-     */
-    private final String label;
-
-    /**
      * The color associated with this status, used for UI representation.
      */
     private final String color;
@@ -81,5 +76,17 @@ public enum BuildStatusEnum {
      * The template identifier associated with this status, if applicable.
      */
     private final String template;
+
+    public String getLabel() {
+        return switch (this) {
+            case START -> Messages.build_status_start();
+            case FAILURE -> Messages.build_status_failure();
+            case SUCCESS -> Messages.build_status_success();
+            case ABORTED -> Messages.build_status_aborted();
+            case UNSTABLE -> Messages.build_status_unstable();
+            case NOT_BUILT -> Messages.build_status_not_built();
+            case UNKNOWN -> Messages.build_status_unknown();
+        };
+    }
 
 }
