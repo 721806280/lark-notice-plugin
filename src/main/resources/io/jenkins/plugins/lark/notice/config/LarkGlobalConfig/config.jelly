@@ -1,6 +1,19 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
          xmlns:f="/lib/form">
+    <st:once>
+        <style>
+            .lark-bots-repeatable .repeated-container > .repeatable-add {
+                margin-top: 6px;
+                margin-bottom: 10px;
+            }
+
+            .lark-bots-repeatable .repeated-container > .repeatable-add-top {
+                margin-bottom: 10px;
+            }
+        </style>
+    </st:once>
+
     <f:section title="${%section.notification.triggers}">
         <f:entry>
             <j:scope>
@@ -39,14 +52,16 @@
             <j:set var="robotConfigs" value="${descriptor.robotConfigs}"/>
             <j:set var="robotConfigDescriptor"
                    value="${descriptor.getLarkRobotConfigDescriptor()}"/>
-            <f:repeatable
-                    enableTopButton="true"
-                    field="robotConfigs"
-                    var="item"
-                    items="robotConfigs">
-                <st:include from="${robotConfigDescriptor}" page="${descriptor.configPage}"/>
-                <f:repeatableDeleteButton/>
-            </f:repeatable>
+            <div class="lark-bots-repeatable">
+                <f:repeatable
+                        enableTopButton="true"
+                        field="robotConfigs"
+                        var="item"
+                        items="robotConfigs">
+                    <st:include from="${robotConfigDescriptor}" page="${descriptor.configPage}"/>
+                    <f:repeatableDeleteButton/>
+                </f:repeatable>
+            </div>
         </j:scope>
     </f:section>
 

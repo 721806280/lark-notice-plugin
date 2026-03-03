@@ -5,16 +5,55 @@
     <st:once>
         <script type="text/javascript"
                 src="${rootURL}/plugin/lark-notice/scripts/robotConfigValidator.js"/>
+        <style>
+            .robot-config-container {
+                border: 0;
+                border-radius: 0;
+                padding: 4px 0 2px;
+                background: transparent;
+            }
+
+            .robot-config-container .jenkins-form-item {
+                margin-bottom: 4px;
+            }
+
+            .robot-config-validate-msg {
+                margin-top: 2px;
+                font-size: 11px;
+                line-height: 1.25;
+            }
+
+            .robot-config-validate-msg:empty {
+                display: none;
+            }
+
+            .robot-config-validate-msg.jenkins-alert {
+                margin-bottom: 0;
+                padding: 3px 6px;
+            }
+
+            .robot-config-actions {
+                margin-top: 0;
+                text-align: right;
+            }
+
+            .robot-config-container .robot-config-compact-entry {
+                margin-bottom: 0;
+            }
+        </style>
     </st:once>
 
     <div class="robot-config-container">
-        <f:entry title="${%field.id}" field="id">
-            <f:textbox name="id"/>
+        <f:entry title="${%field.id}" field="id"
+                 help="/descriptor/io.jenkins.plugins.lark.notice.config.LarkRobotConfig/help/id">
+            <f:textbox name="id" readonly="true"/>
         </f:entry>
-        <f:entry title="${%field.name}" field="name">
+        <f:entry title="${%field.name}" field="name"
+                 help="/descriptor/io.jenkins.plugins.lark.notice.config.LarkRobotConfig/help/name">
             <f:textbox name="name"/>
         </f:entry>
-        <f:entry title="${%field.webhook}" field="webhook">
+        <f:entry title="${%field.webhook}" field="webhook"
+                 help="/descriptor/io.jenkins.plugins.lark.notice.config.LarkRobotConfig/help/webhook">
             <f:textbox name="webhook"/>
         </f:entry>
 
@@ -36,18 +75,22 @@
         </j:scope>
 
         <st:adjunct includes="io.jenkins.plugins.lark.notice.config.LarkRobotConfig.validate-robot-config-onclick"/>
+        <f:entry class="robot-config-compact-entry">
+            <div class="robot-config-actions">
+                <button
+                        type="button"
+                        class="jenkins-button robot-config-validate-btn"
+                        data-validate-button-descriptor-url="${descriptor.descriptorFullUrl}"
+                        data-validate-button-method="test"
+                        data-validate-button-with="${with}"
+                        data-validate-request-failed-message="${%message.validate.request.failed}"
+                        data-validate-generic-success-message="${%message.validate.success}"
+                >
+                    ${%button.test}
+                </button>
+            </div>
+        </f:entry>
         <div class="robot-config-validate-msg"
              style="white-space: pre-wrap;"><!-- this is where the error message goes --></div>
-        <div style="text-align: right;">
-            <button
-                    type="button"
-                    class="jenkins-button robot-config-validate-btn"
-                    data-validate-button-descriptor-url="${descriptor.descriptorFullUrl}"
-                    data-validate-button-method="test"
-                    data-validate-button-with="${with}"
-            >
-                ${%button.test}
-            </button>
-        </div>
     </div>
 </j:jelly>

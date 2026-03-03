@@ -1,6 +1,7 @@
 package io.jenkins.plugins.lark.notice.config;
 
 import hudson.Extension;
+import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.config.LarkRobotConfig.LarkRobotConfigDescriptor;
 import io.jenkins.plugins.lark.notice.config.security.LarkPermissions;
 import io.jenkins.plugins.lark.notice.enums.NoticeOccasionEnum;
@@ -137,11 +138,15 @@ public class LarkGlobalConfig extends GlobalConfiguration {
             json.put("robotConfigs", new JSONArray());
         } else {
             JSONArray robotConfigs = JSONArray.fromObject(robotConfigObj);
-            robotConfigs.removeIf(item -> {
-                JSONObject jsonObject = JSONObject.fromObject(item);
-                String webhook = jsonObject.getString("webhook");
-                return StringUtils.isEmpty(webhook);
-            });
+            for (int i = 0; i < robotConfigs.size(); i++) {
+                JSONObject jsonObject = JSONObject.fromObject(robotConfigs.get(i));
+                Object webhookObj = jsonObject.get("webhook");
+                String webhook = webhookObj == null ? "" : webhookObj.toString();
+                if (StringUtils.isBlank(webhook)) {
+                    throw new FormException(Messages.form_validation_webhook(), "robotConfigs[" + i + "].webhook");
+                }
+            }
+            json.put("robotConfigs", robotConfigs);
         }
 
         req.bindJSON(this, json);

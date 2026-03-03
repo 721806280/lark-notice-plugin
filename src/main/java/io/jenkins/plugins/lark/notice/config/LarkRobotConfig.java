@@ -23,11 +23,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import jakarta.servlet.ServletException;
+import net.sf.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 
+import java.io.IOException;
 import java.net.ProxySelector;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -207,32 +213,61 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
          * @param webhook         The Webhook key.
          * @param proxy           The proxy settings.
          * @param securityConfigs The security configs.
-         * @return Returns the test result. If the test passes, it returns FormValidation.respond(Kind.OK); otherwise, it returns an error message.
+         * @return Test result JSON with keys: ok(boolean), message(string).
          */
         @RequirePOST
-        public String doTest(@QueryParameter String id, @QueryParameter String name,
-                             @QueryParameter String webhook, @QueryParameter String proxy,
-                             @QueryParameter String securityConfigs) {
+        public HttpResponse doTest(@QueryParameter String id, @QueryParameter String name,
+                                   @QueryParameter String webhook, @QueryParameter String proxy,
+                                   @QueryParameter String securityConfigs) {
             // Check configuration permission
             Jenkins.get().checkPermission(LarkPermissions.CONFIGURE);
 
-            List<LarkSecurityPolicyConfig> securityPolicyConfigs = JsonUtils.readList(securityConfigs, LarkSecurityPolicyConfig.class)
-                    .stream().filter(config -> StringUtils.isNotBlank(config.getValue())).toList();
+            JSONObject response = new JSONObject();
+            try {
+                List<LarkSecurityPolicyConfig> securityPolicyConfigs = JsonUtils.readList(securityConfigs, LarkSecurityPolicyConfig.class)
+                        .stream().filter(config -> StringUtils.isNotBlank(config.getValue())).toList();
 
-            LarkRobotConfig robotConfig = new LarkRobotConfig(id, name, webhook, securityPolicyConfigs);
+                LarkRobotConfig robotConfig = new LarkRobotConfig(id, name, webhook, securityPolicyConfigs);
 
-            ProxySelector proxySelector = Optional.ofNullable(JsonUtils.readValue(proxy, LarkProxyConfig.class))
-                    .orElseGet(LarkProxyConfig::new).obtainProxySelector();
+                ProxySelector proxySelector = Optional.ofNullable(JsonUtils.readValue(proxy, LarkProxyConfig.class))
+                        .orElseGet(LarkProxyConfig::new).obtainProxySelector();
 
-            RobotType robotType = robotConfig.obtainRobotType();
-            if (Objects.isNull(robotType)) {
-                return "Error: " + Messages.form_validation_webhook();
+                RobotType robotType = robotConfig.obtainRobotType();
+                if (Objects.isNull(robotType)) {
+                    response.put("ok", false);
+                    response.put("message", Messages.form_validation_webhook());
+                    return jsonResponse(response);
+                }
+
+                MessageSender sender = robotType.obtainInstance(RobotConfigModel.of(robotConfig, proxySelector));
+                SendResult sendResult = sender.sendCard(buildTestMessage(robotType));
+                boolean ok = sendResult != null && sendResult.isOk();
+                String detail = sendResult == null ? null : sendResult.getMsg();
+                response.put("ok", ok);
+                response.put("message", ok
+                        ? Messages.form_validation_test_success()
+                        : StringUtils.isNotBlank(detail)
+                        ? Messages.form_validation_test_failed_with_detail(detail)
+                        : Messages.form_validation_test_failed());
+                return jsonResponse(response);
+            } catch (Exception e) {
+                String detail = StringUtils.defaultIfBlank(e.getMessage(), null);
+                response.put("ok", false);
+                response.put("message", StringUtils.isNotBlank(detail)
+                        ? Messages.form_validation_test_failed_with_detail(detail)
+                        : Messages.form_validation_test_failed());
+                return jsonResponse(response);
             }
+        }
 
-            MessageSender sender = robotType.obtainInstance(RobotConfigModel.of(robotConfig, proxySelector));
-            SendResult sendResult = sender.sendCard(buildTestMessage(robotType));
-
-            return sendResult.isOk() ? Messages.form_validation_test_success() : "Error: " + sendResult.getMsg();
+        private HttpResponse jsonResponse(JSONObject response) {
+            return new HttpResponse() {
+                @Override
+                public void generateResponse(StaplerRequest2 req, StaplerResponse2 rsp, Object node) throws IOException, ServletException {
+                    rsp.setContentType("application/json; charset=UTF-8");
+                    rsp.getWriter().write(response.toString());
+                }
+            };
         }
 
         /**
