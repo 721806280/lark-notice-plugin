@@ -13,14 +13,14 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.fasterxml.jackson.databind.type.CollectionLikeType;
 import com.fasterxml.jackson.databind.type.MapType;
-import io.jenkins.plugins.lark.notice.tools.function.CheckedConsumer;
 import lombok.SneakyThrows;
-import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.util.*;
 
@@ -29,7 +29,11 @@ import java.util.*;
  *
  * @author xm.z
  */
-public class JsonUtils {
+@SuppressWarnings(value = "all")
+public final class JsonUtils {
+
+    private JsonUtils() {
+    }
 
     /**
      * 将对象序列化成json字符串
@@ -91,7 +95,8 @@ public class JsonUtils {
     /**
      * 将对象序列化成 json byte 数组
      *
-     * @param object javaBean
+     * @param object            javaBean
+     * @param serializationView serializationView
      * @return jsonString json字符串
      */
     @SneakyThrows(JsonProcessingException.class)
@@ -167,7 +172,7 @@ public class JsonUtils {
      */
     @SneakyThrows(IOException.class)
     public static <T> T readValue(byte[] content, Class<T> valueType) {
-        if (ObjectUtils.isEmpty(content)) {
+        if (content == null || content.length == 0) {
             return null;
         }
         return getInstance().readValue(content, valueType);
@@ -221,7 +226,6 @@ public class JsonUtils {
         return getInstance().readValue(reader, valueType);
     }
 
-
     /**
      * 将json反序列化成对象
      *
@@ -232,7 +236,7 @@ public class JsonUtils {
      */
     @SneakyThrows(IOException.class)
     public static <T> T readValue(byte[] content, TypeReference<T> typeReference) {
-        if (ObjectUtils.isEmpty(content)) {
+        if (content == null || content.length == 0) {
             return null;
         }
         return getInstance().readValue(content, typeReference);
@@ -296,7 +300,7 @@ public class JsonUtils {
      */
     @SneakyThrows(IOException.class)
     public static <T> T readValue(byte[] content, JavaType javaType) {
-        if (ObjectUtils.isEmpty(content)) {
+        if (content == null || content.length == 0) {
             return null;
         }
         return getInstance().readValue(content, javaType);
@@ -431,7 +435,7 @@ public class JsonUtils {
      */
     @SneakyThrows(IOException.class)
     public static <T> List<T> readList(byte[] content, Class<T> elementClass) {
-        if (ObjectUtils.isEmpty(content)) {
+        if (content == null || content.length == 0) {
             return Collections.emptyList();
         }
         return getInstance().readValue(content, getListType(elementClass));
@@ -585,7 +589,7 @@ public class JsonUtils {
      */
     @SneakyThrows(IOException.class)
     public static <K, V> Map<K, V> readMap(byte[] content, Class<?> keyClass, Class<?> valueClass) {
-        if (ObjectUtils.isEmpty(content)) {
+        if (content == null || content.length == 0) {
             return Collections.emptyMap();
         }
         return getInstance().readValue(content, getMapType(keyClass, valueClass));
@@ -719,6 +723,29 @@ public class JsonUtils {
     }
 
     /**
+     * 判断是否可以序列化
+     *
+     * @param value 对象
+     * @return 是否可以序列化
+     */
+    public static boolean canSerialize(Object value) {
+        if (value == null) {
+            return true;
+        }
+        return getInstance().canSerialize(value.getClass());
+    }
+
+    /**
+     * 判断是否可以反序列化
+     *
+     * @param type JavaType
+     * @return 是否可以反序列化
+     */
+    public static boolean canDeserialize(JavaType type) {
+        return getInstance().canDeserialize(type);
+    }
+
+    /**
      * 检验 json 格式
      *
      * @param jsonString json 字符串
@@ -813,7 +840,49 @@ public class JsonUtils {
         return JacksonHolder.INSTANCE;
     }
 
+    /**
+     * A functional interface similar to {@link java.util.function.Consumer} that allows
+     * for checked exceptions. This interface is designed for use in lambda expressions or
+     * method references where checked exceptions need to be handled. It extends
+     * {@link Serializable} to allow instances to be serialized if necessary.
+     * <p>
+     * The primary use case for this interface is when you want to perform an operation
+     * that might throw a checked exception, but you are working in a context (such as
+     * streams) where checked exceptions are not allowed. By using this interface, you can
+     * wrap such operations, and then handle exceptions explicitly outside of the lambda
+     * expression or method reference.
+     *
+     * @param <T> the type of the input to the operation
+     * @author xm.z
+     */
+    @FunctionalInterface
+    private interface CheckedConsumer<T> extends Serializable {
+
+        /**
+         * Performs this operation on the given argument, allowing checked exceptions to
+         * be thrown.
+         * <p>
+         * Unlike {@link java.util.function.Consumer}, this method is declared to throw
+         * {@link Throwable}, which means it can throw both checked and unchecked
+         * exceptions. This provides greater flexibility for methods that might need to
+         * throw exceptions during their execution and cannot be used directly in standard
+         * functional interfaces due to the Java language's checked exception rules.
+         * <p>
+         * Implementors are expected to specify more concrete exception types in their
+         * implementations if possible, rather than the broad {@link Throwable} type, to
+         * provide clearer documentation and enable better exception handling.
+         *
+         * @param t the input argument. It can be {@code null} if the implementation
+         *          supports it.
+         * @throws Throwable if an error occurs during the operation. The type of
+         *                   exceptions that can be thrown depends on the implementation.
+         */
+        void accept(T t) throws Throwable;
+
+    }
+
     private static class JacksonHolder {
+
         private static final ObjectMapper INSTANCE = new ObjectMapper(JsonFactory.builder()
                 // 可解析反斜杠引用的所有字符
                 .configure(JsonReadFeature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER, true)
@@ -822,8 +891,8 @@ public class JsonUtils {
                 .build());
 
         static {
-            // INSTANCE.setLocale(Locale.CHINA);
-            // INSTANCE.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA));
+            INSTANCE.setLocale(Locale.CHINA);
+            INSTANCE.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA));
             // 单引号
             INSTANCE.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
             // 忽略json字符串中不识别的属性
@@ -834,6 +903,7 @@ public class JsonUtils {
             INSTANCE.registerModule(new SimpleModule().addSerializer(Long.class, ToStringSerializer.instance));
             INSTANCE.findAndRegisterModules();
         }
+
     }
 
 }
