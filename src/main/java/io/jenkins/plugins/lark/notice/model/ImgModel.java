@@ -2,7 +2,7 @@ package io.jenkins.plugins.lark.notice.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import hudson.Extension;
-import hudson.model.AbstractDescribableImpl;
+import hudson.model.Describable;
 import hudson.model.Descriptor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -11,14 +11,14 @@ import org.kohsuke.stapler.DataBoundConstructor;
 /**
  * Model for storing image-related information. This class encapsulates properties related to an image,
  * such as a unique identifier (imgKey), title, corner radius, scaling type, size, transparency, preview behavior,
- * and alternative text content for hover actions. It extends {@link AbstractDescribableImpl}
+ * and alternative text content for hover actions. It implements {@link Describable}
  * to facilitate integration with Jenkins' configuration system, allowing images to be dynamically configured within Jenkins plugins or jobs.
  *
  * @author xm.z
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class ImgModel extends AbstractDescribableImpl<ImgModel> {
+public class ImgModel implements Describable<ImgModel> {
 
     /**
      * The unique key associated with the image. This key is typically used to fetch or reference the image.
