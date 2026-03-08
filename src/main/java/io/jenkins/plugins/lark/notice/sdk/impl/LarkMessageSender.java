@@ -9,7 +9,6 @@ import io.jenkins.plugins.lark.notice.sdk.model.lark.support.Card;
 import io.jenkins.plugins.lark.notice.tools.JsonUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -17,7 +16,6 @@ import org.apache.commons.lang3.StringUtils;
  *
  * @author xm.z
  */
-@Slf4j
 @Getter
 @AllArgsConstructor
 public class LarkMessageSender extends AbstractMessageSender {

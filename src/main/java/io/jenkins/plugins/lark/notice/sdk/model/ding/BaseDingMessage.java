@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.jenkins.plugins.lark.notice.sdk.model.lark.support.at.At;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -16,7 +15,6 @@ import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.LF;
 /**
  * @author xm.z
  */
-@Slf4j
 @Getter
 @Setter
 public abstract class BaseDingMessage implements Serializable {

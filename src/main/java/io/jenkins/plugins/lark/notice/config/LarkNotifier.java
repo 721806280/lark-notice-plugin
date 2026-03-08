@@ -24,7 +24,6 @@ import io.jenkins.plugins.lark.notice.tools.Logger;
 import jenkins.model.Jenkins;
 import jenkins.tasks.SimpleBuildStep;
 import lombok.Getter;
-import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -46,7 +45,6 @@ import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.LF;
  *
  * @author xm.z
  */
-@Log4j
 public class LarkNotifier extends Notifier implements SimpleBuildStep, LarkNotifierProvider {
 
     private static final String SOURCE = "post-build";

@@ -10,7 +10,6 @@ import io.jenkins.plugins.lark.notice.sdk.model.ding.DingTextMessage;
 import io.jenkins.plugins.lark.notice.tools.JsonUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -22,7 +21,6 @@ import java.util.stream.Collectors;
  *
  * @author xm.z
  */
-@Slf4j
 @Getter
 @AllArgsConstructor
 public class DingMessageSender extends AbstractMessageSender {

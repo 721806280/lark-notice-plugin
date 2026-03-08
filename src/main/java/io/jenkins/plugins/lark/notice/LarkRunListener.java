@@ -27,7 +27,6 @@ import io.jenkins.plugins.lark.notice.sdk.model.SendResult;
 import io.jenkins.plugins.lark.notice.tools.LogEvent;
 import io.jenkins.plugins.lark.notice.tools.Logger;
 import jenkins.model.Jenkins;
-import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jenkinsci.plugins.workflow.multibranch.BranchJobProperty;
 
@@ -45,7 +44,6 @@ import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.LF;
  *
  * @author xm.z
  */
-@Log4j
 @Extension
 public class LarkRunListener extends RunListener<Run<?, ?>> {
 
