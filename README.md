@@ -40,7 +40,7 @@ customize the content and format of notification messages according to your own 
 ### Test commands
 
 - Fast test suite: `mvn test`
-- Full suite including JenkinsRule page and integration tests: `mvn verify -Pjenkins-rule-tests`
+- Full suite including JenkinsRule page and integration tests: `mvn test failsafe:integration-test failsafe:verify -Pjenkins-rule-tests`
 
 Add `hpi:run` to the startup configuration in the `maven` control panel on the right side of `IDEA`:
 

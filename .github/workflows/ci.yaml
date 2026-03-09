@@ -35,4 +35,4 @@ jobs:
           java-version: '17'
           cache: maven
       - name: Run JenkinsRule test profile
-        run: mvn -B verify -Pjenkins-rule-tests
+        run: mvn -B test failsafe:integration-test failsafe:verify -Pjenkins-rule-tests
