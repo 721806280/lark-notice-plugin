@@ -7,10 +7,10 @@ import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.config.LarkNotifierConfig;
 import io.jenkins.plugins.lark.notice.context.PipelineEnvContext;
 import io.jenkins.plugins.lark.notice.enums.NoticeOccasionEnum;
+import io.jenkins.plugins.lark.notice.logging.NoticeLog;
+import io.jenkins.plugins.lark.notice.logging.NoticeLogKey;
+import io.jenkins.plugins.lark.notice.logging.NoticeTrace;
 import io.jenkins.plugins.lark.notice.sdk.MessageDispatcher;
-import io.jenkins.plugins.lark.notice.tools.LogEvent;
-import io.jenkins.plugins.lark.notice.tools.LogField;
-import io.jenkins.plugins.lark.notice.tools.Logger;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
@@ -40,43 +40,43 @@ public final class NotificationOrchestrator {
                               List<LarkNotifierConfig> configs, MessageDispatcher messageDispatcher) {
         try {
             Job<?, ?> job = run.getParent();
-            Logger.event(listener, LogEvent.NOTIFY_PREPARE,
-                    LogField.SOURCE, source,
-                    LogField.JOB, job.getFullName(),
-                    LogField.RUN, run.getExternalizableId(),
-                    LogField.BUILD, run.getNumber(),
-                    LogField.OCCASION, occasion.name(),
-                    LogField.CONFIG_COUNT, configs.size());
+            NoticeLog.trace(listener, NoticeTrace.NOTIFICATION_PREPARE,
+                    NoticeLog.field(NoticeLogKey.SOURCE, source),
+                    NoticeLog.field(NoticeLogKey.JOB, job.getFullName()),
+                    NoticeLog.field(NoticeLogKey.RUN, run.getExternalizableId()),
+                    NoticeLog.field(NoticeLogKey.BUILD, run.getNumber()),
+                    NoticeLog.field(NoticeLogKey.OCCASION, occasion.name()),
+                    NoticeLog.field(NoticeLogKey.CONFIG_TOTAL, configs.size()));
             if (configs.isEmpty()) {
-                Logger.log(listener, Messages.notifier_log_no_config());
+                NoticeLog.verbose(listener, Messages.notifier_log_no_config());
                 return;
             }
 
             BuildNotificationContext context = BuildNotificationContextFactory.create(run, listener, occasion);
             String executorName = context.executor().getName();
-            Logger.event(listener, LogEvent.NOTIFY_EXECUTOR,
-                    LogField.SOURCE, source,
-                    LogField.EXECUTOR, executorName,
-                    LogField.HAS_MOBILE, StringUtils.isNotBlank(context.executor().getMobile()),
-                    LogField.HAS_OPEN_ID, StringUtils.isNotBlank(context.executor().getOpenId()));
+            NoticeLog.trace(listener, NoticeTrace.NOTIFICATION_EXECUTOR,
+                    NoticeLog.field(NoticeLogKey.SOURCE, source),
+                    NoticeLog.field(NoticeLogKey.EXECUTOR, executorName),
+                    NoticeLog.field(NoticeLogKey.HAS_MOBILE, StringUtils.isNotBlank(context.executor().getMobile())),
+                    NoticeLog.field(NoticeLogKey.HAS_OPEN_ID, StringUtils.isNotBlank(context.executor().getOpenId())));
 
             List<LarkNotifierConfig> matchedConfigs = NotifierOccasionFilter.filterByOccasion(configs, occasion);
 
-            Logger.event(listener, LogEvent.NOTIFY_MATCH,
-                    LogField.SOURCE, source,
-                    LogField.OCCASION, occasion.name(),
-                    LogField.MATCHED_CONFIG_COUNT, matchedConfigs.size());
+            NoticeLog.trace(listener, NoticeTrace.NOTIFICATION_MATCH,
+                    NoticeLog.field(NoticeLogKey.SOURCE, source),
+                    NoticeLog.field(NoticeLogKey.OCCASION, occasion.name()),
+                    NoticeLog.field(NoticeLogKey.MATCHED_CONFIG_TOTAL, matchedConfigs.size()));
 
             matchedConfigs.forEach(config -> NotificationDispatchExecutor.dispatch(
                     source, run, listener, occasion, config, context, messageDispatcher));
         } catch (Exception e) {
-            Logger.event(listener, LogEvent.NOTIFY_EXCEPTION,
-                    LogField.SOURCE, source,
-                    LogField.RUN, run.getExternalizableId(),
-                    LogField.OCCASION, occasion.name(),
-                    LogField.ERROR_TYPE, e.getClass().getSimpleName(),
-                    LogField.ERROR, e.getMessage());
-            Logger.log(listener, Messages.notifier_log_send_failure(), e.getMessage());
+            NoticeLog.trace(listener, NoticeTrace.NOTIFICATION_EXCEPTION,
+                    NoticeLog.field(NoticeLogKey.SOURCE, source),
+                    NoticeLog.field(NoticeLogKey.RUN, run.getExternalizableId()),
+                    NoticeLog.field(NoticeLogKey.OCCASION, occasion.name()),
+                    NoticeLog.field(NoticeLogKey.ERROR_TYPE, e.getClass().getSimpleName()),
+                    NoticeLog.field(NoticeLogKey.ERROR, e.getMessage()));
+            NoticeLog.verbose(listener, Messages.notifier_log_send_failure(), e.getMessage());
         } finally {
             PipelineEnvContext.reset();
         }

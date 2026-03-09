@@ -4,10 +4,10 @@ import hudson.EnvVars;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import io.jenkins.plugins.lark.notice.context.PipelineEnvContext;
+import io.jenkins.plugins.lark.notice.logging.NoticeLog;
+import io.jenkins.plugins.lark.notice.logging.NoticeLogKey;
+import io.jenkins.plugins.lark.notice.logging.NoticeTrace;
 import io.jenkins.plugins.lark.notice.model.BuildJobModel;
-import io.jenkins.plugins.lark.notice.tools.LogEvent;
-import io.jenkins.plugins.lark.notice.tools.LogField;
-import io.jenkins.plugins.lark.notice.tools.Logger;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
@@ -38,11 +38,11 @@ public final class EnvVarsResolver {
     public static EnvVars resolveBuildEnvVars(Run<?, ?> run, TaskListener listener, BuildJobModel model) {
         EnvVars envVars = getBuildEnvironment(run, listener);
         injectBuildInfoToEnvVars(envVars, model);
-        Logger.event(listener, LogEvent.ENV_RESOLVE,
-                LogField.RUN, run.getExternalizableId(),
-                LogField.PROJECT, model.getProjectName(),
-                LogField.JOB, model.getJobName(),
-                LogField.ENV_COUNT, envVars.size());
+        NoticeLog.trace(listener, NoticeTrace.ENVIRONMENT_RESOLVE,
+                NoticeLog.field(NoticeLogKey.RUN, run.getExternalizableId()),
+                NoticeLog.field(NoticeLogKey.PROJECT, model.getProjectName()),
+                NoticeLog.field(NoticeLogKey.JOB, model.getJobName()),
+                NoticeLog.field(NoticeLogKey.ENV_TOTAL, envVars.size()));
         return envVars;
     }
 
@@ -63,11 +63,11 @@ public final class EnvVarsResolver {
             if (e instanceof InterruptedException) {
                 Thread.currentThread().interrupt();
             }
-            Logger.event(listener, LogEvent.ENV_RESOLVE_FAILED,
-                    LogField.RUN, run.getExternalizableId(),
-                    LogField.ERROR_TYPE, e.getClass().getSimpleName(),
-                    LogField.ERROR, e.getMessage());
-            Logger.log(listener, "env.resolve.failed.stack=%s", ExceptionUtils.getStackTrace(e));
+            NoticeLog.trace(listener, NoticeTrace.ENVIRONMENT_RESOLVE_FAILURE,
+                    NoticeLog.field(NoticeLogKey.RUN, run.getExternalizableId()),
+                    NoticeLog.field(NoticeLogKey.ERROR_TYPE, e.getClass().getSimpleName()),
+                    NoticeLog.field(NoticeLogKey.ERROR, e.getMessage()));
+            NoticeLog.verbose(listener, "environment.resolve.failure.stack=%s", ExceptionUtils.getStackTrace(e));
         }
         return envVars;
     }
