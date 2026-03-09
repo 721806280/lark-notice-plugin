@@ -15,6 +15,7 @@ import io.jenkins.plugins.lark.notice.model.RunUser;
 import io.jenkins.plugins.lark.notice.sdk.MessageDispatcher;
 import io.jenkins.plugins.lark.notice.sdk.model.SendResult;
 import io.jenkins.plugins.lark.notice.tools.LogEvent;
+import io.jenkins.plugins.lark.notice.tools.LogField;
 import io.jenkins.plugins.lark.notice.tools.Logger;
 import org.apache.commons.lang3.StringUtils;
 
@@ -63,15 +64,15 @@ public final class NotificationDispatchExecutor {
         }
 
         Logger.event(listener, LogEvent.NOTIFY_DISPATCH,
-                "source", source,
-                "job", run.getParent().getFullName(),
-                "build", run.getNumber(),
-                "occasion", occasion.name(),
-                "robotId", config.getRobotId(),
-                "robotType", robotType,
-                "raw", config.isRaw(),
-                "atAll", config.isAtAll(),
-                "atUserCount", atUserIds.size());
+                LogField.SOURCE, source,
+                LogField.JOB, run.getParent().getFullName(),
+                LogField.BUILD, run.getNumber(),
+                LogField.OCCASION, occasion.name(),
+                LogField.ROBOT_ID, config.getRobotId(),
+                LogField.ROBOT_TYPE, robotType,
+                LogField.RAW, config.isRaw(),
+                LogField.AT_ALL, config.isAtAll(),
+                LogField.AT_USER_COUNT, atUserIds.size());
 
         BuildJobModel model = context.model();
         model.setTitle(context.envVars().expand(StringUtils.defaultIfBlank(config.getTitle(), DEFAULT_TITLE)));
@@ -87,23 +88,38 @@ public final class NotificationDispatchExecutor {
                 .build();
 
         SendResult result = messageDispatcher.send(listener, config.getRobotId(), messageModel);
-        Logger.event(listener, LogEvent.NOTIFY_RESULT,
-                "source", source,
-                "job", run.getParent().getFullName(),
-                "build", run.getNumber(),
-                "occasion", occasion.name(),
-                "robotId", config.getRobotId(),
-                "ok", result != null && result.isOk(),
-                "code", result == null ? "<null>" : result.getCode(),
-                "msg", result == null ? "<null>" : Logger.clip(result.getMsg(), 200));
+        handleSendResult(source, run, listener, occasion, config.getRobotId(), result);
+    }
 
-        if (result == null || !result.isOk()) {
+    /**
+     * Handles send result logging and build-result fallback.
+     *
+     * @param source     logical trigger source
+     * @param run        build run
+     * @param listener   Jenkins task listener
+     * @param occasion   current notice occasion
+     * @param robotId    robot identifier
+     * @param sendResult send result returned by dispatcher
+     */
+    static void handleSendResult(String source, Run<?, ?> run, TaskListener listener,
+                                 NoticeOccasionEnum occasion, String robotId, SendResult sendResult) {
+        Logger.event(listener, LogEvent.NOTIFY_RESULT,
+                LogField.SOURCE, source,
+                LogField.JOB, run.getParent().getFullName(),
+                LogField.BUILD, run.getNumber(),
+                LogField.OCCASION, occasion.name(),
+                LogField.ROBOT_ID, robotId,
+                LogField.OK, sendResult != null && sendResult.isOk(),
+                LogField.CODE, sendResult == null ? "<null>" : sendResult.getCode(),
+                LogField.MSG, sendResult == null ? "<null>" : Logger.clip(sendResult.getMsg(), 200));
+
+        if (sendResult == null || !sendResult.isOk()) {
             run.setResult(Result.FAILURE);
             Logger.event(listener, LogEvent.NOTIFY_MARK_BUILD_FAILURE,
-                    "source", source,
-                    "job", run.getParent().getFullName(),
-                    "build", run.getNumber(),
-                    "robotId", config.getRobotId());
+                    LogField.SOURCE, source,
+                    LogField.JOB, run.getParent().getFullName(),
+                    LogField.BUILD, run.getNumber(),
+                    LogField.ROBOT_ID, robotId);
         }
     }
 }

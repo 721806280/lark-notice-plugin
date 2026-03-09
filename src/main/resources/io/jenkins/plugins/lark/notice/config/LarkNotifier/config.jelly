@@ -2,7 +2,7 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:f="/lib/form"
          xmlns:local="local">
     <j:set var="notifierConfigs" value="${instance == null ? descriptor.getDefaultNotifierConfigs() : instance.getMergedNotifierConfigs()}"/>
-    <j:set var="checkedNotifierConfigs" value="${instance == null ? java.util.Collections.emptyList() : instance.getEnabledNotifierConfigs()}"/>
+    <j:set var="enabledNotifierConfigs" value="${instance == null ? java.util.Collections.emptyList() : instance.getEnabledNotifierConfigs()}"/>
 
     <d:taglib uri="local">
         <d:tag name="body">
@@ -16,7 +16,7 @@
         <div class="jenkins-form-item hetero-list-container one-each">
             <!-- display existing items -->
             <j:forEach var="config"
-                       items="${checkedNotifierConfigs}">
+                       items="${enabledNotifierConfigs}">
                 <j:set var="instance" value="${config}"/>
                 <j:set var="descriptor" value="${config.descriptor}"/>
                 <div class="repeated-chunk" name="notifierConfigs" title="${config.robotName}"

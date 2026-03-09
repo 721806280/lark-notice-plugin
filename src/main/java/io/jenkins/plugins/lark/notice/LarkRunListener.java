@@ -11,6 +11,7 @@ import io.jenkins.plugins.lark.notice.config.LarkNotifierConfig;
 import io.jenkins.plugins.lark.notice.enums.NoticeOccasionEnum;
 import io.jenkins.plugins.lark.notice.sdk.MessageDispatcher;
 import io.jenkins.plugins.lark.notice.service.NotificationOrchestrator;
+import io.jenkins.plugins.lark.notice.service.NotificationSource;
 import io.jenkins.plugins.lark.notice.service.NotifierConfigResolver;
 
 import java.util.List;
@@ -25,7 +26,7 @@ import java.util.List;
 @Extension
 public class LarkRunListener extends RunListener<Run<?, ?>> {
 
-    private static final String SOURCE = "run-listener";
+    private static final String SOURCE = NotificationSource.RUN_LISTENER;
 
     /**
      * The messaging service used to dispatch messages to Lark.

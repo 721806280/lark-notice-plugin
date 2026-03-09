@@ -4,8 +4,9 @@ import hudson.EnvVars;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import io.jenkins.plugins.lark.notice.Messages;
-import io.jenkins.plugins.lark.notice.tools.LogEvent;
 import io.jenkins.plugins.lark.notice.sdk.model.SendResult;
+import io.jenkins.plugins.lark.notice.tools.LogEvent;
+import io.jenkins.plugins.lark.notice.tools.LogField;
 import io.jenkins.plugins.lark.notice.tools.Logger;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
 import org.jenkinsci.plugins.workflow.steps.StepExecution;
@@ -41,10 +42,10 @@ public class GenericStepExecution<T extends AbstractStep> extends StepExecution 
             }
 
             Logger.event(listener, LogEvent.PIPELINE_STEP_START,
-                    "step", step.getClass().getSimpleName(),
-                    "run", run.getExternalizableId(),
-                    "robot", step.getRobot(),
-                    "msgType", step.getType());
+                    LogField.STEP, step.getClass().getSimpleName(),
+                    LogField.RUN, run.getExternalizableId(),
+                    LogField.ROBOT, step.getRobot(),
+                    LogField.MSG_TYPE, step.getType());
             SendResult sendResult = this.step.send(run, envVars, listener);
             if (sendResult == null) {
                 context.onFailure(new IllegalStateException(Logger.format(Messages.dispatcher_error_send_result_null())));
@@ -52,27 +53,27 @@ public class GenericStepExecution<T extends AbstractStep> extends StepExecution 
             }
             if (sendResult.isOk()) {
                 Logger.event(listener, LogEvent.PIPELINE_STEP_END,
-                        "step", step.getClass().getSimpleName(),
-                        "run", run.getExternalizableId(),
-                        "ok", true,
-                        "code", sendResult.getCode(),
-                        "msg", Logger.clip(sendResult.getMsg(), 200));
+                        LogField.STEP, step.getClass().getSimpleName(),
+                        LogField.RUN, run.getExternalizableId(),
+                        LogField.OK, true,
+                        LogField.CODE, sendResult.getCode(),
+                        LogField.MSG, Logger.clip(sendResult.getMsg(), 200));
                 context.onSuccess(sendResult.getMsg());
             } else {
                 Logger.event(listener, LogEvent.PIPELINE_STEP_END,
-                        "step", step.getClass().getSimpleName(),
-                        "run", run.getExternalizableId(),
-                        "ok", false,
-                        "code", sendResult.getCode(),
-                        "msg", Logger.clip(sendResult.getMsg(), 200));
+                        LogField.STEP, step.getClass().getSimpleName(),
+                        LogField.RUN, run.getExternalizableId(),
+                        LogField.OK, false,
+                        LogField.CODE, sendResult.getCode(),
+                        LogField.MSG, Logger.clip(sendResult.getMsg(), 200));
                 context.onFailure(new IllegalStateException(Logger.format(sendResult.getMsg())));
             }
             return true;
         } catch (Exception e) {
             Logger.event(listener, LogEvent.PIPELINE_STEP_EXCEPTION,
-                    "step", step.getClass().getSimpleName(),
-                    "errorType", e.getClass().getSimpleName(),
-                    "error", e.getMessage());
+                    LogField.STEP, step.getClass().getSimpleName(),
+                    LogField.ERROR_TYPE, e.getClass().getSimpleName(),
+                    LogField.ERROR, e.getMessage());
             context.onFailure(e);
             return false;
         }

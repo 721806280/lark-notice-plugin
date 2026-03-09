@@ -9,6 +9,7 @@ import io.jenkins.plugins.lark.notice.context.PipelineEnvContext;
 import io.jenkins.plugins.lark.notice.enums.NoticeOccasionEnum;
 import io.jenkins.plugins.lark.notice.sdk.MessageDispatcher;
 import io.jenkins.plugins.lark.notice.tools.LogEvent;
+import io.jenkins.plugins.lark.notice.tools.LogField;
 import io.jenkins.plugins.lark.notice.tools.Logger;
 import org.apache.commons.lang3.StringUtils;
 
@@ -40,12 +41,12 @@ public final class NotificationOrchestrator {
         try {
             Job<?, ?> job = run.getParent();
             Logger.event(listener, LogEvent.NOTIFY_PREPARE,
-                    "source", source,
-                    "job", job.getFullName(),
-                    "run", run.getExternalizableId(),
-                    "build", run.getNumber(),
-                    "occasion", occasion.name(),
-                    "configCount", configs.size());
+                    LogField.SOURCE, source,
+                    LogField.JOB, job.getFullName(),
+                    LogField.RUN, run.getExternalizableId(),
+                    LogField.BUILD, run.getNumber(),
+                    LogField.OCCASION, occasion.name(),
+                    LogField.CONFIG_COUNT, configs.size());
             if (configs.isEmpty()) {
                 Logger.log(listener, Messages.notifier_log_no_config());
                 return;
@@ -54,29 +55,29 @@ public final class NotificationOrchestrator {
             BuildNotificationContext context = BuildNotificationContextFactory.create(run, listener, occasion);
             String executorName = context.executor().getName();
             Logger.event(listener, LogEvent.NOTIFY_EXECUTOR,
-                    "source", source,
-                    "executor", executorName,
-                    "hasMobile", StringUtils.isNotBlank(context.executor().getMobile()),
-                    "hasOpenId", StringUtils.isNotBlank(context.executor().getOpenId()));
+                    LogField.SOURCE, source,
+                    LogField.EXECUTOR, executorName,
+                    LogField.HAS_MOBILE, StringUtils.isNotBlank(context.executor().getMobile()),
+                    LogField.HAS_OPEN_ID, StringUtils.isNotBlank(context.executor().getOpenId()));
 
             List<LarkNotifierConfig> matchedConfigs = configs.stream()
                     .filter(config -> config.getNoticeOccasions().contains(occasion.name()))
                     .toList();
 
             Logger.event(listener, LogEvent.NOTIFY_MATCH,
-                    "source", source,
-                    "occasion", occasion.name(),
-                    "matchedConfigCount", matchedConfigs.size());
+                    LogField.SOURCE, source,
+                    LogField.OCCASION, occasion.name(),
+                    LogField.MATCHED_CONFIG_COUNT, matchedConfigs.size());
 
             matchedConfigs.forEach(config -> NotificationDispatchExecutor.dispatch(
                     source, run, listener, occasion, config, context, messageDispatcher));
         } catch (Exception e) {
             Logger.event(listener, LogEvent.NOTIFY_EXCEPTION,
-                    "source", source,
-                    "run", run.getExternalizableId(),
-                    "occasion", occasion.name(),
-                    "errorType", e.getClass().getSimpleName(),
-                    "error", e.getMessage());
+                    LogField.SOURCE, source,
+                    LogField.RUN, run.getExternalizableId(),
+                    LogField.OCCASION, occasion.name(),
+                    LogField.ERROR_TYPE, e.getClass().getSimpleName(),
+                    LogField.ERROR, e.getMessage());
             Logger.log(listener, Messages.notifier_log_send_failed(), e.getMessage());
         } finally {
             PipelineEnvContext.reset();

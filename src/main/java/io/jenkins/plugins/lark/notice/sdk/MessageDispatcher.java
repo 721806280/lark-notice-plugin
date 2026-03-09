@@ -10,6 +10,7 @@ import io.jenkins.plugins.lark.notice.model.MessageModel;
 import io.jenkins.plugins.lark.notice.model.RobotConfigModel;
 import io.jenkins.plugins.lark.notice.sdk.model.SendResult;
 import io.jenkins.plugins.lark.notice.tools.LogEvent;
+import io.jenkins.plugins.lark.notice.tools.LogField;
 import io.jenkins.plugins.lark.notice.tools.Logger;
 
 import java.util.ArrayList;
@@ -107,8 +108,8 @@ public class MessageDispatcher {
      */
     public SendResult send(TaskListener listener, String robotId, MessageModel msg) {
         Logger.event(listener, LogEvent.DISPATCHER_SEND_START,
-                "robotId", robotId,
-                "msgType", msg == null || msg.getType() == null ? "<null>" : msg.getType().name());
+                LogField.ROBOT_ID, robotId,
+                LogField.MSG_TYPE, msg == null || msg.getType() == null ? "<null>" : msg.getType().name());
 
         MessageSender sender = getSender(robotId);
         if (sender == null) {
@@ -134,12 +135,12 @@ public class MessageDispatcher {
 
         Logger.log(listener, Messages.dispatcher_log_send_details(), sendResult.getRequestBody());
         Logger.event(listener, LogEvent.DISPATCHER_SEND_END,
-                "robotId", robotId,
-                "msgType", type.name(),
-                "ok", sendResult.isOk(),
-                "code", sendResult.getCode(),
-                "msg", Logger.clip(sendResult.getMsg(), 200),
-                "requestSize", sendResult.getRequestBody() == null ? 0 : sendResult.getRequestBody().length());
+                LogField.ROBOT_ID, robotId,
+                LogField.MSG_TYPE, type.name(),
+                LogField.OK, sendResult.isOk(),
+                LogField.CODE, sendResult.getCode(),
+                LogField.MSG, Logger.clip(sendResult.getMsg(), 200),
+                LogField.REQUEST_SIZE, sendResult.getRequestBody() == null ? 0 : sendResult.getRequestBody().length());
 
         if (!sendResult.isOk()) {
             Logger.error(listener, sendResult.getMsg());
@@ -154,11 +155,11 @@ public class MessageDispatcher {
     private SendResult fail(TaskListener listener, String robotId, MsgTypeEnum msgType, String message) {
         SendResult failed = SendResult.fail(message);
         Logger.event(listener, LogEvent.DISPATCHER_SEND_END,
-                "robotId", robotId,
-                "msgType", msgType == null ? "<null>" : msgType.name(),
-                "ok", false,
-                "code", failed.getCode(),
-                "msg", Logger.clip(failed.getMsg(), 200));
+                LogField.ROBOT_ID, robotId,
+                LogField.MSG_TYPE, msgType == null ? "<null>" : msgType.name(),
+                LogField.OK, false,
+                LogField.CODE, failed.getCode(),
+                LogField.MSG, Logger.clip(failed.getMsg(), 200));
         return failed;
     }
 }

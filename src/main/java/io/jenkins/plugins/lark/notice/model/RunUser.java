@@ -4,6 +4,7 @@ import hudson.model.*;
 import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.config.property.LarkUserProperty;
 import io.jenkins.plugins.lark.notice.tools.LogEvent;
+import io.jenkins.plugins.lark.notice.tools.LogField;
 import io.jenkins.plugins.lark.notice.tools.Logger;
 import jenkins.model.Jenkins;
 import lombok.*;
@@ -85,13 +86,17 @@ public class RunUser {
         String mobile = userPropertyOpt.map(LarkUserProperty::getMobile).orElse("");
         if (StringUtils.isBlank(mobile)) {
             Logger.log(listener, Messages.run_user_missing_mobile(), name, user.getAbsoluteUrl() + "/configure");
-            Logger.event(listener, LogEvent.RUN_USER_MISSING_MOBILE, "user", name, "url", user.getAbsoluteUrl() + "/configure");
+            Logger.event(listener, LogEvent.RUN_USER_MISSING_MOBILE,
+                    LogField.USER, name,
+                    LogField.URL, user.getAbsoluteUrl() + "/configure");
         }
 
         String openId = userPropertyOpt.map(LarkUserProperty::getOpenId).orElse("");
         if (StringUtils.isBlank(openId)) {
             Logger.log(listener, Messages.run_user_missing_openid(), name, user.getAbsoluteUrl() + "/configure");
-            Logger.event(listener, LogEvent.RUN_USER_MISSING_OPENID, "user", name, "url", user.getAbsoluteUrl() + "/configure");
+            Logger.event(listener, LogEvent.RUN_USER_MISSING_OPENID,
+                    LogField.USER, name,
+                    LogField.URL, user.getAbsoluteUrl() + "/configure");
         }
 
         return new RunUser(name, mobile, openId);

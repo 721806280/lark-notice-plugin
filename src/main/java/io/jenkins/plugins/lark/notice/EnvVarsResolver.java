@@ -6,6 +6,7 @@ import hudson.model.TaskListener;
 import io.jenkins.plugins.lark.notice.context.PipelineEnvContext;
 import io.jenkins.plugins.lark.notice.model.BuildJobModel;
 import io.jenkins.plugins.lark.notice.tools.LogEvent;
+import io.jenkins.plugins.lark.notice.tools.LogField;
 import io.jenkins.plugins.lark.notice.tools.Logger;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -38,10 +39,10 @@ public final class EnvVarsResolver {
         EnvVars envVars = getBuildEnvironment(run, listener);
         injectBuildInfoToEnvVars(envVars, model);
         Logger.event(listener, LogEvent.ENV_RESOLVE,
-                "run", run.getExternalizableId(),
-                "project", model.getProjectName(),
-                "job", model.getJobName(),
-                "envCount", envVars.size());
+                LogField.RUN, run.getExternalizableId(),
+                LogField.PROJECT, model.getProjectName(),
+                LogField.JOB, model.getJobName(),
+                LogField.ENV_COUNT, envVars.size());
         return envVars;
     }
 
@@ -63,9 +64,9 @@ public final class EnvVarsResolver {
                 Thread.currentThread().interrupt();
             }
             Logger.event(listener, LogEvent.ENV_RESOLVE_FAILED,
-                    "run", run.getExternalizableId(),
-                    "errorType", e.getClass().getSimpleName(),
-                    "error", e.getMessage());
+                    LogField.RUN, run.getExternalizableId(),
+                    LogField.ERROR_TYPE, e.getClass().getSimpleName(),
+                    LogField.ERROR, e.getMessage());
             Logger.log(listener, "env.resolve.failed.stack=%s", ExceptionUtils.getStackTrace(e));
         }
         return envVars;

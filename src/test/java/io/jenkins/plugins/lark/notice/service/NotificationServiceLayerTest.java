@@ -1,10 +1,14 @@
 package io.jenkins.plugins.lark.notice.service;
 
 import hudson.EnvVars;
+import hudson.Launcher;
+import hudson.model.AbstractBuild;
+import hudson.model.BuildListener;
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
 import hudson.model.Result;
 import hudson.model.TaskListener;
+import hudson.tasks.Builder;
 import io.jenkins.plugins.lark.notice.config.LarkGlobalConfig;
 import io.jenkins.plugins.lark.notice.config.LarkNotifier;
 import io.jenkins.plugins.lark.notice.config.LarkNotifierConfig;
@@ -15,6 +19,7 @@ import io.jenkins.plugins.lark.notice.context.PipelineEnvContext;
 import io.jenkins.plugins.lark.notice.enums.BuildStatusEnum;
 import io.jenkins.plugins.lark.notice.enums.NoticeOccasionEnum;
 import io.jenkins.plugins.lark.notice.sdk.MessageDispatcher;
+import io.jenkins.plugins.lark.notice.sdk.model.SendResult;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -116,6 +121,16 @@ public class NotificationServiceLayerTest {
         assertEquals(Result.SUCCESS, build.getResult());
     }
 
+    @Test
+    public void dispatchExecutorShouldMarkBuildFailureWhenSendResultIsNotOk() throws Exception {
+        FreeStyleProject project = jenkins.createFreeStyleProject("dispatch-failure");
+        project.getBuildersList().add(new FailureResultBuilder());
+
+        FreeStyleBuild build = jenkins.buildAndAssertStatus(Result.FAILURE, project);
+
+        assertEquals(Result.FAILURE, build.getResult());
+    }
+
     private static LarkRobotConfig createRobot(String id) {
         return new LarkRobotConfig(
                 id,
@@ -152,6 +167,21 @@ public class NotificationServiceLayerTest {
         @Override
         public List<LarkNotifierConfig> getLarkNotifierConfigs() {
             return configs;
+        }
+    }
+
+    private static final class FailureResultBuilder extends Builder {
+
+        @Override
+        public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
+            NotificationDispatchExecutor.handleSendResult(
+                    "test-source",
+                    build,
+                    listener,
+                    NoticeOccasionEnum.SUCCESS,
+                    "robot-fail",
+                    SendResult.fail("mock failed"));
+            return true;
         }
     }
 }

@@ -13,6 +13,7 @@ import io.jenkins.plugins.lark.notice.config.property.LarkNotifierProvider;
 import io.jenkins.plugins.lark.notice.enums.NoticeOccasionEnum;
 import io.jenkins.plugins.lark.notice.sdk.MessageDispatcher;
 import io.jenkins.plugins.lark.notice.service.NotificationOrchestrator;
+import io.jenkins.plugins.lark.notice.service.NotificationSource;
 import jenkins.tasks.SimpleBuildStep;
 import lombok.Getter;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -33,8 +34,6 @@ import java.util.stream.Collectors;
  */
 public class LarkNotifier extends Notifier implements SimpleBuildStep, LarkNotifierProvider {
 
-    private static final String SOURCE = "post-build";
-
     /**
      * Runtime-only dispatcher. Must not be serialized with job config.
      */
@@ -45,7 +44,7 @@ public class LarkNotifier extends Notifier implements SimpleBuildStep, LarkNotif
 
     @DataBoundConstructor
     public LarkNotifier(List<LarkNotifierConfig> notifierConfigs) {
-        this.larkNotifierConfigs = toMutableList(notifierConfigs);
+        this.larkNotifierConfigs = notifierConfigs == null ? null : new ArrayList<>(notifierConfigs);
     }
 
     @Override
@@ -89,7 +88,7 @@ public class LarkNotifier extends Notifier implements SimpleBuildStep, LarkNotif
      * @param occasion notice occasion
      */
     private void sendNotification(Run<?, ?> run, TaskListener listener, NoticeOccasionEnum occasion) {
-        NotificationOrchestrator.notify(SOURCE, run, listener, occasion, getAvailableNotifierConfigs(), getMessageDispatcher());
+        NotificationOrchestrator.notify(NotificationSource.POST_BUILD, run, listener, occasion, getAvailableNotifierConfigs(), getMessageDispatcher());
     }
 
     /**
@@ -100,10 +99,6 @@ public class LarkNotifier extends Notifier implements SimpleBuildStep, LarkNotif
             messageDispatcher = MessageDispatcher.getInstance();
         }
         return messageDispatcher;
-    }
-
-    private static List<LarkNotifierConfig> toMutableList(List<LarkNotifierConfig> notifierConfigs) {
-        return notifierConfigs == null ? null : new ArrayList<>(notifierConfigs);
     }
 
     @Extension
