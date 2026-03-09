@@ -65,6 +65,36 @@ public class GlobalConfigFormDataSanitizerTest {
         }
     }
 
+    @Test
+    public void shouldRejectRobotConfigWithUnsupportedWebhookHost() throws Exception {
+        JSONArray robots = new JSONArray();
+        JSONObject robot = createRobot("robot-a");
+        robot.put("webhook", "https://example.com/webhook/robot-a");
+        robots.add(robot);
+
+        try {
+            GlobalConfigFormDataSanitizer.normalizeRobotConfigsPayload(robots);
+            fail("Expected FormException");
+        } catch (FormException e) {
+            assertEquals("robotConfigs[0].webhook", e.getFormField());
+        }
+    }
+
+    @Test
+    public void shouldRejectRobotConfigWithMalformedWebhook() throws Exception {
+        JSONArray robots = new JSONArray();
+        JSONObject robot = createRobot("robot-a");
+        robot.put("webhook", "::not-a-url::");
+        robots.add(robot);
+
+        try {
+            GlobalConfigFormDataSanitizer.normalizeRobotConfigsPayload(robots);
+            fail("Expected FormException");
+        } catch (FormException e) {
+            assertEquals("robotConfigs[0].webhook", e.getFormField());
+        }
+    }
+
     private static JSONObject createRobot(String id) {
         JSONObject robot = new JSONObject();
         robot.put("id", id);

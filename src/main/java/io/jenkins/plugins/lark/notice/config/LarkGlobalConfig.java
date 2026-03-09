@@ -105,6 +105,7 @@ public class LarkGlobalConfig extends GlobalConfiguration {
 
     @DataBoundSetter
     public void setProxyConfig(LarkProxyConfig proxyConfig) {
+        MessageDispatcher.getInstance().clearSenders();
         this.proxyConfig = proxyConfig;
     }
 
