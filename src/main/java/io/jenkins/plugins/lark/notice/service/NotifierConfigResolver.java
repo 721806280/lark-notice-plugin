@@ -36,9 +36,7 @@ public final class NotifierConfigResolver {
         if (hasFreestylePostBuildNotifier(job)) {
             return List.of();
         }
-        return resolveFromJobProperty(job)
-                .or(() -> resolveFromBranchProperty(job))
-                .orElse(List.of());
+        return resolvePreferredPropertyConfigs(job).orElse(List.of());
     }
 
     /**
@@ -55,6 +53,17 @@ public final class NotifierConfigResolver {
     }
 
     /**
+     * Resolves available configs with precedence: job property first, then branch property.
+     *
+     * @param job Jenkins job
+     * @return optional resolved configs from preferred property source
+     */
+    private static Optional<List<LarkNotifierConfig>> resolvePreferredPropertyConfigs(Job<?, ?> job) {
+        return resolveFromJobProperty(job)
+                .or(() -> resolveFromBranchProperty(job));
+    }
+
+    /**
      * Resolves available notifier configs from job property.
      *
      * @param job Jenkins job
@@ -62,7 +71,7 @@ public final class NotifierConfigResolver {
      */
     private static Optional<List<LarkNotifierConfig>> resolveFromJobProperty(Job<?, ?> job) {
         return Optional.ofNullable(job.getProperty(LarkJobProperty.class))
-                .map(LarkNotifierProvider::getAvailableNotifierConfigs);
+                .flatMap(NotifierConfigResolver::resolveFromProvider);
     }
 
     /**
@@ -75,6 +84,17 @@ public final class NotifierConfigResolver {
         return Optional.ofNullable(job.getProperty(BranchJobProperty.class))
                 .map(BranchJobProperty::getBranch)
                 .map(branch -> branch.getProperty(LarkBranchJobProperty.class))
+                .flatMap(NotifierConfigResolver::resolveFromProvider);
+    }
+
+    /**
+     * Resolves available configs from one notifier provider.
+     *
+     * @param provider notifier provider
+     * @return optional available configs
+     */
+    private static Optional<List<LarkNotifierConfig>> resolveFromProvider(LarkNotifierProvider provider) {
+        return Optional.ofNullable(provider)
                 .map(LarkNotifierProvider::getAvailableNotifierConfigs);
     }
 }
