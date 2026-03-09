@@ -16,6 +16,7 @@ import io.jenkins.plugins.lark.notice.service.NotificationOrchestrator;
 import io.jenkins.plugins.lark.notice.service.NotificationSource;
 import jenkins.tasks.SimpleBuildStep;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.IOException;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
  *
  * @author xm.z
  */
+@NoArgsConstructor
 public class LarkNotifier extends Notifier implements SimpleBuildStep, LarkNotifierProvider {
 
     /**
