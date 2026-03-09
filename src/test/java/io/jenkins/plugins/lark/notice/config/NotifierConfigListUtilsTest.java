@@ -2,6 +2,7 @@ package io.jenkins.plugins.lark.notice.config;
 
 import io.jenkins.plugins.lark.notice.config.property.LarkBranchJobProperty;
 import io.jenkins.plugins.lark.notice.config.property.LarkJobProperty;
+import io.jenkins.plugins.lark.notice.enums.SecurityPolicyEnum;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -41,6 +42,30 @@ public class NotifierConfigListUtilsTest {
         assertEquals(1, notifier.getLarkNotifierConfigs().size());
         assertEquals(1, jobProperty.getLarkNotifierConfigs().size());
         assertEquals(1, branchProperty.getLarkNotifierConfigs().size());
+    }
+
+    @Test
+    public void robotConfigConstructorShouldDefensivelyCopySecurityPolicies() {
+        List<LarkSecurityPolicyConfig> source = new ArrayList<>();
+        source.add(new LarkSecurityPolicyConfig(SecurityPolicyEnum.NO_SSL.name(), "true", "No SSL"));
+
+        LarkRobotConfig robotConfig = new LarkRobotConfig(
+                "robot-a",
+                "Robot-robot-a",
+                "https://open.feishu.cn/open-apis/bot/v2/hook/robot-a",
+                source
+        );
+
+        source.clear();
+
+        assertEquals(
+                "true",
+                robotConfig.getSecurityPolicyConfigs().stream()
+                        .filter(config -> SecurityPolicyEnum.NO_SSL.name().equals(config.getType()))
+                        .findFirst()
+                        .orElseThrow()
+                        .getValue()
+        );
     }
 
     private static LarkNotifierConfig createNotifierConfig(String robotId) {
