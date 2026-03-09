@@ -60,9 +60,7 @@ public final class NotificationOrchestrator {
                     LogField.HAS_MOBILE, StringUtils.isNotBlank(context.executor().getMobile()),
                     LogField.HAS_OPEN_ID, StringUtils.isNotBlank(context.executor().getOpenId()));
 
-            List<LarkNotifierConfig> matchedConfigs = configs.stream()
-                    .filter(config -> config.getNoticeOccasions().contains(occasion.name()))
-                    .toList();
+            List<LarkNotifierConfig> matchedConfigs = NotifierOccasionFilter.filterByOccasion(configs, occasion);
 
             Logger.event(listener, LogEvent.NOTIFY_MATCH,
                     LogField.SOURCE, source,
