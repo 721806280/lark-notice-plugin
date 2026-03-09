@@ -12,8 +12,8 @@ import org.junit.Test;
 
 import java.util.Set;
 
-import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.DEFAULT_TITLE;
 import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.LF;
+import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.defaultTitle;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -49,7 +49,7 @@ public class NotificationDispatchExecutorTest {
 
         NotificationDispatchExecutor.applyModelTemplateValues(config, model, envVars);
 
-        assertEquals(DEFAULT_TITLE, model.getTitle());
+        assertEquals(defaultTitle(), model.getTitle());
         assertEquals("hello" + LF + "world", model.getContent());
     }
 
