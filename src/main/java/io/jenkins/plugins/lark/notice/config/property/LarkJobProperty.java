@@ -10,7 +10,6 @@ import io.jenkins.plugins.lark.notice.config.LarkGlobalConfig;
 import io.jenkins.plugins.lark.notice.config.LarkNotifierConfig;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.util.ArrayList;
@@ -25,7 +24,6 @@ import java.util.stream.Collectors;
  *
  * @author xm.z
  */
-@ToString
 @NoArgsConstructor
 public class LarkJobProperty extends JobProperty<Job<?, ?>> implements LarkNotifierProvider {
 

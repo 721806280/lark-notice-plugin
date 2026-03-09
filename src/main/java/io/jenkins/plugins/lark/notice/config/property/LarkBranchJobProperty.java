@@ -13,7 +13,6 @@ import jenkins.branch.JobDecorator;
 import jenkins.branch.MultiBranchProjectDescriptor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.util.ArrayList;
@@ -28,7 +27,6 @@ import java.util.stream.Collectors;
  *
  * @author xm.z
  */
-@ToString
 @NoArgsConstructor
 public class LarkBranchJobProperty extends BranchProperty implements LarkNotifierProvider {
 
