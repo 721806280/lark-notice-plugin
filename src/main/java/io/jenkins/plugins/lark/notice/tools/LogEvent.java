@@ -2,6 +2,8 @@ package io.jenkins.plugins.lark.notice.tools;
 
 /**
  * Centralized event names for structured verbose logs.
+ *
+ * @author xm.z
  */
 public final class LogEvent {
 
