@@ -93,7 +93,7 @@ public class RunUser {
 
         String openId = userPropertyOpt.map(LarkUserProperty::getOpenId).orElse("");
         if (StringUtils.isBlank(openId)) {
-            Logger.log(listener, Messages.run_user_missing_openid(), name, user.getAbsoluteUrl() + "/configure");
+            Logger.log(listener, Messages.run_user_missing_open_id(), name, user.getAbsoluteUrl() + "/configure");
             Logger.event(listener, LogEvent.RUN_USER_MISSING_OPENID,
                     LogField.USER, name,
                     LogField.URL, user.getAbsoluteUrl() + "/configure");

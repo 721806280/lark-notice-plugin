@@ -76,7 +76,7 @@ public final class NotificationOrchestrator {
                     LogField.OCCASION, occasion.name(),
                     LogField.ERROR_TYPE, e.getClass().getSimpleName(),
                     LogField.ERROR, e.getMessage());
-            Logger.log(listener, Messages.notifier_log_send_failed(), e.getMessage());
+            Logger.log(listener, Messages.notifier_log_send_failure(), e.getMessage());
         } finally {
             PipelineEnvContext.reset();
         }

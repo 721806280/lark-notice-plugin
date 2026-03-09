@@ -1,0 +1,55 @@
+.lark-notice-option {
+    margin-right: 5px;
+}
+
+.lark-notice-raw-content {
+    display: none;
+}
+
+.lark-bots-repeatable .repeated-container > .repeatable-add {
+    margin-top: 6px;
+    margin-bottom: 10px;
+}
+
+.lark-bots-repeatable .repeated-container > .repeatable-add-top {
+    margin-bottom: 10px;
+}
+
+.robot-config-container {
+    border: 0;
+    border-radius: 0;
+    padding: 4px 0 2px;
+    background: transparent;
+}
+
+.robot-config-container .jenkins-form-item {
+    margin-bottom: 4px;
+}
+
+.robot-config-validate-msg {
+    margin-top: 2px;
+    font-size: 11px;
+    line-height: 1.25;
+}
+
+.robot-config-validate-msg:empty {
+    display: none;
+}
+
+.robot-config-validate-msg.jenkins-alert {
+    margin-bottom: 0;
+    padding: 3px 6px;
+}
+
+.robot-config-pre-wrap {
+    white-space: pre-wrap;
+}
+
+.robot-config-actions {
+    margin-top: 0;
+    text-align: right;
+}
+
+.robot-config-container .robot-config-compact-entry {
+    margin-bottom: 0;
+}

@@ -45,7 +45,7 @@ public class LarkManagementLink extends ManagementLink {
      */
     @Override
     public String getDisplayName() {
-        return Messages.plugin_display_name();
+        return Messages.plugin_name();
     }
 
     /**
@@ -97,8 +97,8 @@ public class LarkManagementLink extends ManagementLink {
      *
      * @return The descriptor instance for LarkGlobalConfig.
      */
-    public LarkGlobalConfig getLarkGlobalConfigDescriptor() {
-        return Jenkins.get().getDescriptorByType(LarkGlobalConfig.class);
+    public LarkGlobalConfig getGlobalConfig() {
+        return LarkGlobalConfig.getInstance();
     }
 
     /**
@@ -115,7 +115,7 @@ public class LarkManagementLink extends ManagementLink {
     public void doConfigure(StaplerRequest2 req, StaplerResponse2 res) throws FormException, IOException, ServletException {
         // Check configuration permission
         Jenkins.get().checkPermission(LarkPermissions.CONFIGURE);
-        getLarkGlobalConfigDescriptor().configure(req, req.getSubmittedForm());
+        getGlobalConfig().configure(req, req.getSubmittedForm());
         FormApply.success("..").generateResponse(req, res, null);
     }
 

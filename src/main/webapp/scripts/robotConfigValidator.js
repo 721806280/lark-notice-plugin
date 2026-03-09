@@ -1,4 +1,4 @@
-async function validateRobotConfig(_this) {
+function validateRobotConfig(_this) {
     var robot = _this.closest('.robot-config-container');
     var validateMsg = robot.querySelector('.robot-config-validate-msg');
     var requestFailedMessage = _this.getAttribute('data-validate-request-failed-message') || 'Validation request failed.';
@@ -6,33 +6,40 @@ async function validateRobotConfig(_this) {
     validateMsg.className = 'robot-config-validate-msg';
     _this.disabled = true;
 
-    try {
-        var checkUrl = _this.getAttribute('data-validate-button-descriptor-url') + '/' + _this.getAttribute('data-validate-button-method');
+    var checkUrl = _this.getAttribute('data-validate-button-descriptor-url') + '/' + _this.getAttribute('data-validate-button-method');
+    var headers = {
+        "Content-Type": "application/x-www-form-urlencoded"
+    };
+    headers[crumb.fieldName] = crumb.value;
 
-        var response = await fetch(checkUrl, {
-            method: 'POST',
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-                [crumb.fieldName]: crumb.value
-            },
-            body: getParams(robot),
-            credentials: 'include'
+    fetch(checkUrl, {
+        method: 'POST',
+        headers: headers,
+        body: getParams(robot),
+        credentials: 'include'
+    }).then(function (response) {
+        return response.text().then(function (responseText) {
+            return {
+                ok: response.ok,
+                text: responseText
+            };
         });
-
-        var responseText = await response.text();
-        var parsed = parseValidationResponse(responseText);
-        var ok = parsed.ok === null ? response.ok : (response.ok && parsed.ok);
+    }).then(function (payload) {
+        var parsed = parseValidationResponse(payload.text);
+        var ok = parsed.ok === null ? payload.ok : (payload.ok && parsed.ok);
         var message = parsed.message;
         if (!message) {
-            message = response.ok ? (_this.getAttribute('data-validate-generic-success-message') || 'Validation passed.') : requestFailedMessage;
+            message = payload.ok
+                ? (_this.getAttribute('data-validate-generic-success-message') || 'Validation passed.')
+                : requestFailedMessage;
         }
         renderValidationResult(validateMsg, message, ok);
-    } catch (error) {
+    }).catch(function (error) {
         console.error(error);
         renderValidationResult(validateMsg, requestFailedMessage, false);
-    } finally {
+    }).then(function () {
         _this.disabled = false;
-    }
+    });
 }
 
 function parseValidationResponse(responseText) {

@@ -1,0 +1,47 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
+         xmlns:f="/lib/form">
+    <f:section title="${%global.section.notice.occasions}">
+        <f:entry>
+            <j:scope>
+                <j:set var="occasionOptions" value="${descriptor.getAllNoticeOccasions()}"/>
+                <j:set var="checkedOccasionNames" value="${descriptor.getNoticeOccasions()}"/>
+                <st:include page="/io/jenkins/plugins/lark/notice/config/notice-occasion-options.jelly"/>
+            </j:scope>
+        </f:entry>
+    </f:section>
+
+    <f:section title="${%global.section.logging}">
+        <f:entry field="verbose">
+            <f:checkbox title="${%global.logging.verbose}"/>
+        </f:entry>
+    </f:section>
+
+    <f:section title="${%global.section.proxy}">
+        <f:property field="proxyConfig"
+                    propertyDescriptor="${descriptor.getLarkProxyConfigDescriptor()}"/>
+    </f:section>
+
+    <f:section title="${%global.section.robots}">
+        <j:scope>
+            <j:set var="robotConfigs" value="${descriptor.robotConfigs}"/>
+            <j:set var="robotConfigDescriptor"
+                   value="${descriptor.getLarkRobotConfigDescriptor()}"/>
+            <div class="lark-bots-repeatable">
+                <f:repeatable
+                        enableTopButton="true"
+                        field="robotConfigs"
+                        var="item"
+                        items="${robotConfigs}">
+                    <st:include from="${robotConfigDescriptor}" page="${descriptor.configPage}"/>
+                    <f:repeatableDeleteButton/>
+                </f:repeatable>
+            </div>
+        </j:scope>
+    </f:section>
+
+    <f:bottomButtonBar>
+        <f:submit/>
+        <f:apply/>
+    </f:bottomButtonBar>
+</j:jelly>

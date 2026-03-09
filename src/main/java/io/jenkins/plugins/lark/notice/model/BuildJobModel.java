@@ -1,5 +1,6 @@
 package io.jenkins.plugins.lark.notice.model;
 
+import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.enums.BuildStatusEnum;
 import io.jenkins.plugins.lark.notice.enums.RobotType;
 import io.jenkins.plugins.lark.notice.tools.Utils;
@@ -101,12 +102,13 @@ public class BuildJobModel {
         }
         // Append the shared build details for all robot types.
         Collections.addAll(lines,
-                String.format("\uD83D\uDCCB **任务名称**: [%s](%s)", projectName, projectUrl),
-                String.format("\uD83D\uDD22 **任务编号**: [%s](%s)", jobName, jobUrl),
-                String.format("\uD83C\uDF1F **构建状态**:  <%s color='%s'>%s</%s>",
+                String.format("\uD83D\uDCCB **%s**: [%s](%s)", Messages.build_message_project_name(), projectName, projectUrl),
+                String.format("\uD83D\uDD22 **%s**: [%s](%s)", Messages.build_message_job_name(), jobName, jobUrl),
+                String.format("\uD83C\uDF1F **%s**:  <%s color='%s'>%s</%s>",
+                        Messages.build_message_status(),
                         tagName, statusType.getColor(), statusType.getLabel(), tagName),
-                String.format("\uD83D\uDD50 **构建用时**:  %s", duration),
-                String.format("\uD83D\uDC64 **执  行 者** :  %s", executorName),
+                String.format("\uD83D\uDD50 **%s**:  %s", Messages.build_message_duration(), duration),
+                String.format("\uD83D\uDC64 **%s**:  %s", Messages.build_message_executor(), executorName),
                 content == null ? "" : content
         );
         return String.join(hasDingTask ? "  " + LF : LF, lines);

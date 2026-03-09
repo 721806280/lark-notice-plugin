@@ -86,12 +86,12 @@ public enum NoticeOccasionEnum {
      */
     public String getDesc() {
         return switch (this) {
-            case START -> Messages.notice_start();
-            case ABORTED -> Messages.notice_aborted();
-            case FAILURE -> Messages.notice_failure();
-            case SUCCESS -> Messages.notice_success();
-            case UNSTABLE -> Messages.notice_unstable();
-            case NOT_BUILT -> Messages.notice_not_built();
+            case START -> Messages.notice_occasion_start();
+            case ABORTED -> Messages.notice_occasion_aborted();
+            case FAILURE -> Messages.notice_occasion_failure();
+            case SUCCESS -> Messages.notice_occasion_success();
+            case UNSTABLE -> Messages.notice_occasion_unstable();
+            case NOT_BUILT -> Messages.notice_occasion_not_built();
         };
     }
 

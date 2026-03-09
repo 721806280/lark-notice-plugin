@@ -1,9 +1,9 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
-    <f:entry title="${%mobile.title}">
-        <f:textbox field="mobile" placeholder="${%mobile.placeholder}"/>
+    <f:entry title="${%user.mobile}">
+        <f:textbox field="mobile" placeholder="${%user.mobile.placeholder}"/>
     </f:entry>
-    <f:entry title="${%openid.title}" description="${%openid.desc}">
-        <f:textbox field="openId" placeholder="${%openid.placeholder}"/>
+    <f:entry title="${%user.openid}" description="${%user.openid.description}">
+        <f:textbox field="openId" placeholder="${%user.openid.placeholder}"/>
     </f:entry>
 </j:jelly>

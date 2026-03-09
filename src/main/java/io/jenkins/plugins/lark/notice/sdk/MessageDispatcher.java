@@ -117,12 +117,12 @@ public class MessageDispatcher {
         }
 
         if (msg == null) {
-            return fail(listener, robotId, null, Messages.dispatcher_error_message_null());
+            return fail(listener, robotId, null, Messages.dispatcher_error_message_missing());
         }
 
         MsgTypeEnum type = msg.getType();
         if (type == null) {
-            return fail(listener, robotId, null, Messages.dispatcher_error_message_type_null());
+            return fail(listener, robotId, null, Messages.dispatcher_error_message_type_missing());
         }
 
         Logger.log(listener, Messages.dispatcher_log_current_robot(),
@@ -130,7 +130,7 @@ public class MessageDispatcher {
 
         SendResult sendResult = type.send(sender, msg);
         if (sendResult == null) {
-            return fail(listener, robotId, type, Messages.dispatcher_error_send_result_null());
+            return fail(listener, robotId, type, Messages.dispatcher_error_send_result_missing());
         }
 
         Logger.log(listener, Messages.dispatcher_log_send_details(), sendResult.getRequestBody());

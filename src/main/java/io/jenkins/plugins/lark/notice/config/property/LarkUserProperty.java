@@ -56,7 +56,7 @@ public class LarkUserProperty extends UserProperty {
         @NonNull
         @Override
         public String getDisplayName() {
-            return Messages.user_property_title();
+            return Messages.user_property_display_name();
         }
 
         /**
@@ -84,4 +84,3 @@ public class LarkUserProperty extends UserProperty {
         }
     }
 }
-

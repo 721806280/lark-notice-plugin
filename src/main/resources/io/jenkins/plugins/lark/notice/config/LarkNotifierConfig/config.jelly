@@ -1,48 +1,33 @@
 <?jelly escape-by-default='true'?>
 
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:f="/lib/form">
-    <st:once>
-        <script type="text/javascript"
-                src="${rootURL}/plugin/lark-notice/scripts/notifierConfig.js"/>
-    </st:once>
-
-    <!-- List of notification occasions -->
-    <j:set var="noticeOccasionTypes" value="${descriptor.getNoticeOccasionTypes()}"/>
-
     <f:entry title="${instance.getRobotName()}" class="">
         <f:advanced>
-            <f:entry title="${%field.disabled}" field="disabled">
+            <f:entry title="${%notifier.disabled}" field="disabled">
                 <f:checkbox checked="${instance.getDisabled()}"/>
             </f:entry>
-            <f:entry title="${%field.disable.builtin.message}" field="raw" class="notifier-config-raw">
+            <f:entry title="${%notifier.raw}" field="raw" class="notifier-config-raw">
                 <f:checkbox checked="${instance.getRaw()}"/>
             </f:entry>
-            <f:entry title="${%field.notification.triggers}" field="noticeOccasions">
-                <j:forEach var="noticeOccasionTypeItem" items="${noticeOccasionTypes}">
-                    <j:scope>
-                        <j:set var="name" value="${noticeOccasionTypeItem.name()}"/>
-                        <j:set var="desc" value="${noticeOccasionTypeItem.getDesc()}"/>
-                        <label style="margin-right: 5px;">
-                            <f:checkbox json="${name}" name="noticeOccasions" title="${desc}"
-                                        checked="${instance.noticeOccasions.contains(name)}"/>
-                        </label>
-                    </j:scope>
-                </j:forEach>
+            <f:entry title="${%notifier.occasions}" field="noticeOccasions">
+                <j:set var="occasionOptions" value="${descriptor.getNoticeOccasionTypes()}"/>
+                <j:set var="checkedOccasionNames" value="${instance.noticeOccasions}"/>
+                <st:include page="/io/jenkins/plugins/lark/notice/config/notice-occasion-options.jelly"/>
             </f:entry>
-            <div class="raw-content" style="display: none;">
-                <f:entry field="message" title="${%field.custom.message}" description="${%field.custom.message.desc}">
+            <div class="raw-content lark-notice-raw-content">
+                <f:entry field="message" title="${%notifier.message}" description="${%notifier.message.description}">
                     <f:textarea/>
                 </f:entry>
             </div>
             <div class="none-raw-content">
-                <f:entry title="${%field.mention.users}" field="at" description="${%field.mention.users.desc}">
-                    <f:checkbox title="${%field.mention.all}" field="atAll"/>
+                <f:entry title="${%notifier.mentions}" field="at" description="${%notifier.mentions.description}">
+                    <f:checkbox title="${%notifier.mentions.all}" field="atAll"/>
                     <f:textarea field="atUserId"/>
                 </f:entry>
-                <f:entry field="title" title="${%field.custom.title}">
+                <f:entry field="title" title="${%notifier.title}">
                     <f:textbox/>
                 </f:entry>
-                <f:entry field="content" title="${%field.custom.content}">
+                <f:entry field="content" title="${%notifier.content}">
                     <f:textarea/>
                 </f:entry>
             </div>

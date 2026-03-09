@@ -1,12 +1,9 @@
 package io.jenkins.plugins.lark.notice.config.property;
 
-import io.jenkins.plugins.lark.notice.config.LarkGlobalConfig;
 import io.jenkins.plugins.lark.notice.config.LarkNotifierConfig;
+import io.jenkins.plugins.lark.notice.config.NotifierConfigListUtils;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Interface providing access to Lark notifier configurations at the job or branch level.
@@ -32,25 +29,7 @@ public interface LarkNotifierProvider {
      * @return merged notifier configurations
      */
     default List<LarkNotifierConfig> getMergedNotifierConfigs() {
-        List<LarkNotifierConfig> localNotifierConfigs = getLarkNotifierConfigs();
-        Map<String, LarkNotifierConfig> localConfigByRobotId = new LinkedHashMap<>();
-        if (localNotifierConfigs != null) {
-            for (LarkNotifierConfig config : localNotifierConfigs) {
-                localConfigByRobotId.putIfAbsent(config.getRobotId(), config);
-            }
-        }
-
-        return LarkGlobalConfig.getInstance().getRobotConfigs()
-                .stream()
-                .map(robotConfig -> {
-                    LarkNotifierConfig newNotifierConfig = new LarkNotifierConfig(robotConfig);
-                    LarkNotifierConfig localConfig = localConfigByRobotId.get(robotConfig.getId());
-                    if (localConfig != null) {
-                        newNotifierConfig.copy(localConfig);
-                    }
-                    return newNotifierConfig;
-                })
-                .collect(Collectors.toList());
+        return NotifierConfigListUtils.mergeWithGlobalRobots(getLarkNotifierConfigs());
     }
 
     /**
@@ -59,9 +38,7 @@ public interface LarkNotifierProvider {
      * @return enabled notifier configurations
      */
     default List<LarkNotifierConfig> getEnabledNotifierConfigs() {
-        return getMergedNotifierConfigs().stream()
-                .filter(LarkNotifierConfig::isChecked)
-                .collect(Collectors.toList());
+        return NotifierConfigListUtils.filterEnabled(getMergedNotifierConfigs());
     }
 
     /**
@@ -71,9 +48,7 @@ public interface LarkNotifierProvider {
      * @return available notifier configurations
      */
     default List<LarkNotifierConfig> getAvailableNotifierConfigs() {
-        return getMergedNotifierConfigs().stream()
-                .filter(config -> config.isChecked() && !config.isDisabled())
-                .collect(Collectors.toList());
+        return NotifierConfigListUtils.filterAvailable(getMergedNotifierConfigs());
     }
 
 }

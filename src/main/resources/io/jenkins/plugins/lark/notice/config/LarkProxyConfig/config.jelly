@@ -2,15 +2,15 @@
 <j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
 
     <div id="proxyConfigContainer">
-        <f:entry title="${%field.proxy.type}" field="type">
+        <f:entry title="${%proxy.type}" field="type">
             <f:enum>
                 ${it.name()}
             </f:enum>
         </f:entry>
-        <f:entry title="${%field.proxy.server}" field="host">
+        <f:entry title="${%proxy.host}" field="host">
             <f:textbox name="host"/>
         </f:entry>
-        <f:entry title="${%field.proxy.port}" field="port">
+        <f:entry title="${%proxy.port}" field="port">
             <f:number name="port"/>
         </f:entry>
     </div>

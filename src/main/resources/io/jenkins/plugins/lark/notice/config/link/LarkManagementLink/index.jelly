@@ -1,16 +1,16 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
          xmlns:l="/lib/layout" xmlns:f="/lib/form">
-    <l:layout permission="${it.requiredPermission}" norefresh="true" title="${%page.title}">
+    <l:layout permission="${it.requiredPermission}" norefresh="true" title="${%management.page.title}">
         <st:include it="${app}" page="sidepanel.jelly"/>
         <l:main-panel>
-            <h1>${%page.header}</h1>
+            <h1>${%management.page.header}</h1>
             <f:form action="configure" method="POST" name="larkManagementLinkForm">
                 <j:scope>
-                    <j:set var="descriptor" value="${it.getLarkGlobalConfigDescriptor()}"/>
+                    <j:set var="descriptor" value="${it.getGlobalConfig()}"/>
                     <j:set var="instance" value="${descriptor}"/>
                     <j:set var="it" value="${descriptor}"/>
-                    <st:include it="${it}" from="${descriptor}" page="${descriptor.configPage}"/>
+                    <st:include page="/io/jenkins/plugins/lark/notice/config/global-config-form.jelly"/>
                 </j:scope>
             </f:form>
         </l:main-panel>

@@ -22,8 +22,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.Set;
 
-import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.DEFAULT_TITLE;
 import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.LF;
+import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.defaultTitle;
 
 /**
  * Executes one concrete message dispatch for a matched notifier config.
@@ -83,7 +83,7 @@ public final class NotificationDispatchExecutor {
         return LarkGlobalConfig.getRobot(config.getRobotId())
                 .map(LarkRobotConfig::obtainRobotType)
                 .orElseThrow(() -> new IllegalStateException(
-                        String.format(Messages.notifier_error_robot_not_found(), config.getRobotId())));
+                        String.format(Messages.notifier_error_robot_missing(), config.getRobotId())));
     }
 
     /**
@@ -113,7 +113,7 @@ public final class NotificationDispatchExecutor {
      * @param envVars environment variables
      */
     static void applyModelTemplateValues(LarkNotifierConfig config, BuildJobModel model, EnvVars envVars) {
-        model.setTitle(envVars.expand(StringUtils.defaultIfBlank(config.getTitle(), DEFAULT_TITLE)));
+        model.setTitle(envVars.expand(StringUtils.defaultIfBlank(config.getTitle(), defaultTitle())));
         model.setContent(envVars.expand(config.getContent()).replaceAll("\\\\n", LF));
     }
 

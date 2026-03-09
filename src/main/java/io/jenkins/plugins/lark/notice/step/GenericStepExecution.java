@@ -48,7 +48,7 @@ public class GenericStepExecution<T extends AbstractStep> extends StepExecution 
                     LogField.MSG_TYPE, step.getType());
             SendResult sendResult = this.step.send(run, envVars, listener);
             if (sendResult == null) {
-                context.onFailure(new IllegalStateException(Logger.format(Messages.dispatcher_error_send_result_null())));
+                context.onFailure(new IllegalStateException(Logger.format(Messages.dispatcher_error_send_result_missing())));
                 return false;
             }
             if (sendResult.isOk()) {

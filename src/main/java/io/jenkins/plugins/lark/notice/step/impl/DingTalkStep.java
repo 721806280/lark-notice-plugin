@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.DEFAULT_TITLE;
+import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.defaultTitle;
 
 /**
  * This class represents a step for sending notifications to DingTalk in Jenkins.
@@ -157,7 +157,7 @@ public class DingTalkStep extends AbstractStep {
 
         MessageModel message = MessageModel.builder().type(type)
                 .statusType(noticeOccasion.buildStatus())
-                .title(envVars.expand(StringUtils.defaultIfBlank(title, DEFAULT_TITLE)))
+                .title(envVars.expand(StringUtils.defaultIfBlank(title, defaultTitle())))
                 .text(envVars.expand(Utils.join(text))).buttons(buildButtons(run, envVars))
                 .messageUrl(envVars.expand(messageUrl))
                 .picUrl(envVars.expand(picUrl))

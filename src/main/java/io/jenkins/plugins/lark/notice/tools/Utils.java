@@ -1,5 +1,6 @@
 package io.jenkins.plugins.lark.notice.tools;
 
+import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.sdk.model.lark.support.Button;
 
 import java.util.ArrayList;
@@ -48,8 +49,8 @@ public class Utils {
         String console = jobUrl + "console";
 
         List<Button> buttons = new ArrayList<>();
-        buttons.add(new Button("更改记录", changeLog, "primary_filled"));
-        buttons.add(new Button("控制台", console, "default"));
+        buttons.add(new Button(Messages.build_message_button_change_log(), changeLog, "primary_filled"));
+        buttons.add(new Button(Messages.build_message_button_console(), console, "default"));
 
         return buttons;
     }

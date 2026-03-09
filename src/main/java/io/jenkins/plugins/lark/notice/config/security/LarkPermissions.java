@@ -26,9 +26,9 @@ public class LarkPermissions {
     /**
      * The permission group for all Lark Notice-related permissions.
      * This group appears in Jenkins' global security configuration UI
-     * under the name defined by {@code Messages.permissions_group_title()}.
+     * under the name defined by {@code Messages._plugin_name()}.
      */
-    public static final PermissionGroup GROUP = new PermissionGroup(LarkPermissions.class, Messages._plugin_display_name());
+    public static final PermissionGroup GROUP = new PermissionGroup(LarkPermissions.class, Messages._plugin_name());
 
     /**
      * Permission to configure, test, and manage Lark Notice settings and robot integrations.
@@ -43,6 +43,6 @@ public class LarkPermissions {
      * This permission is scoped to the Jenkins master and depends on {@link Jenkins#MANAGE},
      * meaning only users who can manage Jenkins system configuration can be granted this permission.
      */
-    public static final Permission CONFIGURE = new Permission(GROUP, "Configure", Messages._permissions_description(), Jenkins.MANAGE, PermissionScope.JENKINS);
+    public static final Permission CONFIGURE = new Permission(GROUP, "Configure", Messages._permissions_configure_description(), Jenkins.MANAGE, PermissionScope.JENKINS);
 
 }

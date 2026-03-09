@@ -1,7 +1,6 @@
 package io.jenkins.plugins.lark.notice.config;
 
 import hudson.Extension;
-import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.config.LarkRobotConfig.LarkRobotConfigDescriptor;
 import io.jenkins.plugins.lark.notice.config.security.LarkPermissions;
 import io.jenkins.plugins.lark.notice.enums.NoticeOccasionEnum;
@@ -10,9 +9,7 @@ import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
 import lombok.Getter;
 import lombok.ToString;
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import org.apache.commons.lang3.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.StaplerRequest2;
@@ -39,7 +36,7 @@ public class LarkGlobalConfig extends GlobalConfiguration {
 
     private LarkProxyConfig proxyConfig;
     private boolean verbose;
-    private Set<String> noticeOccasions = Arrays.stream(NoticeOccasionEnum.values()).map(Enum::name).collect(Collectors.toSet());
+    private Set<String> noticeOccasions = defaultNoticeOccasions();
     private ArrayList<LarkRobotConfig> robotConfigs = new ArrayList<>();
 
     /**
@@ -103,9 +100,7 @@ public class LarkGlobalConfig extends GlobalConfiguration {
 
     @DataBoundSetter
     public void setNoticeOccasions(Set<String> noticeOccasions) {
-        this.noticeOccasions = noticeOccasions == null
-                ? Arrays.stream(NoticeOccasionEnum.values()).map(Enum::name).collect(Collectors.toSet())
-                : new HashSet<>(noticeOccasions);
+        this.noticeOccasions = noticeOccasions == null ? defaultNoticeOccasions() : new HashSet<>(noticeOccasions);
     }
 
     @DataBoundSetter
@@ -130,28 +125,11 @@ public class LarkGlobalConfig extends GlobalConfiguration {
      */
     @Override
     public boolean configure(StaplerRequest2 req, JSONObject json) throws FormException {
-        // At the beginning of your Stapler web method
         Jenkins.get().checkPermission(LarkPermissions.CONFIGURE);
-
-        Object robotConfigObj = json.get("robotConfigs");
-        if (robotConfigObj == null) {
-            json.put("robotConfigs", new JSONArray());
-        } else {
-            JSONArray robotConfigs = JSONArray.fromObject(robotConfigObj);
-            for (int i = 0; i < robotConfigs.size(); i++) {
-                JSONObject jsonObject = JSONObject.fromObject(robotConfigs.get(i));
-                Object webhookObj = jsonObject.get("webhook");
-                String webhook = webhookObj == null ? "" : webhookObj.toString();
-                if (StringUtils.isBlank(webhook)) {
-                    throw new FormException(Messages.form_validation_webhook(), "robotConfigs[" + i + "].webhook");
-                }
-            }
-            json.put("robotConfigs", robotConfigs);
-        }
+        json.put("robotConfigs", GlobalConfigFormDataSanitizer.normalizeRobotConfigsPayload(json.get("robotConfigs")));
 
         req.bindJSON(this, json);
-        // Additional form processing can be done here
-        save(); // Save the configuration to disk
+        save();
         return super.configure(req, json);
     }
 
@@ -164,10 +142,16 @@ public class LarkGlobalConfig extends GlobalConfiguration {
         return NoticeOccasionEnum.values();
     }
 
+    private static Set<String> defaultNoticeOccasions() {
+        return Arrays.stream(NoticeOccasionEnum.values())
+                .map(Enum::name)
+                .collect(Collectors.toSet());
+    }
+
     /**
      * Additional getters for UI binding
      */
-    public LarkProxyConfig getLarkProxyConfig() {
+    public LarkProxyConfig getLarkProxyConfigDescriptor() {
         return Jenkins.get().getDescriptorByType(LarkProxyConfig.class);
     }
 

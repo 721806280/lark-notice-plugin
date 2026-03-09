@@ -38,7 +38,6 @@ import java.net.ProxySelector;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.DEFAULT_TITLE;
 import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.NOTICE_ICON;
 
 /**
@@ -86,7 +85,7 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
         this.id = StringUtils.defaultIfBlank(id, UUID.randomUUID().toString());
         this.name = name;
         this.webhook = Secret.fromString(webhook);
-        this.securityPolicyConfigs = securityPolicyConfigs;
+        this.securityPolicyConfigs = copySecurityPolicyConfigs(securityPolicyConfigs);
     }
 
     /**
@@ -127,15 +126,30 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
      * @return List of security policy configurations
      */
     public List<LarkSecurityPolicyConfig> getSecurityPolicyConfigs() {
+        Map<String, LarkSecurityPolicyConfig> configsByType = indexSecurityPoliciesByType();
         return Arrays.stream(SecurityPolicyEnum.values()).map(enumItem -> {
             LarkSecurityPolicyConfig policyConfig = LarkSecurityPolicyConfig.of(enumItem);
-            if (securityPolicyConfigs != null) {
-                Optional<LarkSecurityPolicyConfig> config = securityPolicyConfigs.stream()
-                        .filter(configItem -> enumItem.name().equals(configItem.getType())).findAny();
-                config.ifPresent(t -> policyConfig.setValue(t.getValue()));
-            }
+            Optional.ofNullable(configsByType.get(enumItem.name()))
+                    .ifPresent(config -> policyConfig.setValue(config.getValue()));
             return policyConfig;
         }).collect(Collectors.toList());
+    }
+
+    private Map<String, LarkSecurityPolicyConfig> indexSecurityPoliciesByType() {
+        if (securityPolicyConfigs == null || securityPolicyConfigs.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        return securityPolicyConfigs.stream()
+                .collect(Collectors.toMap(
+                        LarkSecurityPolicyConfig::getType,
+                        config -> config,
+                        (first, ignored) -> first,
+                        LinkedHashMap::new
+                ));
+    }
+
+    private static List<LarkSecurityPolicyConfig> copySecurityPolicyConfigs(List<LarkSecurityPolicyConfig> securityPolicyConfigs) {
+        return securityPolicyConfigs == null ? null : new ArrayList<>(securityPolicyConfigs);
     }
 
     /**
@@ -163,7 +177,6 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
             return Jenkins.get().getDescriptorByType(LarkSecurityPolicyConfig.LarkSecurityPolicyConfigDescriptor.class);
         }
 
-
         /**
          * Gets the default list of security policy configurations
          *
@@ -184,10 +197,10 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
         @RequirePOST
         public FormValidation doCheckName(@QueryParameter String value) {
             if (!Jenkins.get().hasPermission(LarkPermissions.CONFIGURE)) {
-                return FormValidation.error(Messages.form_validation_permission());
+                return FormValidation.error(Messages.form_validation_permission_denied());
             }
             return StringUtils.isNotBlank(value) ? FormValidation.ok() :
-                    FormValidation.error(Messages.form_validation_name());
+                    FormValidation.error(Messages.form_validation_name_required());
         }
 
         /**
@@ -199,10 +212,10 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
         @RequirePOST
         public FormValidation doCheckWebhook(@QueryParameter String value) {
             if (!Jenkins.get().hasPermission(LarkPermissions.CONFIGURE)) {
-                return FormValidation.error(Messages.form_validation_permission());
+                return FormValidation.error(Messages.form_validation_permission_denied());
             }
             return StringUtils.isBlank(value) || Objects.isNull(RobotType.fromUrl(value)) ?
-                    FormValidation.error(Messages.form_validation_webhook()) : FormValidation.ok();
+                    FormValidation.error(Messages.form_validation_webhook_invalid()) : FormValidation.ok();
         }
 
         /**
@@ -219,23 +232,18 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
         public HttpResponse doTest(@QueryParameter String id, @QueryParameter String name,
                                    @QueryParameter String webhook, @QueryParameter String proxy,
                                    @QueryParameter String securityConfigs) {
-            // Check configuration permission
             Jenkins.get().checkPermission(LarkPermissions.CONFIGURE);
 
             JSONObject response = new JSONObject();
             try {
-                List<LarkSecurityPolicyConfig> securityPolicyConfigs = JsonUtils.readList(securityConfigs, LarkSecurityPolicyConfig.class)
-                        .stream().filter(config -> StringUtils.isNotBlank(config.getValue())).toList();
-
+                List<LarkSecurityPolicyConfig> securityPolicyConfigs = parseSecurityPolicyConfigs(securityConfigs);
                 LarkRobotConfig robotConfig = new LarkRobotConfig(id, name, webhook, securityPolicyConfigs);
-
-                ProxySelector proxySelector = Optional.ofNullable(JsonUtils.readValue(proxy, LarkProxyConfig.class))
-                        .orElseGet(LarkProxyConfig::new).obtainProxySelector();
+                ProxySelector proxySelector = parseProxySelector(proxy);
 
                 RobotType robotType = robotConfig.obtainRobotType();
                 if (Objects.isNull(robotType)) {
                     response.put("ok", false);
-                    response.put("message", Messages.form_validation_webhook());
+                    response.put("message", Messages.form_validation_webhook_invalid());
                     return jsonResponse(response);
                 }
 
@@ -247,17 +255,30 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
                 response.put("message", ok
                         ? Messages.form_validation_test_success()
                         : StringUtils.isNotBlank(detail)
-                        ? Messages.form_validation_test_failed_with_detail(detail)
-                        : Messages.form_validation_test_failed());
+                        ? Messages.form_validation_test_failure_with_detail(detail)
+                        : Messages.form_validation_test_failure());
                 return jsonResponse(response);
             } catch (Exception e) {
                 String detail = StringUtils.defaultIfBlank(e.getMessage(), null);
                 response.put("ok", false);
                 response.put("message", StringUtils.isNotBlank(detail)
-                        ? Messages.form_validation_test_failed_with_detail(detail)
-                        : Messages.form_validation_test_failed());
+                        ? Messages.form_validation_test_failure_with_detail(detail)
+                        : Messages.form_validation_test_failure());
                 return jsonResponse(response);
             }
+        }
+
+        private List<LarkSecurityPolicyConfig> parseSecurityPolicyConfigs(String securityConfigs) {
+            return JsonUtils.readList(securityConfigs, LarkSecurityPolicyConfig.class)
+                    .stream()
+                    .filter(config -> StringUtils.isNotBlank(config.getValue()))
+                    .toList();
+        }
+
+        private ProxySelector parseProxySelector(String proxy) {
+            return Optional.ofNullable(JsonUtils.readValue(proxy, LarkProxyConfig.class))
+                    .orElseGet(LarkProxyConfig::new)
+                    .obtainProxySelector();
         }
 
         private HttpResponse jsonResponse(JSONObject response) {
@@ -280,7 +301,7 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
             User user = Optional.ofNullable(User.current()).orElse(User.getUnknown());
 
             BuildJobModel buildJobModel = BuildJobModel.builder()
-                    .projectName(Messages.robot_test_project_name()).title(DEFAULT_TITLE)
+                    .projectName(Messages.robot_test_project_name()).title(Messages.notification_default_title())
                     .projectUrl(rootUrl).jobName(Messages.robot_test_job_name()).jobUrl(rootUrl + "/configure")
                     .statusType(BuildStatusEnum.SUCCESS).duration("-")
                     .executorName(user.getDisplayName()).build();

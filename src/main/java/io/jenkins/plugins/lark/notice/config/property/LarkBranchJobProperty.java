@@ -5,19 +5,16 @@ import hudson.Extension;
 import hudson.model.Job;
 import hudson.model.Run;
 import io.jenkins.plugins.lark.notice.Messages;
-import io.jenkins.plugins.lark.notice.config.LarkGlobalConfig;
 import io.jenkins.plugins.lark.notice.config.LarkNotifierConfig;
 import io.jenkins.plugins.lark.notice.config.NotifierConfigListUtils;
 import jenkins.branch.BranchProperty;
 import jenkins.branch.BranchPropertyDescriptor;
 import jenkins.branch.JobDecorator;
-import jenkins.branch.MultiBranchProjectDescriptor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * A branch-level property that provides Lark notification configurations.
@@ -84,20 +81,7 @@ public class LarkBranchJobProperty extends BranchProperty implements LarkNotifie
         @NonNull
         @Override
         public String getDisplayName() {
-            return Messages.plugin_display_name();
-        }
-
-        /**
-         * Determines if this property is applicable to the given multi-branch project descriptor.
-         * <p>
-         * Delegates to the parent implementation for standard applicability checks.
-         *
-         * @param projectDescriptor the descriptor of the multi-branch project
-         * @return true if this property is applicable; false otherwise
-         */
-        @Override
-        protected boolean isApplicable(@NonNull MultiBranchProjectDescriptor projectDescriptor) {
-            return super.isApplicable(projectDescriptor);
+            return Messages.plugin_name();
         }
 
         /**
@@ -108,10 +92,7 @@ public class LarkBranchJobProperty extends BranchProperty implements LarkNotifie
          * @return a list of Lark notifier configurations initialized from global settings
          */
         public List<LarkNotifierConfig> getDefaultNotifierConfigs() {
-            return LarkGlobalConfig.getInstance().getRobotConfigs()
-                    .stream()
-                    .map(LarkNotifierConfig::new)
-                    .collect(Collectors.toList());
+            return NotifierConfigListUtils.fromGlobalRobots();
         }
     }
 }

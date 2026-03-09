@@ -1,0 +1,11 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler">
+    <st:once>
+        <script type="text/javascript"
+                src="${rootURL}/plugin/lark-notice/scripts/robotConfigValidator.js"/>
+        <link rel="stylesheet" type="text/css"
+              href="${rootURL}/plugin/lark-notice/styles/configuration.css"/>
+    </st:once>
+
+    <st:include page="/io/jenkins/plugins/lark/notice/config/global-config-sections.jelly"/>
+</j:jelly>

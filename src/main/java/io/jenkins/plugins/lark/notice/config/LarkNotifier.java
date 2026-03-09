@@ -113,14 +113,11 @@ public class LarkNotifier extends Notifier implements SimpleBuildStep, LarkNotif
         @NonNull
         @Override
         public String getDisplayName() {
-            return Messages.plugin_display_name();
+            return Messages.plugin_name();
         }
 
         public List<LarkNotifierConfig> getDefaultNotifierConfigs() {
-            return LarkGlobalConfig.getInstance().getRobotConfigs()
-                    .stream()
-                    .map(LarkNotifierConfig::new)
-                    .collect(Collectors.toList());
+            return NotifierConfigListUtils.fromGlobalRobots();
         }
     }
 }

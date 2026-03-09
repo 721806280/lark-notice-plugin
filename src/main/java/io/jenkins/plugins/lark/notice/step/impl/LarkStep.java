@@ -33,7 +33,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.DEFAULT_TITLE;
+import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.defaultTitle;
 
 /**
  * This class represents a step for sending messages to Lark using a specific robot.
@@ -144,7 +144,7 @@ public class LarkStep extends AbstractStep {
 
         MessageModel message = MessageModel.builder().type(type)
                 .statusType(noticeOccasion.buildStatus())
-                .title(envVars.expand(StringUtils.defaultIfBlank(title, DEFAULT_TITLE)))
+                .title(envVars.expand(StringUtils.defaultIfBlank(title, defaultTitle())))
                 .text(envVars.expand(buildText())).buttons(buildButtons(run, envVars))
                 .topImg(buildImg(envVars, topImg)).bottomImg(buildImg(envVars, bottomImg))
                 .build();

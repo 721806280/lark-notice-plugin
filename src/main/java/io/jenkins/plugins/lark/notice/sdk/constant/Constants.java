@@ -1,5 +1,6 @@
 package io.jenkins.plugins.lark.notice.sdk.constant;
 
+import io.jenkins.plugins.lark.notice.Messages;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -10,11 +11,6 @@ import lombok.NoArgsConstructor;
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Constants {
-
-    /**
-     * Default title for the message, incorporating a notice icon and a prefix indicating it's a Jenkins build notification.
-     */
-    public static final String DEFAULT_TITLE = "\uD83D\uDCE2 Jenkins 构建通知";
 
     /**
      * Represents a Unicode string for a notification symbol.
@@ -30,5 +26,12 @@ public final class Constants {
      * String constant: Comma {@code ","}
      */
     public static final String COMMA = ",";
+
+    /**
+     * Returns the localized default title for build notifications.
+     */
+    public static String defaultTitle() {
+        return Messages.notification_default_title();
+    }
 
 }
