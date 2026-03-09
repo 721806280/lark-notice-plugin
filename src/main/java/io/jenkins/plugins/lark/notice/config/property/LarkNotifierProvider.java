@@ -25,12 +25,12 @@ public interface LarkNotifierProvider {
     List<LarkNotifierConfig> getLarkNotifierConfigs();
 
     /**
-     * Gets the merged list of Lark notifier configurations combining global settings and job/branch-level overrides.
-     * If a robot ID exists in both global and local configurations, the local one will override the global one.
+     * Gets the merged list of notifier configurations combining global settings and local overrides.
+     * If a robot ID exists in both global and local configurations, the local one overrides the global one.
      *
-     * @return a list of merged Lark notifier configurations
+     * @return merged notifier configurations
      */
-    default List<LarkNotifierConfig> getAllLarkNotifierConfigs() {
+    default List<LarkNotifierConfig> getMergedNotifierConfigs() {
         return LarkGlobalConfig.getInstance().getRobotConfigs()
                 .stream()
                 .map(robotConfig -> {
@@ -47,24 +47,24 @@ public interface LarkNotifierProvider {
     }
 
     /**
-     * Gets the list of Lark notifier configurations that are marked as enabled.
+     * Gets notifier configurations marked as enabled.
      *
-     * @return a list of enabled Lark notifier configurations
+     * @return enabled notifier configurations
      */
-    default List<LarkNotifierConfig> getEnabledLarkNotifierConfigs() {
-        return getAllLarkNotifierConfigs().stream()
+    default List<LarkNotifierConfig> getEnabledNotifierConfigs() {
+        return getMergedNotifierConfigs().stream()
                 .filter(LarkNotifierConfig::isChecked)
                 .collect(Collectors.toList());
     }
 
     /**
-     * Gets the list of available Lark notifier configurations.
+     * Gets available notifier configurations.
      * A configuration is considered available if it is both enabled and not disabled.
      *
-     * @return a list of available Lark notifier configurations
+     * @return available notifier configurations
      */
-    default List<LarkNotifierConfig> getAvailableLarkNotifierConfigs() {
-        return getAllLarkNotifierConfigs().stream()
+    default List<LarkNotifierConfig> getAvailableNotifierConfigs() {
+        return getMergedNotifierConfigs().stream()
                 .filter(config -> config.isChecked() && !config.isDisabled())
                 .collect(Collectors.toList());
     }

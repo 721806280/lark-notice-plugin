@@ -2,24 +2,18 @@ package io.jenkins.plugins.lark.notice;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
-import hudson.model.AbstractProject;
 import hudson.model.Job;
 import hudson.model.Result;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.model.listeners.RunListener;
-import io.jenkins.plugins.lark.notice.config.LarkNotifier;
 import io.jenkins.plugins.lark.notice.config.LarkNotifierConfig;
-import io.jenkins.plugins.lark.notice.config.property.LarkBranchJobProperty;
-import io.jenkins.plugins.lark.notice.config.property.LarkJobProperty;
-import io.jenkins.plugins.lark.notice.config.property.LarkNotifierProvider;
 import io.jenkins.plugins.lark.notice.enums.NoticeOccasionEnum;
 import io.jenkins.plugins.lark.notice.sdk.MessageDispatcher;
 import io.jenkins.plugins.lark.notice.service.NotificationOrchestrator;
-import org.jenkinsci.plugins.workflow.multibranch.BranchJobProperty;
+import io.jenkins.plugins.lark.notice.service.NotifierConfigResolver;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * A Jenkins RunListener that sends notifications to Lark at various stages of a job's lifecycle,
@@ -78,26 +72,14 @@ public class LarkRunListener extends RunListener<Run<?, ?>> {
 
     /**
      * Retrieves available Lark notifier configurations for the given job.
+     * <p>
+     * Keep this method signature stable because tests and compatibility checks
+     * may access it reflectively.
      *
      * @param job the Jenkins job
      * @return a list of Lark notifier configurations, or an empty list if none found
      */
     private List<LarkNotifierConfig> getAvailableLarkNotifierConfigs(Job<?, ?> job) {
-        // If the job has LarkNotifier configured as a Post-build Action, skip RunListener
-        // to avoid duplicate notifications.
-        if (job instanceof AbstractProject) {
-            AbstractProject<?, ?> project = (AbstractProject<?, ?>) job;
-            if (project.getPublishersList().get(LarkNotifier.class) != null) {
-                return List.of();
-            }
-        }
-
-        return Optional.ofNullable(job.getProperty(LarkJobProperty.class))
-                .map(LarkNotifierProvider::getAvailableLarkNotifierConfigs)
-                .or(() -> Optional.ofNullable(job.getProperty(BranchJobProperty.class))
-                        .map(BranchJobProperty::getBranch)
-                        .map(branch -> branch.getProperty(LarkBranchJobProperty.class))
-                        .map(LarkNotifierProvider::getAvailableLarkNotifierConfigs))
-                .orElse(List.of());
+        return NotifierConfigResolver.resolveForRunListener(job);
     }
 }

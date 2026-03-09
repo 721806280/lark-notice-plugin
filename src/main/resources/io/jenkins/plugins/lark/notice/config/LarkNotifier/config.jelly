@@ -1,8 +1,8 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:f="/lib/form"
          xmlns:local="local">
-    <j:set var="notifierConfigs" value="${instance == null ? descriptor.getDefaultNotifierConfigs() : instance.getAllLarkNotifierConfigs()}"/>
-    <j:set var="checkedNotifierConfigs" value="${instance == null ? java.util.Collections.emptyList() : instance.getEnabledLarkNotifierConfigs()}"/>
+    <j:set var="notifierConfigs" value="${instance == null ? descriptor.getDefaultNotifierConfigs() : instance.getMergedNotifierConfigs()}"/>
+    <j:set var="checkedNotifierConfigs" value="${instance == null ? java.util.Collections.emptyList() : instance.getEnabledNotifierConfigs()}"/>
 
     <d:taglib uri="local">
         <d:tag name="body">

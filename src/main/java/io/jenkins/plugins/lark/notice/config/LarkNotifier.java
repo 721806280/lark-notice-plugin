@@ -89,7 +89,7 @@ public class LarkNotifier extends Notifier implements SimpleBuildStep, LarkNotif
      * @param occasion notice occasion
      */
     private void sendNotification(Run<?, ?> run, TaskListener listener, NoticeOccasionEnum occasion) {
-        NotificationOrchestrator.notify(SOURCE, run, listener, occasion, getAvailableLarkNotifierConfigs(), getMessageDispatcher());
+        NotificationOrchestrator.notify(SOURCE, run, listener, occasion, getAvailableNotifierConfigs(), getMessageDispatcher());
     }
 
     /**
