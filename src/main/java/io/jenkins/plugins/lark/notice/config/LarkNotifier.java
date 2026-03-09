@@ -63,9 +63,9 @@ public class LarkNotifier extends Notifier implements SimpleBuildStep, LarkNotif
     }
 
     /**
-     * 声明此构建步骤不需要工作空间上下文。
-     * 这将引导 Jenkins 调用 perform(Run, EnvVars, TaskListener) 方法，
-     * 从而避免 AbstractMethodError。
+     * Declares that this build step does not require a workspace context.
+     * This ensures Jenkins dispatches to {@code perform(Run, EnvVars, TaskListener)}
+     * instead of the workspace-based overload and avoids {@link AbstractMethodError}.
      */
     @Override
     public boolean requiresWorkspace() {

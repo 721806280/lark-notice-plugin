@@ -16,21 +16,20 @@ import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.LF;
 public class Utils {
 
     /**
-     * 移动电话
-     * eg: 中国大陆： +86  180 4953 1399，2位区域码标示+11位数字
-     * 中国大陆 +86 Mainland China
+     * Mainland China mobile number pattern.
+     * Supported forms include plain 11-digit numbers and values prefixed with {@code 86} or {@code +86}.
      */
     public final static Pattern MOBILE = Pattern.compile("(?:0|86|\\+86)?1[3-9]\\d{9}");
 
     /**
-     * 验证是否为手机号码（中国）
+     * Validates whether the given value is a Mainland China mobile number.
      *
-     * @param value 值
-     * @return 是否为手机号码（中国）
+     * @param value candidate value
+     * @return {@code true} when the value matches the mobile number pattern
      */
     public static boolean isMobile(CharSequence value) {
         if (value == null) {
-            // 提供null的字符串为不匹配
+            // A null value is never considered a valid mobile number.
             return false;
         }
         return MOBILE.matcher(value).matches();

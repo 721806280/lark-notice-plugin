@@ -11,7 +11,7 @@ import lombok.SneakyThrows;
 import java.net.URL;
 
 /**
- * RobotType
+ * Supported robot platform types and their sender factories.
  *
  * @author xm.z
  */
@@ -47,6 +47,12 @@ public enum RobotType {
 
     private final String statusTagName;
 
+    /**
+     * Resolves the robot type from a webhook URL host.
+     *
+     * @param url webhook URL
+     * @return matching robot type, or {@code null} when the host is not recognized
+     */
     @SneakyThrows
     public static RobotType fromUrl(String url) {
         String host = new URL(url).getHost();
@@ -58,6 +64,12 @@ public enum RobotType {
         return null;
     }
 
+    /**
+     * Creates a platform-specific message sender for the supplied robot configuration.
+     *
+     * @param robotConfig robot configuration
+     * @return message sender bound to the target platform
+     */
     public abstract MessageSender obtainInstance(RobotConfigModel robotConfig);
 
 }

@@ -72,12 +72,12 @@ function renderValidationResult(container, message, isSuccess) {
 }
 
 /**
- * 获取机器人的请求参数
- * @param {HTMLElement} robot - 机器人元素
- * @returns {URLSearchParams} - 请求参数
+ * Builds the request payload used to validate a robot configuration.
+ * @param {HTMLElement} robot - Robot configuration container element.
+ * @returns {URLSearchParams} Request parameters for the validation endpoint.
  */
 function getParams(robot) {
-    // 获取代理信息
+    // Read the shared proxy settings from the global proxy section.
     var proxy = document.getElementById('proxyConfigContainer');
     var proxyConfig = {
         type: 'DIRECT',
@@ -93,10 +93,10 @@ function getParams(robot) {
         proxyConfig.port = portInput ? portInput.value : '';
     }
 
-    // 获取安全策略配置
+    // Collect all security policy entries configured for the current robot.
     var securityConfigs = Array.from(robot.querySelectorAll('.security-config-container'))
         .map(function (el) {
-            // 获取策略类型以及值
+            // Extract the policy type and its current value.
             var type = el.querySelector('input[name="type"]').value;
             var valueElement = el.querySelector('input[name="value"]');
             var value = valueElement.type === 'checkbox' ? valueElement.checked : valueElement.value;
@@ -104,16 +104,16 @@ function getParams(robot) {
             return {type: type, value: value, desc: desc};
         });
 
-    // 创建一个空数组来存储请求参数
+    // Build the form-encoded payload expected by Jenkins.
     var params = new URLSearchParams();
 
-    // 添加请求参数
+    // Append the current robot form values.
     params.append('id', robot.querySelector('input[name="id"]').value);
     params.append('name', robot.querySelector('input[name="name"]').value);
     params.append('webhook', robot.querySelector('input[name="webhook"]').value);
-    params.append('proxy', JSON.stringify(proxyConfig));                // 代理配置
-    params.append('securityConfigs', JSON.stringify(securityConfigs));  // 安全配置
+    params.append('proxy', JSON.stringify(proxyConfig));                // Serialized proxy configuration.
+    params.append('securityConfigs', JSON.stringify(securityConfigs));  // Serialized security policy configuration.
 
-    // 返回表单请求参数
+    // Return the payload for the validation request.
     return params;
 }

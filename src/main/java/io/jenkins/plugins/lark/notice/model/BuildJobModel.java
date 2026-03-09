@@ -94,12 +94,12 @@ public class BuildJobModel {
         boolean hasDingTask = RobotType.DING_TAlK.equals(robotType);
         String tagName = robotType.getStatusTagName();
         List<String> lines = new ArrayList<>();
-        // 如果是钉钉任务，先添加特定格式的标题和分隔线
+        // DingTalk cards expect a title block and separator before the shared body.
         if (hasDingTask) {
             lines.add(String.format("## <%s color='%s'>%s</%s>", tagName, statusType.getColor(), title, tagName));
             lines.add("---");
         }
-        // 添加通用信息
+        // Append the shared build details for all robot types.
         Collections.addAll(lines,
                 String.format("\uD83D\uDCCB **任务名称**: [%s](%s)", projectName, projectUrl),
                 String.format("\uD83D\uDD22 **任务编号**: [%s](%s)", jobName, jobUrl),

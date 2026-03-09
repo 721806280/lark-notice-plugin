@@ -81,27 +81,29 @@ public class MessageModel {
     //==================================================================================================================
 
     /**
-     * 点击单条信息到跳转链接
+     * Target URL opened when the user clicks a link-style message.
      */
     private String messageUrl;
 
     /**
-     * 单条信息后面图片的URL
+     * Image URL displayed alongside a DingTalk link message.
      */
     private String picUrl;
 
     /**
-     * 单个按钮的标题, 设置此项和singleURL后，buttons 无效
+     * Title of the single-action button used by DingTalk action cards.
+     * When this field and {@link #singleUrl} are both set, {@link #buttons} is ignored.
      */
     private String singleTitle;
 
     /**
-     * 点击消息跳转的URL
+     * Target URL for the single-action button used by DingTalk action cards.
      */
     private String singleUrl;
 
     /**
-     * 0：按钮竖直排列 1：按钮横向排列
+     * DingTalk action-card button layout.
+     * Use {@code 0} for vertical stacking and {@code 1} for horizontal layout.
      */
     private String btnOrientation;
 
