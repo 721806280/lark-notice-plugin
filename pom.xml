@@ -103,7 +103,7 @@
                         <exclude>**/ConfigurationPageRenderTest.java</exclude>
                         <exclude>**/LarkManagementLinkTest.java</exclude>
                         <exclude>**/NotifierConfigDescriptorDefaultsTest.java</exclude>
-                        <exclude>**/MessageDispatcherCacheInvalidationTest.java</exclude>
+                        <exclude>**/MessageSenderRegistryCacheInvalidationTest.java</exclude>
                         <exclude>**/NotificationServiceLayerTest.java</exclude>
                         <exclude>**/NotifierIntegrationTest.java</exclude>
                         <exclude>**/InjectedTest.java</exclude>
@@ -131,7 +131,7 @@
                                         <include>**/ConfigurationPageRenderTest.java</include>
                                         <include>**/LarkManagementLinkTest.java</include>
                                         <include>**/NotifierConfigDescriptorDefaultsTest.java</include>
-                                        <include>**/MessageDispatcherCacheInvalidationTest.java</include>
+                                        <include>**/MessageSenderRegistryCacheInvalidationTest.java</include>
                                         <include>**/NotificationServiceLayerTest.java</include>
                                         <include>**/NotifierIntegrationTest.java</include>
                                         <include>**/InjectedTest.java</include>

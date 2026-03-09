@@ -19,6 +19,7 @@ import io.jenkins.plugins.lark.notice.context.PipelineEnvContext;
 import io.jenkins.plugins.lark.notice.enums.BuildStatusEnum;
 import io.jenkins.plugins.lark.notice.enums.NoticeOccasionEnum;
 import io.jenkins.plugins.lark.notice.sdk.MessageDispatcher;
+import io.jenkins.plugins.lark.notice.sdk.MessageSenderRegistry;
 import io.jenkins.plugins.lark.notice.sdk.model.SendResult;
 import org.junit.Before;
 import org.junit.Rule;
@@ -46,7 +47,7 @@ public class NotificationServiceLayerTest {
     @Before
     public void setUp() {
         LarkGlobalConfig.getInstance().setRobotConfigs(new ArrayList<>());
-        MessageDispatcher.getInstance().clearSenders();
+        MessageSenderRegistry.getInstance().clear();
         PipelineEnvContext.reset();
     }
 

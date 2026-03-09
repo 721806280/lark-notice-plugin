@@ -4,7 +4,7 @@ import hudson.Extension;
 import io.jenkins.plugins.lark.notice.config.LarkRobotConfig.LarkRobotConfigDescriptor;
 import io.jenkins.plugins.lark.notice.config.security.LarkPermissions;
 import io.jenkins.plugins.lark.notice.enums.NoticeOccasionEnum;
-import io.jenkins.plugins.lark.notice.sdk.MessageDispatcher;
+import io.jenkins.plugins.lark.notice.sdk.MessageSenderRegistry;
 import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
 import lombok.Getter;
@@ -105,13 +105,13 @@ public class LarkGlobalConfig extends GlobalConfiguration {
 
     @DataBoundSetter
     public void setProxyConfig(LarkProxyConfig proxyConfig) {
-        MessageDispatcher.getInstance().clearSenders();
+        MessageSenderRegistry.getInstance().clear();
         this.proxyConfig = proxyConfig;
     }
 
     @DataBoundSetter
     public void setRobotConfigs(ArrayList<LarkRobotConfig> robotConfigs) {
-        MessageDispatcher.getInstance().clearSenders();
+        MessageSenderRegistry.getInstance().clear();
         this.robotConfigs = robotConfigs == null ? new ArrayList<>() : new ArrayList<>(robotConfigs);
     }
 

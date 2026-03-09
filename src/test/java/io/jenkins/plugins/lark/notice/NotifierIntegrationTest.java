@@ -9,6 +9,7 @@ import io.jenkins.plugins.lark.notice.config.LarkNotifierConfig;
 import io.jenkins.plugins.lark.notice.config.LarkRobotConfig;
 import io.jenkins.plugins.lark.notice.config.property.LarkJobProperty;
 import io.jenkins.plugins.lark.notice.sdk.MessageDispatcher;
+import io.jenkins.plugins.lark.notice.sdk.MessageSenderRegistry;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,7 +35,7 @@ public class NotifierIntegrationTest {
     @Before
     public void setUp() {
         LarkGlobalConfig.getInstance().setRobotConfigs(new ArrayList<>());
-        MessageDispatcher.getInstance().clearSenders();
+        MessageSenderRegistry.getInstance().clear();
     }
 
     @Test
