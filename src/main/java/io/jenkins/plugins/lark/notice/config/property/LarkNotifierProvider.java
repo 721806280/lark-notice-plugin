@@ -2,7 +2,6 @@ package io.jenkins.plugins.lark.notice.config.property;
 
 import io.jenkins.plugins.lark.notice.config.LarkGlobalConfig;
 import io.jenkins.plugins.lark.notice.config.LarkNotifierConfig;
-import org.apache.commons.collections.CollectionUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,12 +30,13 @@ public interface LarkNotifierProvider {
      * @return merged notifier configurations
      */
     default List<LarkNotifierConfig> getMergedNotifierConfigs() {
+        List<LarkNotifierConfig> localNotifierConfigs = getLarkNotifierConfigs();
         return LarkGlobalConfig.getInstance().getRobotConfigs()
                 .stream()
                 .map(robotConfig -> {
                     LarkNotifierConfig newNotifierConfig = new LarkNotifierConfig(robotConfig);
-                    if (CollectionUtils.isNotEmpty(getLarkNotifierConfigs())) {
-                        getLarkNotifierConfigs().stream()
+                    if (localNotifierConfigs != null && !localNotifierConfigs.isEmpty()) {
+                        localNotifierConfigs.stream()
                                 .filter(config -> robotConfig.getId().equals(config.getRobotId()))
                                 .findFirst()
                                 .ifPresent(newNotifierConfig::copy);

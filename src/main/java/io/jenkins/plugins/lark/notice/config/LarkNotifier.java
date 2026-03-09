@@ -20,7 +20,6 @@ import lombok.NoArgsConstructor;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,7 +45,7 @@ public class LarkNotifier extends Notifier implements SimpleBuildStep, LarkNotif
 
     @DataBoundConstructor
     public LarkNotifier(List<LarkNotifierConfig> notifierConfigs) {
-        this.larkNotifierConfigs = notifierConfigs == null ? null : new ArrayList<>(notifierConfigs);
+        this.larkNotifierConfigs = NotifierConfigListUtils.copyOrNull(notifierConfigs);
     }
 
     @Override
