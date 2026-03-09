@@ -2,6 +2,8 @@ package io.jenkins.plugins.lark.notice.logging;
 
 /**
  * Standard field names for structured plugin trace logs.
+ *
+ * @author xm.z
  */
 public enum NoticeLogKey {
     SOURCE("source"),
@@ -35,10 +37,20 @@ public enum NoticeLogKey {
 
     private final String externalName;
 
+    /**
+     * Creates one key enum entry bound to its rendered field name.
+     *
+     * @param externalName field name used in trace output
+     */
     NoticeLogKey(String externalName) {
         this.externalName = externalName;
     }
 
+    /**
+     * Returns the rendered field name used in trace output.
+     *
+     * @return external field name
+     */
     public String externalName() {
         return externalName;
     }

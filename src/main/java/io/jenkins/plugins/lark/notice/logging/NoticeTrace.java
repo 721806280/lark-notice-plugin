@@ -2,6 +2,8 @@ package io.jenkins.plugins.lark.notice.logging;
 
 /**
  * Named trace codes for verbose structured logs.
+ *
+ * @author xm.z
  */
 public enum NoticeTrace {
     NOTIFICATION_PREPARE("notification.prepare"),
@@ -23,10 +25,20 @@ public enum NoticeTrace {
 
     private final String code;
 
+    /**
+     * Creates one trace enum entry bound to its emitted code.
+     *
+     * @param code stable trace code rendered in verbose logs
+     */
     NoticeTrace(String code) {
         this.code = code;
     }
 
+    /**
+     * Returns the stable trace code rendered in verbose logs.
+     *
+     * @return trace code
+     */
     public String code() {
         return code;
     }
