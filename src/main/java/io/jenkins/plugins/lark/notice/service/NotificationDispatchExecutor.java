@@ -1,5 +1,6 @@
 package io.jenkins.plugins.lark.notice.service;
 
+import hudson.EnvVars;
 import hudson.model.Result;
 import hudson.model.Run;
 import hudson.model.TaskListener;
@@ -49,19 +50,8 @@ public final class NotificationDispatchExecutor {
     public static void dispatch(String source, Run<?, ?> run, TaskListener listener, NoticeOccasionEnum occasion,
                                 LarkNotifierConfig config, BuildNotificationContext context,
                                 MessageDispatcher messageDispatcher) {
-        RobotType robotType = LarkGlobalConfig.getRobot(config.getRobotId())
-                .map(LarkRobotConfig::obtainRobotType)
-                .orElseThrow(() -> new IllegalStateException(
-                        String.format(Messages.notifier_error_robot_not_found(), config.getRobotId())));
-
-        RunUser executor = context.executor();
-        Set<String> atUserIds = config.resolveAtUserIds(context.envVars());
-        if (StringUtils.isNotBlank(executor.getOpenId())) {
-            atUserIds.add(executor.getOpenId());
-        }
-        if (StringUtils.isNotBlank(executor.getMobile())) {
-            atUserIds.add(executor.getMobile());
-        }
+        RobotType robotType = resolveRobotType(config);
+        Set<String> atUserIds = resolveAtUserIds(config, context.executor(), context.envVars());
 
         Logger.event(listener, LogEvent.NOTIFY_DISPATCH,
                 LogField.SOURCE, source,
@@ -75,20 +65,88 @@ public final class NotificationDispatchExecutor {
                 LogField.AT_USER_COUNT, atUserIds.size());
 
         BuildJobModel model = context.model();
-        model.setTitle(context.envVars().expand(StringUtils.defaultIfBlank(config.getTitle(), DEFAULT_TITLE)));
-        model.setContent(context.envVars().expand(config.getContent()).replaceAll("\\\\n", LF));
-        String messageText = config.isRaw()
-                ? context.envVars().expand(config.getMessage())
-                : model.toMarkdown(robotType);
+        applyModelTemplateValues(config, model, context.envVars());
+        String messageText = resolveMessageText(config, model, context.envVars(), robotType);
+        MessageModel messageModel = buildMessageModel(model, config, atUserIds, messageText);
 
-        MessageModel messageModel = model.messageModelBuilder()
+        SendResult result = messageDispatcher.send(listener, config.getRobotId(), messageModel);
+        handleSendResult(source, run, listener, occasion, config.getRobotId(), result);
+    }
+
+    /**
+     * Resolves robot type from global robot config by robot id.
+     *
+     * @param config notifier config
+     * @return resolved robot type
+     */
+    static RobotType resolveRobotType(LarkNotifierConfig config) {
+        return LarkGlobalConfig.getRobot(config.getRobotId())
+                .map(LarkRobotConfig::obtainRobotType)
+                .orElseThrow(() -> new IllegalStateException(
+                        String.format(Messages.notifier_error_robot_not_found(), config.getRobotId())));
+    }
+
+    /**
+     * Resolves final @-mentioned user identities from config plus executor information.
+     *
+     * @param config   notifier config
+     * @param executor build executor
+     * @param envVars  environment variables
+     * @return resolved user id set
+     */
+    static Set<String> resolveAtUserIds(LarkNotifierConfig config, RunUser executor, EnvVars envVars) {
+        Set<String> atUserIds = config.resolveAtUserIds(envVars);
+        if (StringUtils.isNotBlank(executor.getOpenId())) {
+            atUserIds.add(executor.getOpenId());
+        }
+        if (StringUtils.isNotBlank(executor.getMobile())) {
+            atUserIds.add(executor.getMobile());
+        }
+        return atUserIds;
+    }
+
+    /**
+     * Applies title and content templates onto build model fields.
+     *
+     * @param config notifier config
+     * @param model  build model
+     * @param envVars environment variables
+     */
+    static void applyModelTemplateValues(LarkNotifierConfig config, BuildJobModel model, EnvVars envVars) {
+        model.setTitle(envVars.expand(StringUtils.defaultIfBlank(config.getTitle(), DEFAULT_TITLE)));
+        model.setContent(envVars.expand(config.getContent()).replaceAll("\\\\n", LF));
+    }
+
+    /**
+     * Resolves message text according to notifier mode.
+     *
+     * @param config    notifier config
+     * @param model     build model
+     * @param envVars   environment variables
+     * @param robotType robot type
+     * @return final message text
+     */
+    static String resolveMessageText(LarkNotifierConfig config, BuildJobModel model, EnvVars envVars,
+                                     RobotType robotType) {
+        return config.isRaw() ? envVars.expand(config.getMessage()) : model.toMarkdown(robotType);
+    }
+
+    /**
+     * Builds final message model used by dispatcher.
+     *
+     * @param model       build model
+     * @param config      notifier config
+     * @param atUserIds   final at-user ids
+     * @param messageText final text payload
+     * @return built message model
+     */
+    static MessageModel buildMessageModel(BuildJobModel model, LarkNotifierConfig config,
+                                          Set<String> atUserIds, String messageText) {
+        return model.messageModelBuilder()
                 .atAll(config.isAtAll())
                 .atUserIds(atUserIds)
                 .text(messageText)
                 .build();
-
-        SendResult result = messageDispatcher.send(listener, config.getRobotId(), messageModel);
-        handleSendResult(source, run, listener, occasion, config.getRobotId(), result);
     }
 
     /**
