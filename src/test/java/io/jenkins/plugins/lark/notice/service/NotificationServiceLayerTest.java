@@ -69,6 +69,25 @@ public class NotificationServiceLayerTest {
     }
 
     @Test
+    public void providerMergedConfigsShouldPreferFirstLocalConfigWhenRobotIdDuplicated() {
+        LarkRobotConfig robot = createRobot("robot-dup");
+        LarkGlobalConfig.getInstance().setRobotConfigs(new ArrayList<>(List.of(robot)));
+
+        LarkNotifierConfig first = createNotifierConfig(robot.getId(), true, false);
+        first.setTitle("first");
+        LarkNotifierConfig second = createNotifierConfig(robot.getId(), false, true);
+        second.setTitle("second");
+
+        LarkNotifierProvider provider = new TestNotifierProvider(List.of(first, second));
+        List<LarkNotifierConfig> merged = provider.getMergedNotifierConfigs();
+
+        assertEquals(1, merged.size());
+        assertEquals("first", merged.get(0).getTitle());
+        assertTrue(merged.get(0).isChecked());
+        assertFalse(merged.get(0).isDisabled());
+    }
+
+    @Test
     public void notifierConfigResolverShouldSkipWhenFreestylePostBuildNotifierExists() throws Exception {
         LarkRobotConfig robot = createRobot("robot-resolver");
         LarkGlobalConfig.getInstance().setRobotConfigs(new ArrayList<>(List.of(robot)));

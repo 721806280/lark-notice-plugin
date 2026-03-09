@@ -3,7 +3,9 @@ package io.jenkins.plugins.lark.notice.config.property;
 import io.jenkins.plugins.lark.notice.config.LarkGlobalConfig;
 import io.jenkins.plugins.lark.notice.config.LarkNotifierConfig;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -31,15 +33,20 @@ public interface LarkNotifierProvider {
      */
     default List<LarkNotifierConfig> getMergedNotifierConfigs() {
         List<LarkNotifierConfig> localNotifierConfigs = getLarkNotifierConfigs();
+        Map<String, LarkNotifierConfig> localConfigByRobotId = new LinkedHashMap<>();
+        if (localNotifierConfigs != null) {
+            for (LarkNotifierConfig config : localNotifierConfigs) {
+                localConfigByRobotId.putIfAbsent(config.getRobotId(), config);
+            }
+        }
+
         return LarkGlobalConfig.getInstance().getRobotConfigs()
                 .stream()
                 .map(robotConfig -> {
                     LarkNotifierConfig newNotifierConfig = new LarkNotifierConfig(robotConfig);
-                    if (localNotifierConfigs != null && !localNotifierConfigs.isEmpty()) {
-                        localNotifierConfigs.stream()
-                                .filter(config -> robotConfig.getId().equals(config.getRobotId()))
-                                .findFirst()
-                                .ifPresent(newNotifierConfig::copy);
+                    LarkNotifierConfig localConfig = localConfigByRobotId.get(robotConfig.getId());
+                    if (localConfig != null) {
+                        newNotifierConfig.copy(localConfig);
                     }
                     return newNotifierConfig;
                 })
