@@ -6,7 +6,7 @@
    </p>
    <p align="center">
       <img src="https://img.shields.io/badge/JDK-17-success" alt="JDK">
-      <img src="https://img.shields.io/badge/Jenkins-2.492-blue.svg" alt="License">
+      <img src="https://img.shields.io/badge/Jenkins-2.528.3-blue.svg" alt="License">
       <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License">
       <img src="https://img.shields.io/badge/Author-xm.z-success" alt="Author">
    </p>
@@ -36,6 +36,11 @@ customize the content and format of notification messages according to your own 
 > Please refer to [official document](https://721806280.github.io/lark-notice-plugin-doc)
 
 ## 🧑‍💻 Development Services
+
+### Test commands
+
+- Fast test suite: `mvn test`
+- Full suite including JenkinsRule page and integration tests: `mvn verify -Pjenkins-rule-tests`
 
 Add `hpi:run` to the startup configuration in the `maven` control panel on the right side of `IDEA`:
 

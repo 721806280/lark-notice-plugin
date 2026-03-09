@@ -94,4 +94,55 @@
         </pluginRepository>
     </pluginRepositories>
 
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/ConfigurationPageRenderTest.java</exclude>
+                        <exclude>**/LarkManagementLinkTest.java</exclude>
+                        <exclude>**/NotifierConfigDescriptorDefaultsTest.java</exclude>
+                        <exclude>**/MessageDispatcherCacheInvalidationTest.java</exclude>
+                        <exclude>**/NotificationServiceLayerTest.java</exclude>
+                        <exclude>**/NotifierIntegrationTest.java</exclude>
+                        <exclude>**/InjectedTest.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>jenkins-rule-tests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                                <configuration>
+                                    <includes>
+                                        <include>**/ConfigurationPageRenderTest.java</include>
+                                        <include>**/LarkManagementLinkTest.java</include>
+                                        <include>**/NotifierConfigDescriptorDefaultsTest.java</include>
+                                        <include>**/MessageDispatcherCacheInvalidationTest.java</include>
+                                        <include>**/NotificationServiceLayerTest.java</include>
+                                        <include>**/NotifierIntegrationTest.java</include>
+                                        <include>**/InjectedTest.java</include>
+                                    </includes>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 </project>

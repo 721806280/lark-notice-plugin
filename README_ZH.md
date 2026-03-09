@@ -6,7 +6,7 @@
    </p>
    <p align="center">
       <img src="https://img.shields.io/badge/JDK-17-success" alt="JDK">
-      <img src="https://img.shields.io/badge/Jenkins-2.492-blue.svg" alt="License">
+      <img src="https://img.shields.io/badge/Jenkins-2.528.3-blue.svg" alt="License">
       <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License">
       <img src="https://img.shields.io/badge/Author-xm.z-success" alt="Author">
    </p>
@@ -31,6 +31,11 @@
 > 请参考 [官方文档](https://721806280.github.io/lark-notice-plugin-doc)
 
 ## 🧑‍💻 开发服务
+
+### 测试命令
+
+- 快速测试集: `mvn test`
+- 包含 JenkinsRule 页面与集成测试的完整测试集: `mvn verify -Pjenkins-rule-tests`
 
 在 `IDEA` 右侧 `maven` 控制面板中添加 `hpi:run` 到启动配置：
 
