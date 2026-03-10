@@ -43,11 +43,21 @@ public class LarkNotifier extends Notifier implements SimpleBuildStep, LarkNotif
     @Getter
     private List<LarkNotifierConfig> larkNotifierConfigs;
 
+    /**
+     * Creates a notifier with job-level configuration.
+     *
+     * @param notifierConfigs job-level notifier configurations
+     */
     @DataBoundConstructor
     public LarkNotifier(List<LarkNotifierConfig> notifierConfigs) {
         this.larkNotifierConfigs = NotifierConfigListUtils.copyOrNull(notifierConfigs);
     }
 
+    /**
+     * Uses no build-step synchronization.
+     *
+     * @return {@link BuildStepMonitor#NONE}
+     */
     @Override
     public BuildStepMonitor getRequiredMonitorService() {
         return BuildStepMonitor.NONE;
@@ -102,20 +112,39 @@ public class LarkNotifier extends Notifier implements SimpleBuildStep, LarkNotif
         return messageDispatcher;
     }
 
+    /**
+     * Jenkins descriptor for the Lark notifier.
+     */
     @Extension
     public static class DescriptorImpl extends BuildStepDescriptor<Publisher> {
 
+        /**
+         * Indicates this notifier can be used with any project type.
+         *
+         * @param jobType project type
+         * @return {@code true} for all project types
+         */
         @Override
         public boolean isApplicable(Class<? extends AbstractProject> jobType) {
             return true;
         }
 
+        /**
+         * Returns the display name shown in the Jenkins UI.
+         *
+         * @return display name
+         */
         @NonNull
         @Override
         public String getDisplayName() {
             return Messages.plugin_name();
         }
 
+        /**
+         * Provides default notifier configs from global robot settings.
+         *
+         * @return default notifier configurations
+         */
         public List<LarkNotifierConfig> getDefaultNotifierConfigs() {
             return NotifierConfigListUtils.fromGlobalRobots();
         }

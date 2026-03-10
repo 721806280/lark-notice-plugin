@@ -102,6 +102,12 @@ public class LarkProxyConfig extends Descriptor<LarkProxyConfig> implements Desc
      */
     public ProxySelector obtainProxySelector() {
         return new ProxySelector() {
+            /**
+             * Selects proxies for the given URI based on the current proxy settings.
+             *
+             * @param uri target URI
+             * @return list of proxies to try
+             */
             @Override
             public List<Proxy> select(URI uri) {
                 if (type == Type.DIRECT || StringUtils.isEmpty(host) || port == null) {
@@ -111,6 +117,13 @@ public class LarkProxyConfig extends Descriptor<LarkProxyConfig> implements Desc
                 return Collections.singletonList(new Proxy(type, inetSocketAddress));
             }
 
+            /**
+             * Handles proxy connection failures. This implementation intentionally ignores failures.
+             *
+             * @param uri target URI
+             * @param sa  socket address of the proxy
+             * @param ioe failure exception
+             */
             @Override
             public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
                 /* ignore */

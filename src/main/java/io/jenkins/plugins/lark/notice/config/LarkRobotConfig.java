@@ -112,6 +112,11 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
         return webhook.getPlainText();
     }
 
+    /**
+     * Infers the robot type from the configured webhook URL.
+     *
+     * @return resolved robot type, or {@code null} when the webhook is blank or unsupported
+     */
     public RobotType obtainRobotType() {
         String webhook = getWebhook();
         if (StringUtils.isBlank(webhook)) {
@@ -283,6 +288,15 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
 
         private HttpResponse jsonResponse(JSONObject response) {
             return new HttpResponse() {
+                /**
+                 * Writes the JSON response for the test endpoint.
+                 *
+                 * @param req  stapler request
+                 * @param rsp  stapler response
+                 * @param node bound node
+                 * @throws IOException      if writing fails
+                 * @throws ServletException if response handling fails
+                 */
                 @Override
                 public void generateResponse(StaplerRequest2 req, StaplerResponse2 rsp, Object node) throws IOException, ServletException {
                     rsp.setContentType("application/json; charset=UTF-8");

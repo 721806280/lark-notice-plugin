@@ -148,6 +148,11 @@ public class LarkNotifierConfig implements Describable<LarkNotifierConfig> {
         return noticeOccasions == null ? getDefaultNoticeOccasions() : noticeOccasions;
     }
 
+    /**
+     * Sets the notice occasions for this notifier configuration.
+     *
+     * @param noticeOccasions set of occasion names; null clears the override
+     */
     public void setNoticeOccasions(Set<String> noticeOccasions) {
         this.noticeOccasions = noticeOccasions == null ? null : new HashSet<>(noticeOccasions);
     }

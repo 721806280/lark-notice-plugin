@@ -20,11 +20,23 @@ public class GenericStepExecution<T extends AbstractStep> extends StepExecution 
 
     private final transient T step;
 
+    /**
+     * Creates a pipeline step execution backed by a concrete step implementation.
+     *
+     * @param step    pipeline step
+     * @param context step context
+     */
     public GenericStepExecution(T step, StepContext context) {
         super(context);
         this.step = step;
     }
 
+    /**
+     * Executes the step and reports results back to the pipeline context.
+     *
+     * @return true if execution is started and handled
+     * @throws Exception if the step throws during execution
+     */
     @Override
     public boolean start() throws Exception {
         StepContext context = this.getContext();

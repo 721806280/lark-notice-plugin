@@ -11,6 +11,13 @@ public final class NotificationSource {
         throw new UnsupportedOperationException("Utility class cannot be instantiated");
     }
 
+    /**
+     * Notification source emitted by the run listener.
+     */
     public static final String RUN_LISTENER = "run-listener";
+
+    /**
+     * Notification source emitted by the post-build notifier.
+     */
     public static final String POST_BUILD = "post-build";
 }

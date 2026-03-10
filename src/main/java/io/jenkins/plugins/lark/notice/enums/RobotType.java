@@ -21,6 +21,9 @@ public enum RobotType {
 
     // Lark
     LARK("Lark", "open.larksuite.com", "text_tag") {
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public MessageSender obtainInstance(RobotConfigModel robotConfig) {
             return new LarkMessageSender(robotConfig);
@@ -28,6 +31,9 @@ public enum RobotType {
     },
 
     FS("飞书", "open.feishu.cn", "text_tag") {
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public MessageSender obtainInstance(RobotConfigModel robotConfig) {
             return new LarkMessageSender(robotConfig);
@@ -35,6 +41,9 @@ public enum RobotType {
     },
 
     DING_TAlK("钉钉", "api.dingtalk.com", "font") {
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public MessageSender obtainInstance(RobotConfigModel robotConfig) {
             return new DingMessageSender(robotConfig);

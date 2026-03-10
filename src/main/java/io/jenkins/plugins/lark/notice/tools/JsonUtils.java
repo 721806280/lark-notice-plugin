@@ -122,8 +122,14 @@ public final class JsonUtils {
         return JacksonHolder.INSTANCE;
     }
 
+    /**
+     * Lazy holder for the shared {@link ObjectMapper} instance.
+     */
     private static class JacksonHolder {
 
+        /**
+         * Shared mapper configured with permissive parsing and plugin defaults.
+         */
         private static final ObjectMapper INSTANCE = new ObjectMapper(JsonFactory.builder()
                 .configure(JsonReadFeature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER, true)
                 .configure(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS, true)

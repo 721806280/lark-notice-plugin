@@ -17,6 +17,9 @@ public enum MsgTypeEnum {
      * Represents a text message type. Implements the {@code send} method to send text messages.
      */
     TEXT {
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public SendResult send(MessageSender sender, MessageModel msg) {
             return sender.sendText(msg);
@@ -27,6 +30,9 @@ public enum MsgTypeEnum {
      * Represents an image message type. Implements the {@code send} method to send image messages.
      */
     IMAGE {
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public SendResult send(MessageSender sender, MessageModel msg) {
             return sender.sendImage(msg);
@@ -39,6 +45,9 @@ public enum MsgTypeEnum {
      * Represents a shared chat message type. Implements the {@code send} method to send shared chat messages.
      */
     SHARE_CHAT {
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public SendResult send(MessageSender sender, MessageModel msg) {
             return sender.sendShareChat(msg);
@@ -49,20 +58,35 @@ public enum MsgTypeEnum {
      * Represents a post message type. Implements the {@code send} method to send post messages.
      */
     POST {
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public SendResult send(MessageSender sender, MessageModel msg) {
             return sender.sendPost(msg);
         }
     },
 
+    /**
+     * Represents a link message type. Implements the {@code send} method to send link messages.
+     */
     LINK {
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public SendResult send(MessageSender sender, MessageModel msg) {
             return sender.sendLink(msg);
         }
     },
 
+    /**
+     * Represents a markdown message type. Implements the {@code send} method to send markdown messages.
+     */
     MARKDOWN {
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public SendResult send(MessageSender sender, MessageModel msg) {
             return sender.sendMarkdown(msg);
@@ -73,6 +97,9 @@ public enum MsgTypeEnum {
      * Represents an interactive message type. Implements the {@code send} method to send interactive messages.
      */
     CARD {
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public SendResult send(MessageSender sender, MessageModel msg) {
             return sender.sendCard(msg);

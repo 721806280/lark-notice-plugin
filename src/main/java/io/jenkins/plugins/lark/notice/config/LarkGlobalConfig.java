@@ -93,22 +93,42 @@ public class LarkGlobalConfig extends GlobalConfiguration {
         return proxyConfig == null ? null : proxyConfig.obtainProxySelector();
     }
 
+    /**
+     * Enables or disables verbose logging.
+     *
+     * @param verbose true to enable verbose logging
+     */
     @DataBoundSetter
     public void setVerbose(boolean verbose) {
         this.verbose = verbose;
     }
 
+    /**
+     * Updates the notice occasions used for notifications.
+     *
+     * @param noticeOccasions set of occasion names; null resets to defaults
+     */
     @DataBoundSetter
     public void setNoticeOccasions(Set<String> noticeOccasions) {
         this.noticeOccasions = noticeOccasions == null ? defaultNoticeOccasions() : new HashSet<>(noticeOccasions);
     }
 
+    /**
+     * Updates the proxy configuration and clears cached senders.
+     *
+     * @param proxyConfig proxy configuration, or null to disable proxy
+     */
     @DataBoundSetter
     public void setProxyConfig(LarkProxyConfig proxyConfig) {
         MessageSenderRegistry.getInstance().clear();
         this.proxyConfig = proxyConfig;
     }
 
+    /**
+     * Updates the global robot configurations and clears cached senders.
+     *
+     * @param robotConfigs robot configurations, or null to clear
+     */
     @DataBoundSetter
     public void setRobotConfigs(ArrayList<LarkRobotConfig> robotConfigs) {
         MessageSenderRegistry.getInstance().clear();
@@ -150,12 +170,19 @@ public class LarkGlobalConfig extends GlobalConfiguration {
     }
 
     /**
-     * Additional getters for UI binding
+     * Gets the proxy config descriptor for UI binding.
+     *
+     * @return proxy config descriptor
      */
     public LarkProxyConfig getLarkProxyConfigDescriptor() {
         return Jenkins.get().getDescriptorByType(LarkProxyConfig.class);
     }
 
+    /**
+     * Gets the robot config descriptor for UI binding.
+     *
+     * @return robot config descriptor
+     */
     public LarkRobotConfigDescriptor getLarkRobotConfigDescriptor() {
         return Jenkins.get().getDescriptorByType(LarkRobotConfigDescriptor.class);
     }

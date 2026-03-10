@@ -85,46 +85,92 @@ public class LarkStep extends AbstractStep {
      */
     private List<ButtonModel> buttons;
 
+    /**
+     * Creates a Lark pipeline step with the target robot and message type.
+     *
+     * @param robot robot identifier or expression
+     * @param type  message type
+     */
     @DataBoundConstructor
     public LarkStep(String robot, MsgTypeEnum type) {
         super(robot, type);
     }
 
+    /**
+     * Sets the message title.
+     *
+     * @param title message title
+     */
     @DataBoundSetter
     public void setTitle(String title) {
         this.title = title;
     }
 
+    /**
+     * Sets the message text lines.
+     *
+     * @param text message text lines
+     */
     @DataBoundSetter
     public void setText(List<String> text) {
         this.text = text;
     }
 
+    /**
+     * Sets the shared chat identifier for SHARE_CHAT messages.
+     *
+     * @param shareChatId share chat identifier
+     */
     @DataBoundSetter
     public void setShareChatId(String shareChatId) {
         this.shareChatId = shareChatId;
     }
 
+    /**
+     * Sets the image key for IMAGE messages.
+     *
+     * @param imageKey image key
+     */
     @DataBoundSetter
     public void setImageKey(String imageKey) {
         this.imageKey = imageKey;
     }
 
+    /**
+     * Sets the POST message body structure.
+     *
+     * @param post post body structure
+     */
     @DataBoundSetter
     public void setPost(List<List<Map<String, String>>> post) {
         this.post = post;
     }
 
+    /**
+     * Sets the top image for card messages.
+     *
+     * @param topImg top image model
+     */
     @DataBoundSetter
     public void setTopImg(ImgModel topImg) {
         this.topImg = topImg;
     }
 
+    /**
+     * Sets the bottom image for card messages.
+     *
+     * @param bottomImg bottom image model
+     */
     @DataBoundSetter
     public void setBottomImg(ImgModel bottomImg) {
         this.bottomImg = bottomImg;
     }
 
+    /**
+     * Sets the action buttons for card messages.
+     *
+     * @param buttons list of button models
+     */
     @DataBoundSetter
     public void setButtons(List<ButtonModel> buttons) {
         this.buttons = buttons;
