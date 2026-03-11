@@ -1,0 +1,27 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
+    <div class="lark-retry-config">
+        <f:entry field="enabled" title="${%retry.enabled}">
+            <f:checkbox/>
+        </f:entry>
+        <div class="lark-retry-details">
+            <f:entry field="maxAttempts" title="${%retry.maxAttempts}">
+                <f:number min="1" clazz="number"/>
+            </f:entry>
+            <f:advanced>
+                <f:entry field="initialDelayMs" title="${%retry.initialDelayMs}">
+                    <f:number min="0" clazz="number"/>
+                </f:entry>
+                <f:entry field="maxDelayMs" title="${%retry.maxDelayMs}">
+                    <f:number min="0" clazz="number"/>
+                </f:entry>
+                <f:entry field="backoffMultiplier" title="${%retry.backoffMultiplier}">
+                    <f:number min="1" step="0.1" clazz="number"/>
+                </f:entry>
+                <f:entry field="jitterRatio" title="${%retry.jitterRatio}">
+                    <f:number min="0" max="1" step="0.05" clazz="number"/>
+                </f:entry>
+            </f:advanced>
+        </div>
+    </div>
+</j:jelly>

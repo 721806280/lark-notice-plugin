@@ -15,6 +15,7 @@ import io.jenkins.plugins.lark.notice.enums.SecurityPolicyEnum;
 import io.jenkins.plugins.lark.notice.model.BuildJobModel;
 import io.jenkins.plugins.lark.notice.model.MessageModel;
 import io.jenkins.plugins.lark.notice.model.RobotConfigModel;
+import io.jenkins.plugins.lark.notice.sdk.MessageDispatcher;
 import io.jenkins.plugins.lark.notice.sdk.MessageSender;
 import io.jenkins.plugins.lark.notice.sdk.model.SendResult;
 import io.jenkins.plugins.lark.notice.tools.JsonUtils;
@@ -27,6 +28,7 @@ import jakarta.servlet.ServletException;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest2;
@@ -71,6 +73,11 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
      * List of security policy configurations, includes a set of Key-Value pairs.
      */
     private List<LarkSecurityPolicyConfig> securityPolicyConfigs;
+
+    /**
+     * Retry configuration for this robot.
+     */
+    private LarkRetryConfig retryConfig;
 
     /**
      * Constructor for initializing robot configuration object
@@ -140,6 +147,15 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
         }).collect(Collectors.toList());
     }
 
+    /**
+     * Returns retry configuration, falling back to defaults when none is configured.
+     *
+     * @return retry config
+     */
+    public LarkRetryConfig getRetryConfig() {
+        return retryConfig == null ? LarkRetryConfig.defaultConfig() : retryConfig;
+    }
+
     private Map<String, LarkSecurityPolicyConfig> indexSecurityPoliciesByType() {
         if (securityPolicyConfigs == null || securityPolicyConfigs.isEmpty()) {
             return Collections.emptyMap();
@@ -156,6 +172,17 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
     private static List<LarkSecurityPolicyConfig> copySecurityPolicyConfigs(List<LarkSecurityPolicyConfig> securityPolicyConfigs) {
         return securityPolicyConfigs == null ? null : new ArrayList<>(securityPolicyConfigs);
     }
+
+    /**
+     * Updates retry configuration for this robot.
+     *
+     * @param retryConfig retry configuration, or null to reset to defaults
+     */
+    @DataBoundSetter
+    public void setRetryConfig(LarkRetryConfig retryConfig) {
+        this.retryConfig = retryConfig;
+    }
+
 
     /**
      * Gets the descriptor for this class, used to display the robot configuration page in Jenkins
@@ -191,6 +218,15 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
             return Arrays.stream(SecurityPolicyEnum.values())
                     .map(LarkSecurityPolicyConfig::of)
                     .collect(Collectors.toCollection(ArrayList::new));
+        }
+
+        /**
+         * Gets the retry config descriptor for UI binding.
+         *
+         * @return retry config descriptor
+         */
+        public LarkRetryConfig getLarkRetryConfigDescriptor() {
+            return Jenkins.get().getDescriptorByType(LarkRetryConfig.class);
         }
 
         /**
@@ -253,7 +289,8 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
                 }
 
                 MessageSender sender = robotType.obtainInstance(RobotConfigModel.of(robotConfig, proxySelector));
-                SendResult sendResult = sender.sendCard(buildTestMessage(robotType));
+                SendResult sendResult = MessageDispatcher.getInstance()
+                        .send(null, robotConfig.getId(), buildTestMessage(robotType), sender);
                 boolean ok = sendResult != null && sendResult.isOk();
                 String detail = sendResult == null ? null : sendResult.getMsg();
                 response.put("ok", ok);

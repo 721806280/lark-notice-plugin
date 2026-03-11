@@ -14,6 +14,7 @@ public enum NoticeTrace {
     NOTIFICATION_MARK_BUILD_FAILURE("notification.mark-build-failure"),
     NOTIFICATION_EXCEPTION("notification.exception"),
     DISPATCHER_SEND_START("dispatcher.send.start"),
+    DISPATCHER_SEND_RETRY("dispatcher.send.retry"),
     DISPATCHER_SEND_FINISH("dispatcher.send.finish"),
     ENVIRONMENT_RESOLVE("environment.resolve"),
     ENVIRONMENT_RESOLVE_FAILURE("environment.resolve.failure"),

@@ -93,6 +93,7 @@ public class LarkGlobalConfig extends GlobalConfiguration {
         return proxyConfig == null ? null : proxyConfig.obtainProxySelector();
     }
 
+
     /**
      * Enables or disables verbose logging.
      *
@@ -134,6 +135,7 @@ public class LarkGlobalConfig extends GlobalConfiguration {
         MessageSenderRegistry.getInstance().clear();
         this.robotConfigs = robotConfigs == null ? new ArrayList<>() : new ArrayList<>(robotConfigs);
     }
+
 
     /**
      * Customizes the behavior when the global configuration form is submitted.
@@ -186,4 +188,5 @@ public class LarkGlobalConfig extends GlobalConfiguration {
     public LarkRobotConfigDescriptor getLarkRobotConfigDescriptor() {
         return Jenkins.get().getDescriptorByType(LarkRobotConfigDescriptor.class);
     }
+
 }
