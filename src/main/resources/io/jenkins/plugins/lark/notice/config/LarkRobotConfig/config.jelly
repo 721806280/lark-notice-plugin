@@ -3,39 +3,20 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
          xmlns:f="/lib/form">
     <div class="robot-config-container">
-        <f:entry title="${%robot.id}" field="id"
-                 help="/descriptor/io.jenkins.plugins.lark.notice.config.LarkRobotConfig/help/id">
-            <f:textbox name="id" readonly="true"/>
-        </f:entry>
-        <f:entry title="${%robot.name}" field="name"
-                 help="/descriptor/io.jenkins.plugins.lark.notice.config.LarkRobotConfig/help/name">
-            <f:textbox name="name"/>
-        </f:entry>
-        <f:entry title="${%robot.webhook}" field="webhook"
-                 help="/descriptor/io.jenkins.plugins.lark.notice.config.LarkRobotConfig/help/webhook">
-            <f:textbox name="webhook"/>
-        </f:entry>
-
-        <j:scope>
-            <j:set var="securityPolicyConfigDescriptor"
-                   value="${descriptor.getLarkSecurityPolicyConfigDescriptor()}"/>
-            <j:set var="securityPolicyConfigs"
-                   value="${instance != null ? instance.getSecurityPolicyConfigs() : descriptor.getDefaultSecurityPolicyConfigs()}"/>
-            <f:entry title="${%robot.security.settings}">
-                <f:repeatable
-                        header=""
-                        name="securityPolicyConfigs"
-                        noAddButton="true"
-                        var="instance"
-                        items="${securityPolicyConfigs}">
-                    <st:include page="config.jelly" class="${securityPolicyConfigDescriptor.clazz}"/>
-                </f:repeatable>
+        <f:section title="${%robot.section.basic}">
+            <f:entry title="${%robot.id}" field="id"
+                     help="/descriptor/io.jenkins.plugins.lark.notice.config.LarkRobotConfig/help/id">
+                <f:textbox name="id" readonly="true"/>
             </f:entry>
-        </j:scope>
-
-        <st:adjunct includes="io.jenkins.plugins.lark.notice.config.LarkRobotConfig.validate-robot-config-onclick"/>
-        <f:entry class="robot-config-compact-entry">
-            <div class="robot-config-actions">
+            <f:entry title="${%robot.name}" field="name"
+                     help="/descriptor/io.jenkins.plugins.lark.notice.config.LarkRobotConfig/help/name">
+                <f:textbox name="name"/>
+            </f:entry>
+            <f:entry title="${%robot.webhook}" field="webhook"
+                     help="/descriptor/io.jenkins.plugins.lark.notice.config.LarkRobotConfig/help/webhook">
+                <f:textbox name="webhook"/>
+            </f:entry>
+            <f:entry>
                 <button
                         type="button"
                         class="jenkins-button robot-config-validate-btn"
@@ -47,8 +28,36 @@
                 >
                     ${%robot.test.button}
                 </button>
-            </div>
-        </f:entry>
-        <div class="robot-config-validate-msg robot-config-pre-wrap"><!-- this is where the error message goes --></div>
+            </f:entry>
+            <div class="robot-config-validate-msg"><!-- this is where the error message goes --></div>
+        </f:section>
+
+        <j:scope>
+            <j:set var="securityPolicyConfigDescriptor"
+                   value="${descriptor.getLarkSecurityPolicyConfigDescriptor()}"/>
+            <j:set var="securityPolicyConfigs"
+                   value="${instance != null ? instance.getSecurityPolicyConfigs() : descriptor.getDefaultSecurityPolicyConfigs()}"/>
+            <f:section title="${%robot.security.settings}">
+                <f:entry>
+                    <div class="robot-security-repeatable">
+                        <f:repeatable
+                                header=""
+                                name="securityPolicyConfigs"
+                                noAddButton="true"
+                                var="instance"
+                                items="${securityPolicyConfigs}">
+                            <st:include page="config.jelly" class="${securityPolicyConfigDescriptor.clazz}"/>
+                        </f:repeatable>
+                    </div>
+                </f:entry>
+            </f:section>
+        </j:scope>
+
+        <f:section title="${%robot.section.retry}">
+            <f:property field="retryConfig"
+                        propertyDescriptor="${descriptor.getLarkRetryConfigDescriptor()}"/>
+        </f:section>
+
+        <st:adjunct includes="io.jenkins.plugins.lark.notice.config.LarkRobotConfig.validate-robot-config-onclick"/>
     </div>
 </j:jelly>

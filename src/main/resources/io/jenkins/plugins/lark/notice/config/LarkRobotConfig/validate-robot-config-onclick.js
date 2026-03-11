@@ -3,3 +3,8 @@ Behaviour.specify('.robot-config-validate-btn', 'validate-robot-config', 0, func
         validateRobotConfig(this);
     });
 });
+
+// Toggle retry details visibility when the enable checkbox changes.
+Behaviour.specify('.lark-retry-config', 'toggle-retry-details', 0, function (element) {
+    bindRetryDetailsVisibility(element);
+});

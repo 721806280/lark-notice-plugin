@@ -124,3 +124,38 @@ function getParams(robot) {
     // Return the payload for the validation request.
     return params;
 }
+
+/**
+ * Applies the retry detail visibility based on the enable checkbox.
+ * @param {HTMLElement} configRoot - Retry configuration container element.
+ */
+function applyRetryDetailsVisibility(configRoot) {
+    if (!configRoot) {
+        return;
+    }
+    var enabledInput = configRoot.querySelector('input[name="_.enabled"]');
+    var details = configRoot.querySelector('.lark-retry-details');
+    if (!enabledInput || !details) {
+        return;
+    }
+    details.hidden = !enabledInput.checked;
+}
+
+/**
+ * Wires the retry detail toggle behavior to the enable checkbox.
+ * @param {HTMLElement} configRoot - Retry configuration container element.
+ */
+function bindRetryDetailsVisibility(configRoot) {
+    if (!configRoot || configRoot.dataset.retryVisibilityBound === 'true') {
+        return;
+    }
+    configRoot.dataset.retryVisibilityBound = 'true';
+    var enabledInput = configRoot.querySelector('input[name="_.enabled"]');
+    if (!enabledInput) {
+        return;
+    }
+    applyRetryDetailsVisibility(configRoot);
+    enabledInput.addEventListener('change', function () {
+        applyRetryDetailsVisibility(configRoot);
+    });
+}

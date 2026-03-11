@@ -35,6 +35,22 @@ customize the content and format of notification messages according to your own 
 
 > Please refer to [official document](https://721806280.github.io/lark-notice-plugin-doc)
 
+## 🔁 Retry Configuration
+
+The plugin can retry failed webhook sends. Retries are disabled by default.
+
+- `enabled`: whether to enable retry
+- `maxAttempts`: total attempts including the first one
+- `initialDelayMs`: initial delay before the first retry
+- `maxDelayMs`: maximum delay between retries
+- `backoffMultiplier`: exponential backoff multiplier
+- `jitterRatio`: random jitter ratio applied to delays
+
+Default values: `enabled=false`, `maxAttempts=1`, `initialDelayMs=500`, `maxDelayMs=5000`,
+`backoffMultiplier=2.0`, `jitterRatio=0.2`.
+
+Retry settings are configured per robot under robot settings.
+
 ## 🧑‍💻 Development Services
 
 ### Test commands
