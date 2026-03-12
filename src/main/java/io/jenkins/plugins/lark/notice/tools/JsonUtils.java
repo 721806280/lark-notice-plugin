@@ -45,6 +45,20 @@ public final class JsonUtils {
     }
 
     /**
+     * Serializes the given object to indented JSON for human-readable exports.
+     *
+     * @param object source object
+     * @return serialized JSON, or {@code null} when the input is {@code null}
+     */
+    @SneakyThrows(JsonProcessingException.class)
+    public static String toPrettyJson(Object object) {
+        if (object == null) {
+            return null;
+        }
+        return mapper().writerWithDefaultPrettyPrinter().writeValueAsString(object);
+    }
+
+    /**
      * Parses a JSON string into a tree model.
      *
      * @param jsonString raw JSON string
