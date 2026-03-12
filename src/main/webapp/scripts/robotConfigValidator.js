@@ -87,14 +87,17 @@ function getParams(robot) {
     // Read the shared proxy settings from the global proxy section.
     var proxy = document.getElementById('proxyConfigContainer');
     var proxyConfig = {
+        enabled: false,
         type: 'DIRECT',
         host: '',
         port: ''
     };
     if (proxy) {
-        var typeInput = proxy.querySelector('select[name="type"]');
-        var hostInput = proxy.querySelector('input[name="host"]');
-        var portInput = proxy.querySelector('input[name="port"]');
+        var enabledInput = proxy.querySelector('input[name="enabled"], input[name="_.enabled"]');
+        var typeInput = proxy.querySelector('select[name="type"], select[name="_.type"]');
+        var hostInput = proxy.querySelector('input[name="host"], input[name="_.host"]');
+        var portInput = proxy.querySelector('input[name="port"], input[name="_.port"]');
+        proxyConfig.enabled = enabledInput ? enabledInput.checked : false;
         proxyConfig.type = typeInput ? typeInput.value : 'DIRECT';
         proxyConfig.host = hostInput ? hostInput.value : '';
         proxyConfig.port = portInput ? portInput.value : '';
@@ -123,6 +126,41 @@ function getParams(robot) {
 
     // Return the payload for the validation request.
     return params;
+}
+
+/**
+ * Applies the proxy detail visibility based on the enable checkbox.
+ * @param {HTMLElement} configRoot - Proxy configuration container element.
+ */
+function applyProxyDetailsVisibility(configRoot) {
+    if (!configRoot) {
+        return;
+    }
+    var enabledInput = configRoot.querySelector('input[name="enabled"], input[name="_.enabled"]');
+    var details = configRoot.querySelector('.lark-proxy-details');
+    if (!enabledInput || !details) {
+        return;
+    }
+    details.hidden = !enabledInput.checked;
+}
+
+/**
+ * Wires the proxy detail toggle behavior to the enable checkbox.
+ * @param {HTMLElement} configRoot - Proxy configuration container element.
+ */
+function bindProxyDetailsVisibility(configRoot) {
+    if (!configRoot || configRoot.dataset.proxyVisibilityBound === 'true') {
+        return;
+    }
+    configRoot.dataset.proxyVisibilityBound = 'true';
+    var enabledInput = configRoot.querySelector('input[name="enabled"], input[name="_.enabled"]');
+    if (!enabledInput) {
+        return;
+    }
+    applyProxyDetailsVisibility(configRoot);
+    enabledInput.addEventListener('change', function () {
+        applyProxyDetailsVisibility(configRoot);
+    });
 }
 
 /**

@@ -16,20 +16,6 @@
                      help="/descriptor/io.jenkins.plugins.lark.notice.config.LarkRobotConfig/help/webhook">
                 <f:textbox name="webhook"/>
             </f:entry>
-            <f:entry>
-                <button
-                        type="button"
-                        class="jenkins-button robot-config-validate-btn"
-                        data-validate-button-descriptor-url="${descriptor.descriptorFullUrl}"
-                        data-validate-button-method="test"
-                        data-validate-button-with="${with}"
-                        data-validate-request-failed-message="${%robot.test.request.failure}"
-                        data-validate-generic-success-message="${%robot.test.request.success}"
-                >
-                    ${%robot.test.button}
-                </button>
-            </f:entry>
-            <div class="robot-config-validate-msg"><!-- this is where the error message goes --></div>
         </f:section>
 
         <j:scope>
@@ -57,6 +43,21 @@
             <f:property field="retryConfig"
                         propertyDescriptor="${descriptor.getLarkRetryConfigDescriptor()}"/>
         </f:section>
+
+        <div class="robot-config-actions">
+            <button
+                    type="button"
+                    class="jenkins-button robot-config-validate-btn"
+                    data-validate-button-descriptor-url="${descriptor.descriptorFullUrl}"
+                    data-validate-button-method="test"
+                    data-validate-button-with="${with}"
+                    data-validate-request-failed-message="${%robot.test.request.failure}"
+                    data-validate-generic-success-message="${%robot.test.request.success}"
+            >
+                ${%robot.test.button}
+            </button>
+        </div>
+        <div class="robot-config-validate-msg"><!-- this is where the error message goes --></div>
 
         <st:adjunct includes="io.jenkins.plugins.lark.notice.config.LarkRobotConfig.validate-robot-config-onclick"/>
     </div>

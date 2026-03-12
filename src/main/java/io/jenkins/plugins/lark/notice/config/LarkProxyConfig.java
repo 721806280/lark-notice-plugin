@@ -22,6 +22,7 @@ import java.util.List;
  *
  * <p>LarkProxyConfig includes the following properties:</p>
  * <ul>
+ *     <li>enabled: Whether proxy is enabled.</li>
  *     <li>type: The proxy type, supporting SOCKS and HTTP.</li>
  *     <li>host: The hostname or IP address of the proxy server.</li>
  *     <li>port: The port number of the proxy server.</li>
@@ -43,6 +44,11 @@ public class LarkProxyConfig extends Descriptor<LarkProxyConfig> implements Desc
     private Type type;
 
     /**
+     * Whether proxy is enabled.
+     */
+    private boolean enabled;
+
+    /**
      * Hostname or IP address of the proxy server.
      */
     private String host;
@@ -62,16 +68,18 @@ public class LarkProxyConfig extends Descriptor<LarkProxyConfig> implements Desc
     /**
      * Constructs a new instance of LarkProxyConfig with input parameters.
      *
-     * @param type Proxy type.
-     * @param host Hostname or IP address of the proxy server.
-     * @param port Port number of the proxy server.
+     * @param type    Proxy type.
+     * @param host    Hostname or IP address of the proxy server.
+     * @param port    Port number of the proxy server.
+     * @param enabled Whether proxy is enabled.
      */
     @DataBoundConstructor
-    public LarkProxyConfig(Type type, String host, int port) {
+    public LarkProxyConfig(Type type, String host, int port, boolean enabled) {
         this();
         this.type = type;
         this.host = host;
         this.port = port;
+        this.enabled = enabled;
     }
 
     /**
@@ -84,6 +92,7 @@ public class LarkProxyConfig extends Descriptor<LarkProxyConfig> implements Desc
             this.host = host.trim();
         }
     }
+
 
     /**
      * Returns the descriptor for LarkProxyConfig.
@@ -110,7 +119,7 @@ public class LarkProxyConfig extends Descriptor<LarkProxyConfig> implements Desc
              */
             @Override
             public List<Proxy> select(URI uri) {
-                if (type == Type.DIRECT || StringUtils.isEmpty(host) || port == null) {
+                if (!enabled || type == Type.DIRECT || StringUtils.isEmpty(host) || port == null) {
                     return Collections.singletonList(Proxy.NO_PROXY);
                 }
                 InetSocketAddress inetSocketAddress = new InetSocketAddress(host, port);
