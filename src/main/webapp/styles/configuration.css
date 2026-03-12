@@ -60,30 +60,14 @@
 .robot-config-actions {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
+    flex-wrap: wrap;
     gap: 8px;
     margin-top: 6px;
 }
 
-.robot-config-meta {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-width: 0;
-    color: var(--text-color-secondary, #5f6b7a);
-    font-size: 12px;
-}
-
-.robot-config-meta-label {
-    white-space: nowrap;
-}
-
-.robot-config-id-value {
-    max-width: 240px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    margin: 0;
+.robot-config-copy-id-btn {
+    min-width: auto;
 }
 
 .robot-config-validate-msg {

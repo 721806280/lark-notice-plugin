@@ -46,19 +46,16 @@
 
         <div class="robot-config-actions">
             <j:if test="${!empty(robotIdValue)}">
-                <div class="robot-config-meta">
-                    <span class="robot-config-meta-label">${%robot.id}</span>
-                    <code class="robot-config-id-value" title="${robotIdValue}">${robotIdValue}</code>
-                    <button
-                            type="button"
-                            class="jenkins-button robot-config-copy-id-btn"
-                            data-copy-default-label="${%robot.id.copy}"
-                            data-copy-success-label="${%robot.id.copy.success}"
-                            data-copy-failure-label="${%robot.id.copy.failure}"
-                    >
-                        ${%robot.id.copy}
-                    </button>
-                </div>
+                <button
+                        type="button"
+                        class="jenkins-button robot-config-copy-id-btn"
+                        title="${robotIdValue}"
+                        data-copy-default-label="${%robot.id.copy}"
+                        data-copy-success-label="${%robot.id.copy.success}"
+                        data-copy-failure-label="${%robot.id.copy.failure}"
+                >
+                    ${%robot.id.copy}
+                </button>
             </j:if>
             <button
                     type="button"
