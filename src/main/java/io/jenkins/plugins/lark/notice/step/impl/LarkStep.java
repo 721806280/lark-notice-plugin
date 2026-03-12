@@ -2,8 +2,10 @@ package io.jenkins.plugins.lark.notice.step.impl;
 
 import com.google.common.collect.ImmutableSet;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import hudson.EnvVars;
 import hudson.Extension;
+import hudson.model.Descriptor.FormException;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import io.jenkins.plugins.lark.notice.enums.MsgTypeEnum;
@@ -20,13 +22,18 @@ import io.jenkins.plugins.lark.notice.step.AbstractStep;
 import io.jenkins.plugins.lark.notice.tools.JsonUtils;
 import io.jenkins.plugins.lark.notice.tools.Utils;
 import lombok.Getter;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 import org.apache.commons.lang3.StringUtils;
 import org.jenkinsci.plugins.workflow.steps.StepDescriptor;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
+import org.kohsuke.stapler.StaplerRequest2;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -268,6 +275,12 @@ public class LarkStep extends AbstractStep {
     @Extension(optional = true)
     public static class LarkStepDescriptor extends StepDescriptor implements Serializable {
 
+        private static final String TEXT_VALUE_FIELD = "textValue";
+        private static final String POST_JSON_FIELD = "postJson";
+        private static final String TOP_IMG_JSON_FIELD = "topImgJson";
+        private static final String BOTTOM_IMG_JSON_FIELD = "bottomImgJson";
+        private static final String BUTTONS_JSON_FIELD = "buttonsJson";
+
         /**
          * Returns the set of context classes that this step requires.
          * Indicates which types of context information are needed for the execution of this step.
@@ -300,6 +313,102 @@ public class LarkStep extends AbstractStep {
         @Override
         public String getDisplayName() {
             return "lark notice";
+        }
+
+        /**
+         * Normalizes snippet-generator helper fields into the step's real databound parameters.
+         *
+         * @param formData submitted form data
+         * @return normalized form data ready for databinding
+         * @throws FormException when one of the JSON helper fields is invalid
+         */
+        static JSONObject normalizeFormData(@NonNull JSONObject formData) throws FormException {
+            JSONObject normalized = JSONObject.fromObject(formData);
+            normalizeTextField(normalized);
+            normalizeJsonArrayField(normalized, POST_JSON_FIELD, "post");
+            normalizeJsonObjectField(normalized, TOP_IMG_JSON_FIELD, "topImg");
+            normalizeJsonObjectField(normalized, BOTTOM_IMG_JSON_FIELD, "bottomImg");
+            normalizeJsonArrayField(normalized, BUTTONS_JSON_FIELD, "buttons");
+            return normalized;
+        }
+
+        /**
+         * Binds the step instance after converting helper fields used by the snippet-generator form.
+         *
+         * @param req request used for databinding
+         * @param formData submitted form data
+         * @return bound step instance
+         * @throws FormException when the submitted data is invalid
+         */
+        @Override
+        public LarkStep newInstance(@Nullable StaplerRequest2 req, @NonNull JSONObject formData) throws FormException {
+            JSONObject normalized = normalizeFormData(formData);
+            if (req != null) {
+                return req.bindJSON(LarkStep.class, normalized);
+            }
+            return (LarkStep) super.newInstance((StaplerRequest2) null, normalized);
+        }
+
+        private static void normalizeTextField(JSONObject formData) {
+            String textValue = StringUtils.trimToNull(formData.optString(TEXT_VALUE_FIELD));
+            formData.remove(TEXT_VALUE_FIELD);
+            formData.remove("text");
+            if (textValue == null) {
+                return;
+            }
+
+            List<String> lines = Arrays.stream(textValue.split("\\R"))
+                    .map(StringUtils::trimToNull)
+                    .filter(Objects::nonNull)
+                    .toList();
+            if (!lines.isEmpty()) {
+                formData.element("text", JSONArray.fromObject(lines));
+            }
+        }
+
+        private static void normalizeJsonObjectField(JSONObject formData, String sourceField, String targetField)
+                throws FormException {
+            String rawJson = StringUtils.trimToNull(formData.optString(sourceField));
+            formData.remove(sourceField);
+            formData.remove(targetField);
+            if (rawJson == null) {
+                return;
+            }
+
+            try {
+                Object parsed = JSONSerializer.toJSON(rawJson);
+                if (!(parsed instanceof JSONObject)) {
+                    throw new IllegalArgumentException("expected a JSON object");
+                }
+                formData.element(targetField, parsed);
+            } catch (Exception ex) {
+                throw invalidJson(sourceField, ex);
+            }
+        }
+
+        private static void normalizeJsonArrayField(JSONObject formData, String sourceField, String targetField)
+                throws FormException {
+            String rawJson = StringUtils.trimToNull(formData.optString(sourceField));
+            formData.remove(sourceField);
+            formData.remove(targetField);
+            if (rawJson == null) {
+                return;
+            }
+
+            try {
+                Object parsed = JSONSerializer.toJSON(rawJson);
+                if (!(parsed instanceof JSONArray)) {
+                    throw new IllegalArgumentException("expected a JSON array");
+                }
+                formData.element(targetField, parsed);
+            } catch (Exception ex) {
+                throw invalidJson(sourceField, ex);
+            }
+        }
+
+        private static FormException invalidJson(String fieldName, Exception ex) {
+            String detail = StringUtils.defaultIfBlank(ex.getMessage(), ex.getClass().getSimpleName());
+            return new FormException("Invalid JSON for " + fieldName + ": " + detail, fieldName);
         }
     }
 

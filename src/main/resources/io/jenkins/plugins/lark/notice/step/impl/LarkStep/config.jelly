@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
+    <f:section title="${%step.section.common}">
+        <f:entry field="robot" title="${%step.robot}">
+            <f:textbox/>
+        </f:entry>
+        <f:entry field="type" title="${%step.type}">
+            <f:enum>${it.name()}</f:enum>
+        </f:entry>
+        <f:entry field="title" title="${%step.title}">
+            <f:textbox/>
+        </f:entry>
+        <f:entry title="${%step.text}" description="${%step.text.description}">
+            <f:textarea name="textValue" />
+        </f:entry>
+    </f:section>
+
+    <f:section title="${%step.section.message}">
+        <f:entry field="shareChatId" title="${%step.shareChatId}">
+            <f:textbox/>
+        </f:entry>
+        <f:entry field="imageKey" title="${%step.imageKey}">
+            <f:textbox/>
+        </f:entry>
+        <f:entry title="${%step.post}" description="${%step.post.description}">
+            <f:textarea name="postJson" />
+        </f:entry>
+    </f:section>
+
+    <f:advanced>
+        <f:section title="${%step.section.card}">
+            <f:entry title="${%step.topImg}" description="${%step.topImg.description}">
+                <f:textarea name="topImgJson" />
+            </f:entry>
+            <f:entry title="${%step.bottomImg}" description="${%step.bottomImg.description}">
+                <f:textarea name="bottomImgJson" />
+            </f:entry>
+            <f:entry title="${%step.buttons}" description="${%step.buttons.description}">
+                <f:textarea name="buttonsJson" />
+            </f:entry>
+        </f:section>
+    </f:advanced>
+</j:jelly>
