@@ -36,7 +36,7 @@ public class MessageSenderRegistryCacheInvalidationTest {
         senderRegistry.resolve("robot-a");
         assertEquals(1, senderRegistry.cacheSize());
 
-        LarkGlobalConfig.getInstance().setProxyConfig(new LarkProxyConfig(Proxy.Type.HTTP, "127.0.0.1", 8080));
+        LarkGlobalConfig.getInstance().setProxyConfig(new LarkProxyConfig(Proxy.Type.HTTP, "127.0.0.1", 8080, true));
         assertEquals(0, senderRegistry.cacheSize());
     }
 

@@ -48,7 +48,7 @@ public class ConfigurationPageRenderTest {
         HtmlPage configurePage = webClient.goTo("configure");
         String configureHtml = configurePage.getWebResponse().getContentAsString();
         assertEquals(1, countMatches(configureHtml, "/plugin/lark-notice/styles/configuration.css"));
-        assertEquals(1, countMatches(configureHtml, "/plugin/lark-notice/scripts/robotConfigValidator.js"));
+        assertEquals(1, countMatches(configureHtml, "/plugin/lark-notice/scripts/robot-config-validator.js"));
         assertTrue(configureHtml.contains("name=\"robotConfigs\""));
         assertTrue(configureHtml.contains("id=\"proxyConfigContainer\""));
         assertTrue(configureHtml.contains("data-validate-button-method=\"test\""));
@@ -56,8 +56,10 @@ public class ConfigurationPageRenderTest {
         HtmlPage managementPage = webClient.goTo("manage/lark");
         String managementHtml = managementPage.getWebResponse().getContentAsString();
         assertEquals(1, countMatches(managementHtml, "/plugin/lark-notice/styles/configuration.css"));
-        assertEquals(1, countMatches(managementHtml, "/plugin/lark-notice/scripts/robotConfigValidator.js"));
+        assertEquals(1, countMatches(managementHtml, "/plugin/lark-notice/scripts/robot-config-validator.js"));
+        assertEquals(1, countMatches(managementHtml, "/plugin/lark-notice/scripts/management-config-tools.js"));
         assertTrue(managementHtml.contains("name=\"larkManagementLinkForm\""));
+        assertTrue(managementHtml.contains("name=\"larkManagementImportForm\""));
         assertTrue(managementHtml.contains("name=\"robotConfigs\""));
         assertTrue(managementHtml.contains("id=\"proxyConfigContainer\""));
         assertTrue(managementHtml.contains("data-validate-button-method=\"test\""));
@@ -116,7 +118,7 @@ public class ConfigurationPageRenderTest {
         HtmlPage configurePage = webClient.getPage(project, "configure");
         String html = configurePage.getWebResponse().getContentAsString();
 
-        assertEquals(1, countMatches(html, "/plugin/lark-notice/scripts/notifierConfig.js"));
+        assertEquals(1, countMatches(html, "/plugin/lark-notice/scripts/notifier-config.js"));
         assertEquals(1, countMatches(html, "/plugin/lark-notice/styles/configuration.css"));
         assertTrue(html.contains("name=\"notifierConfigs\""));
         assertTrue(html.contains("io.jenkins.plugins.lark.notice.config.LarkNotifierConfig"));
@@ -133,7 +135,7 @@ public class ConfigurationPageRenderTest {
         HtmlPage configurePage = webClient.getPage(project, "configure");
         String html = configurePage.getWebResponse().getContentAsString();
 
-        assertEquals(1, countMatches(html, "/plugin/lark-notice/scripts/notifierConfig.js"));
+        assertEquals(1, countMatches(html, "/plugin/lark-notice/scripts/notifier-config.js"));
         assertEquals(1, countMatches(html, "/plugin/lark-notice/styles/configuration.css"));
         assertTrue(html.contains("descriptorId=\"io.jenkins.plugins.lark.notice.config.LarkNotifier\""));
         assertTrue(html.contains("name=\"notifierConfigs\""));
@@ -151,7 +153,7 @@ public class ConfigurationPageRenderTest {
         HtmlPage configurePage = webClient.getPage(project, "configure");
         String html = configurePage.getWebResponse().getContentAsString();
 
-        assertEquals(1, countMatches(html, "/plugin/lark-notice/scripts/notifierConfig.js"));
+        assertEquals(1, countMatches(html, "/plugin/lark-notice/scripts/notifier-config.js"));
         assertEquals(1, countMatches(html, "/plugin/lark-notice/styles/configuration.css"));
         assertEquals(2, countMatches(html, "class=\"jenkins-form-item hetero-list-container one-each\""));
     }
@@ -170,7 +172,7 @@ public class ConfigurationPageRenderTest {
         HtmlPage configurePage = webClient.getPage(project, "configure");
         String html = configurePage.getWebResponse().getContentAsString();
 
-        assertEquals(1, countMatches(html, "/plugin/lark-notice/scripts/notifierConfig.js"));
+        assertEquals(1, countMatches(html, "/plugin/lark-notice/scripts/notifier-config.js"));
         assertEquals(1, countMatches(html, "/plugin/lark-notice/styles/configuration.css"));
         assertTrue(html.contains("name=\"notifierConfigs\""));
         assertTrue(html.contains("io.jenkins.plugins.lark.notice.config.property.LarkBranchJobProperty"));
