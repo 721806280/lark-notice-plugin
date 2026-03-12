@@ -2,12 +2,12 @@
 
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
          xmlns:f="/lib/form">
+    <j:set var="robotIdValue" value="${instance != null ? instance.getId() : ''}"/>
     <div class="robot-config-container">
+        <f:invisibleEntry>
+            <input type="hidden" name="id" value="${robotIdValue}"/>
+        </f:invisibleEntry>
         <f:section title="${%robot.section.basic}">
-            <f:entry title="${%robot.id}" field="id"
-                     help="/descriptor/io.jenkins.plugins.lark.notice.config.LarkRobotConfig/help/id">
-                <f:textbox name="id" readonly="true"/>
-            </f:entry>
             <f:entry title="${%robot.name}" field="name"
                      help="/descriptor/io.jenkins.plugins.lark.notice.config.LarkRobotConfig/help/name">
                 <f:textbox name="name"/>
@@ -45,6 +45,21 @@
         </f:section>
 
         <div class="robot-config-actions">
+            <j:if test="${!empty(robotIdValue)}">
+                <div class="robot-config-meta">
+                    <span class="robot-config-meta-label">${%robot.id}</span>
+                    <code class="robot-config-id-value" title="${robotIdValue}">${robotIdValue}</code>
+                    <button
+                            type="button"
+                            class="jenkins-button robot-config-copy-id-btn"
+                            data-copy-default-label="${%robot.id.copy}"
+                            data-copy-success-label="${%robot.id.copy.success}"
+                            data-copy-failure-label="${%robot.id.copy.failure}"
+                    >
+                        ${%robot.id.copy}
+                    </button>
+                </div>
+            </j:if>
             <button
                     type="button"
                     class="jenkins-button robot-config-validate-btn"

@@ -78,6 +78,65 @@ function renderValidationResult(container, message, isSuccess) {
     Behaviour.applySubtree(container);
 }
 
+function copyRobotId(button) {
+    var robot = button.closest('.robot-config-container');
+    if (!robot) {
+        return;
+    }
+    var idInput = robot.querySelector('input[name="id"]');
+    var robotId = idInput ? idInput.value : '';
+    if (!robotId) {
+        flashCopyButtonLabel(button, button.getAttribute('data-copy-failure-label') || 'Copy failed');
+        return;
+    }
+    writeTextToClipboard(robotId).then(function () {
+        flashCopyButtonLabel(button, button.getAttribute('data-copy-success-label') || 'Copied');
+    }).catch(function (error) {
+        console.error(error);
+        flashCopyButtonLabel(button, button.getAttribute('data-copy-failure-label') || 'Copy failed');
+    });
+}
+
+function flashCopyButtonLabel(button, label) {
+    var defaultLabel = button.getAttribute('data-copy-default-label') || button.textContent;
+    if (button.dataset.copyLabelTimerId) {
+        window.clearTimeout(Number(button.dataset.copyLabelTimerId));
+    }
+    button.textContent = label;
+    button.disabled = true;
+    button.dataset.copyLabelTimerId = String(window.setTimeout(function () {
+        button.textContent = defaultLabel;
+        button.disabled = false;
+        delete button.dataset.copyLabelTimerId;
+    }, 1200));
+}
+
+function writeTextToClipboard(text) {
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function (resolve, reject) {
+        var helper = document.createElement('textarea');
+        helper.value = text;
+        helper.setAttribute('readonly', 'readonly');
+        helper.style.position = 'fixed';
+        helper.style.opacity = '0';
+        document.body.appendChild(helper);
+        helper.select();
+        try {
+            if (document.execCommand('copy')) {
+                resolve();
+            } else {
+                reject(new Error('Copy command was rejected.'));
+            }
+        } catch (error) {
+            reject(error);
+        } finally {
+            document.body.removeChild(helper);
+        }
+    });
+}
+
 /**
  * Builds the request payload used to validate a robot configuration.
  * @param {HTMLElement} robot - Robot configuration container element.

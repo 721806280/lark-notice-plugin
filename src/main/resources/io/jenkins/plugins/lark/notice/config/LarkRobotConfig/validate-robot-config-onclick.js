@@ -4,6 +4,12 @@ Behaviour.specify('.robot-config-validate-btn', 'validate-robot-config', 0, func
     });
 });
 
+Behaviour.specify('.robot-config-copy-id-btn', 'copy-robot-id', 0, function (element) {
+    element.addEventListener('click', function () {
+        copyRobotId(this);
+    });
+});
+
 // Toggle retry details visibility when the enable checkbox changes.
 Behaviour.specify('.lark-retry-config', 'toggle-retry-details', 0, function (element) {
     bindRetryDetailsVisibility(element);
