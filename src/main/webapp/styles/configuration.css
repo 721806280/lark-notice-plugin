@@ -73,3 +73,34 @@
 .robot-config-validate-msg {
     margin-top: 6px;
 }
+
+.lark-management-tools {
+    margin-bottom: 24px;
+}
+
+.lark-management-tools__description {
+    margin-bottom: 12px;
+    color: var(--text-color-secondary, #5f6b7a);
+}
+
+.lark-management-tools__exports {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.lark-management-import-form__textarea {
+    width: 100%;
+    min-height: 180px;
+    resize: vertical;
+    margin-top: 6px;
+}
+
+.lark-management-import-form__actions {
+    margin-top: 8px;
+}
+
+.lark-management-import-result {
+    margin-top: 8px;
+}

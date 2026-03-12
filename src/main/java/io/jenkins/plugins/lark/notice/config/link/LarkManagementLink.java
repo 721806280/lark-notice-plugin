@@ -6,17 +6,28 @@ import hudson.model.Descriptor.FormException;
 import hudson.model.ManageJenkinsAction;
 import hudson.model.ManagementLink;
 import hudson.security.Permission;
+import io.jenkins.plugins.lark.notice.config.snapshot.LarkConfigSnapshot;
+import io.jenkins.plugins.lark.notice.config.snapshot.LarkConfigSnapshotMapper;
+import io.jenkins.plugins.lark.notice.config.snapshot.LarkConfigSnapshotValidator;
+import io.jenkins.plugins.lark.notice.tools.JsonUtils;
 import hudson.util.FormApply;
 import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.config.LarkGlobalConfig;
 import io.jenkins.plugins.lark.notice.config.security.LarkPermissions;
 import jakarta.servlet.ServletException;
 import jenkins.model.Jenkins;
+import net.sf.json.JSONObject;
+import org.apache.commons.lang3.StringUtils;
+import org.kohsuke.stapler.HttpResponse;
+import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest2;
 import org.kohsuke.stapler.StaplerResponse2;
 import org.kohsuke.stapler.verb.POST;
 
 import java.io.IOException;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 
 /**
  * LarkManagementLink provides a management link in Jenkins' system configuration page
@@ -117,6 +128,85 @@ public class LarkManagementLink extends ManagementLink {
         Jenkins.get().checkPermission(LarkPermissions.CONFIGURE);
         getGlobalConfig().configure(req, req.getSubmittedForm());
         FormApply.success("..").generateResponse(req, res, null);
+    }
+
+    /**
+     * Exports the current configuration as a downloadable JSON snapshot.
+     *
+     * @param includeSecrets whether sensitive values should be included in the exported snapshot
+     * @return file download response
+     */
+    public HttpResponse doExport(@QueryParameter boolean includeSecrets) {
+        Jenkins.get().checkPermission(LarkPermissions.CONFIGURE);
+        LarkConfigSnapshot snapshot = LarkConfigSnapshotMapper.toSnapshot(getGlobalConfig(), includeSecrets);
+        return downloadResponse(JsonUtils.toPrettyJson(snapshot), buildExportFileName(includeSecrets));
+    }
+
+    /**
+     * Imports a JSON snapshot and replaces the current configuration on success.
+     *
+     * @param payload JSON snapshot payload pasted on the management page
+     * @return JSON response describing the import result
+     */
+    @POST
+    public HttpResponse doImport(@QueryParameter String payload) {
+        Jenkins.get().checkPermission(LarkPermissions.CONFIGURE);
+
+        JSONObject response = new JSONObject();
+        try {
+            if (StringUtils.isBlank(payload)) {
+                throw new FormException(Messages.config_import_payload_missing(), "payload");
+            }
+
+            LarkConfigSnapshot snapshot = JsonUtils.readValue(payload, LarkConfigSnapshot.class);
+            LarkConfigSnapshotValidator.validateForImport(snapshot);
+
+            LarkConfigSnapshotMapper.ImportedGlobalConfig imported = LarkConfigSnapshotMapper.fromSnapshot(snapshot);
+            LarkGlobalConfig globalConfig = getGlobalConfig();
+            globalConfig.setVerbose(imported.isVerbose());
+            globalConfig.setNoticeOccasions(imported.getNoticeOccasions());
+            globalConfig.setProxyConfig(imported.getProxyConfig());
+            globalConfig.setRobotConfigs(imported.getRobotConfigs());
+            globalConfig.save();
+
+            response.put("ok", true);
+            response.put("message", Messages.config_import_success(imported.getRobotConfigs().size()));
+            return jsonResponse(response);
+        } catch (FormException ex) {
+            response.put("ok", false);
+            response.put("message", ex.getMessage());
+            return jsonResponse(response);
+        } catch (Exception ex) {
+            response.put("ok", false);
+            response.put("message", Messages.config_import_payload_invalid(StringUtils.defaultIfBlank(ex.getMessage(), ex.getClass().getSimpleName())));
+            return jsonResponse(response);
+        }
+    }
+
+    private HttpResponse downloadResponse(String body, String fileName) {
+        return new HttpResponse() {
+            @Override
+            public void generateResponse(StaplerRequest2 req, StaplerResponse2 rsp, Object node) throws IOException, ServletException {
+                rsp.setContentType("application/json; charset=UTF-8");
+                rsp.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+                rsp.getWriter().write(body);
+            }
+        };
+    }
+
+    private HttpResponse jsonResponse(JSONObject response) {
+        return new HttpResponse() {
+            @Override
+            public void generateResponse(StaplerRequest2 req, StaplerResponse2 rsp, Object node) throws IOException, ServletException {
+                rsp.setContentType("application/json; charset=UTF-8");
+                rsp.getWriter().write(response.toString());
+            }
+        };
+    }
+
+    private String buildExportFileName(boolean includeSecrets) {
+        String timestamp = OffsetDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
+        return "lark-notice-config-" + timestamp + (includeSecrets ? "" : "-no-secrets") + ".json";
     }
 
 }
