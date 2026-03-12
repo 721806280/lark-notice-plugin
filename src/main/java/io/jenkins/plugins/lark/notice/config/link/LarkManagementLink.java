@@ -136,13 +136,12 @@ public class LarkManagementLink extends ManagementLink {
     /**
      * Exports the current configuration as a downloadable JSON snapshot.
      *
-     * @param includeSecrets whether sensitive values should be included in the exported snapshot
      * @return file download response
      */
-    public HttpResponse doExport(@QueryParameter boolean includeSecrets) {
+    public HttpResponse doExport() {
         Jenkins.get().checkPermission(LarkPermissions.CONFIGURE);
-        LarkConfigSnapshot snapshot = LarkConfigSnapshotMapper.toSnapshot(getGlobalConfig(), includeSecrets);
-        return downloadResponse(JsonUtils.toPrettyJson(snapshot), buildExportFileName(includeSecrets));
+        LarkConfigSnapshot snapshot = LarkConfigSnapshotMapper.toSnapshot(getGlobalConfig());
+        return downloadResponse(JsonUtils.toPrettyJson(snapshot), buildExportFileName());
     }
 
     /**
@@ -267,9 +266,9 @@ public class LarkManagementLink extends ManagementLink {
         };
     }
 
-    private String buildExportFileName(boolean includeSecrets) {
+    private String buildExportFileName() {
         String timestamp = OffsetDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
-        return "lark-notice-config-" + timestamp + (includeSecrets ? "" : "-no-secrets") + ".json";
+        return "lark-notice-config-" + timestamp + ".json";
     }
 
     /**

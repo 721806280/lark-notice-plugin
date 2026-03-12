@@ -40,11 +40,6 @@ public class LarkConfigSnapshot {
     private String exportedAt;
 
     /**
-     * Whether sensitive values such as webhook and secrets are included.
-     */
-    private boolean secretsIncluded;
-
-    /**
      * Exported proxy configuration.
      */
     private ProxySnapshot proxyConfig;

@@ -38,9 +38,6 @@ public final class LarkConfigSnapshotValidator {
         if (snapshot.getSchemaVersion() == null || snapshot.getSchemaVersion() != LarkConfigSnapshot.CURRENT_SCHEMA_VERSION) {
             throw new FormException(Messages.config_import_schema_unsupported(), IMPORT_FIELD);
         }
-        if (!snapshot.isSecretsIncluded()) {
-            throw new FormException(Messages.config_import_secrets_required(), IMPORT_FIELD);
-        }
         validateNoticeOccasions(snapshot.getNoticeOccasions());
         validateProxy(snapshot.getProxyConfig());
         validateRobots(snapshot.getRobotConfigs());

@@ -32,20 +32,18 @@ public final class LarkConfigSnapshotMapper {
      * Converts the live global configuration into a serializable snapshot.
      *
      * @param globalConfig current live configuration
-     * @param includeSecrets whether secret-bearing fields should be included
      * @return exported snapshot
      */
-    public static LarkConfigSnapshot toSnapshot(LarkGlobalConfig globalConfig, boolean includeSecrets) {
+    public static LarkConfigSnapshot toSnapshot(LarkGlobalConfig globalConfig) {
         LarkConfigSnapshot snapshot = new LarkConfigSnapshot();
         snapshot.setPluginVersion(resolvePluginVersion());
         snapshot.setExportedAt(OffsetDateTime.now(ZoneOffset.UTC).toString());
-        snapshot.setSecretsIncluded(includeSecrets);
         snapshot.setVerbose(globalConfig.isVerbose());
         snapshot.setNoticeOccasions(new LinkedHashSet<>(globalConfig.getNoticeOccasions()));
         snapshot.setProxyConfig(toProxySnapshot(globalConfig.getProxyConfig()));
 
         List<RobotSnapshot> robots = globalConfig.getRobotConfigs().stream()
-                .map(robotConfig -> toRobotSnapshot(robotConfig, includeSecrets))
+                .map(LarkConfigSnapshotMapper::toRobotSnapshot)
                 .toList();
         snapshot.setRobotConfigs(new ArrayList<>(robots));
         return snapshot;
@@ -83,7 +81,7 @@ public final class LarkConfigSnapshotMapper {
         if (robotConfig == null) {
             return null;
         }
-        return toRobotConfig(toRobotSnapshot(robotConfig, true));
+        return toRobotConfig(toRobotSnapshot(robotConfig));
     }
 
     private static ProxySnapshot toProxySnapshot(LarkProxyConfig proxyConfig) {
@@ -98,27 +96,26 @@ public final class LarkConfigSnapshotMapper {
         return snapshot;
     }
 
-    private static RobotSnapshot toRobotSnapshot(LarkRobotConfig robotConfig, boolean includeSecrets) {
+    private static RobotSnapshot toRobotSnapshot(LarkRobotConfig robotConfig) {
         RobotSnapshot snapshot = new RobotSnapshot();
         snapshot.setId(robotConfig.getId());
         snapshot.setName(robotConfig.getName());
-        snapshot.setWebhook(includeSecrets ? robotConfig.getWebhook() : null);
+        snapshot.setWebhook(robotConfig.getWebhook());
         snapshot.setRetryConfig(toRetrySnapshot(robotConfig.getRetryConfig()));
 
         List<SecurityPolicySnapshot> policies = robotConfig.getSecurityPolicyConfigs().stream()
                 .filter(policyConfig -> StringUtils.isNotBlank(policyConfig.getValue()))
-                .map(policyConfig -> toSecurityPolicySnapshot(policyConfig, includeSecrets))
+                .map(LarkConfigSnapshotMapper::toSecurityPolicySnapshot)
                 .toList();
         snapshot.setSecurityPolicyConfigs(new ArrayList<>(policies));
         return snapshot;
     }
 
-    private static SecurityPolicySnapshot toSecurityPolicySnapshot(LarkSecurityPolicyConfig policyConfig, boolean includeSecrets) {
+    private static SecurityPolicySnapshot toSecurityPolicySnapshot(LarkSecurityPolicyConfig policyConfig) {
         SecurityPolicySnapshot snapshot = new SecurityPolicySnapshot();
         snapshot.setType(policyConfig.getType());
         snapshot.setDesc(policyConfig.getDesc());
-        boolean nonSensitive = "NO_SSL".equals(policyConfig.getType());
-        snapshot.setValue(includeSecrets || nonSensitive ? policyConfig.getValue() : null);
+        snapshot.setValue(policyConfig.getValue());
         return snapshot;
     }
 

@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -34,10 +33,9 @@ public class LarkConfigSnapshotTest {
                 new ArrayList<>(List.of(createRobot("robot-a")))
         );
 
-        LarkConfigSnapshot snapshot = LarkConfigSnapshotMapper.toSnapshot(globalConfig, true);
+        LarkConfigSnapshot snapshot = LarkConfigSnapshotMapper.toSnapshot(globalConfig);
         LarkConfigSnapshotMapper.ImportedGlobalConfig imported = LarkConfigSnapshotMapper.fromSnapshot(snapshot);
 
-        assertTrue(snapshot.isSecretsIncluded());
         assertEquals(1, snapshot.getRobotConfigs().size());
         assertEquals("https://open.feishu.cn/open-apis/bot/v2/hook/robot-a", snapshot.getRobotConfigs().get(0).getWebhook());
 
@@ -49,46 +47,6 @@ public class LarkConfigSnapshotTest {
         assertEquals("https://open.feishu.cn/open-apis/bot/v2/hook/robot-a", imported.getRobotConfigs().get(0).getWebhook());
         assertTrue(imported.getRobotConfigs().get(0).getRetryConfig().isEnabled());
         assertEquals(Proxy.Type.HTTP, imported.getProxyConfig().getType());
-    }
-
-    @Test
-    public void exportWithoutSecretsShouldRedactSensitiveValues() {
-        LarkConfigSnapshot snapshot = LarkConfigSnapshotMapper.toSnapshot(
-                new LarkGlobalConfig(null, false, Set.of("SUCCESS"), new ArrayList<>(List.of(createRobot("robot-b")))),
-                false
-        );
-
-        RobotSnapshot robotSnapshot = snapshot.getRobotConfigs().get(0);
-        String keyValue = robotSnapshot.getSecurityPolicyConfigs().stream()
-                .filter(policy -> "KEY".equals(policy.getType()))
-                .findFirst()
-                .map(SecurityPolicySnapshot::getValue)
-                .orElse(null);
-        String noSslValue = robotSnapshot.getSecurityPolicyConfigs().stream()
-                .filter(policy -> "NO_SSL".equals(policy.getType()))
-                .findFirst()
-                .map(SecurityPolicySnapshot::getValue)
-                .orElse(null);
-        assertFalse(snapshot.isSecretsIncluded());
-        assertNull(robotSnapshot.getWebhook());
-        assertNull(keyValue);
-        assertEquals("true", noSslValue);
-    }
-
-    @Test
-    public void validatorShouldRejectSnapshotsWithoutSecrets() {
-        LarkConfigSnapshot snapshot = LarkConfigSnapshotMapper.toSnapshot(
-                new LarkGlobalConfig(null, false, Set.of("SUCCESS"), new ArrayList<>(List.of(createRobot("robot-c")))),
-                false
-        );
-
-        try {
-            LarkConfigSnapshotValidator.validateForImport(snapshot);
-        } catch (FormException ex) {
-            assertTrue(ex.getMessage().contains("secrets"));
-            return;
-        }
-        throw new AssertionError("Expected import validation to fail for redacted snapshots");
     }
 
     @Test
@@ -104,8 +62,7 @@ public class LarkConfigSnapshotTest {
                         new LarkGlobalConfig(null, true, Set.of("FAILURE"), new ArrayList<>(List.of(
                                 createRobot("robot-b"),
                                 createRobot("robot-c")
-                        ))),
-                        true
+                        )))
                 )
         );
 
@@ -140,8 +97,7 @@ public class LarkConfigSnapshotTest {
                         new LarkGlobalConfig(null, true, Set.of("FAILURE"), new ArrayList<>(List.of(
                                 createRobot("robot-b"),
                                 createRobot("robot-c")
-                        ))),
-                        true
+                        )))
                 )
         );
 

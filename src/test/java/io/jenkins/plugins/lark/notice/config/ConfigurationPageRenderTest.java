@@ -57,15 +57,24 @@ public class ConfigurationPageRenderTest {
         String managementHtml = managementPage.getWebResponse().getContentAsString();
         assertEquals(1, countMatches(managementHtml, "/plugin/lark-notice/styles/configuration.css"));
         assertEquals(1, countMatches(managementHtml, "/plugin/lark-notice/scripts/robot-config-validator.js"));
-        assertEquals(1, countMatches(managementHtml, "/plugin/lark-notice/scripts/management-config-tools.js"));
         assertTrue(managementHtml.contains("name=\"larkManagementLinkForm\""));
-        assertTrue(managementHtml.contains("name=\"larkManagementImportForm\""));
-        assertTrue(managementHtml.contains("Replace all settings"));
-        assertTrue(managementHtml.contains("lark-config-preview-btn"));
-        assertTrue(managementHtml.contains("No-secrets exports are for review or sharing only and cannot be imported."));
+        assertEquals(0, countMatches(managementHtml, "/plugin/lark-notice/scripts/management-config-tools.js"));
+        assertEquals(0, countMatches(managementHtml, "name=\"larkManagementImportForm\""));
+        assertTrue(managementHtml.contains("Open Migration Tools"));
+        assertTrue(managementHtml.contains("Use a separate page for export, import preview, and configuration restore operations."));
         assertTrue(managementHtml.contains("name=\"robotConfigs\""));
         assertTrue(managementHtml.contains("id=\"proxyConfigContainer\""));
         assertTrue(managementHtml.contains("data-validate-button-method=\"test\""));
+
+        HtmlPage toolsPage = webClient.goTo("manage/lark/tools");
+        String toolsHtml = toolsPage.getWebResponse().getContentAsString();
+        assertEquals(1, countMatches(toolsHtml, "/plugin/lark-notice/styles/configuration.css"));
+        assertEquals(1, countMatches(toolsHtml, "/plugin/lark-notice/scripts/management-config-tools.js"));
+        assertTrue(toolsHtml.contains("name=\"larkManagementImportForm\""));
+        assertTrue(toolsHtml.contains("Export Current Configuration"));
+        assertTrue(toolsHtml.contains("Replace all settings"));
+        assertTrue(toolsHtml.contains("lark-config-preview-btn"));
+        assertTrue(toolsHtml.contains("Import stays disabled until the latest preview succeeds."));
     }
 
     @Test
@@ -77,6 +86,9 @@ public class ConfigurationPageRenderTest {
 
         HtmlPage managementPage = webClient.goTo("manage/lark");
         assertTrue(managementPage.getWebResponse().getContentAsString().contains("name=\"larkManagementLinkForm\""));
+
+        HtmlPage toolsPage = webClient.goTo("manage/lark/tools");
+        assertTrue(toolsPage.getWebResponse().getContentAsString().contains("name=\"larkManagementImportForm\""));
     }
 
     @Test
@@ -100,6 +112,12 @@ public class ConfigurationPageRenderTest {
             assertTrue(managementPage.getTitleText().contains("Lark \u673A\u5668\u4EBA\u914D\u7F6E"));
             assertTrue(managementHtml.contains("\u901A\u77E5\u89E6\u53D1\u65F6\u673A"));
             assertTrue(managementHtml.contains("\u673A\u5668\u4EBA"));
+
+            HtmlPage toolsPage = webClient.goTo("manage/lark/tools");
+            String toolsHtml = toolsPage.getWebResponse().getContentAsString();
+            assertTrue(toolsPage.getTitleText().contains("Lark \u914D\u7F6E\u8FC1\u79FB"));
+            assertTrue(toolsHtml.contains("\u5BFC\u5165\u4E0E\u5BFC\u51FA"));
+            assertTrue(toolsHtml.contains("\u5BFC\u51FA\u5F53\u524D\u914D\u7F6E"));
 
             HtmlPage jobConfigurePage = webClient.getPage(project, "configure");
             String jobHtml = jobConfigurePage.getWebResponse().getContentAsString();

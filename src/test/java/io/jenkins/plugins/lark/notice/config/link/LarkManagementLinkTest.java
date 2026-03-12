@@ -57,7 +57,7 @@ public class LarkManagementLinkTest {
         LarkGlobalConfig.getInstance().setRobotConfigs(new ArrayList<>(List.of(createRobot("export-robot"))));
 
         JenkinsRule.WebClient webClient = jenkins.createWebClient();
-        Page page = webClient.getPage(new URL(jenkins.getURL(), "manage/lark/export?includeSecrets=true"));
+        Page page = webClient.getPage(new URL(jenkins.getURL(), "manage/lark/export"));
 
         String content = page.getWebResponse().getContentAsString();
         assertTrue(content.contains("\"schemaVersion\""));
@@ -99,8 +99,7 @@ public class LarkManagementLinkTest {
                         true,
                         Set.of("SUCCESS"),
                         new ArrayList<>(List.of(createRobot("import-robot"), createRobot("new-robot")))
-                ),
-                true
+                )
         ));
         JenkinsRule.WebClient webClient = jenkins.createWebClient();
         WebRequest request = new WebRequest(new URL(jenkins.getURL(), "manage/lark/previewImport"), HttpMethod.POST);
@@ -140,8 +139,7 @@ public class LarkManagementLinkTest {
                         true,
                         Set.of("FAILURE"),
                         new ArrayList<>(List.of(createRobot("shared-robot"), createRobot("new-robot")))
-                ),
-                true
+                )
         ));
         JenkinsRule.WebClient webClient = jenkins.createWebClient();
         WebRequest request = new WebRequest(new URL(jenkins.getURL(), "manage/lark/import"), HttpMethod.POST);
@@ -171,7 +169,7 @@ public class LarkManagementLinkTest {
                 Set.of("SUCCESS"),
                 new ArrayList<>(List.of(createRobot("import-robot")))
         );
-        return io.jenkins.plugins.lark.notice.config.snapshot.LarkConfigSnapshotMapper.toSnapshot(source, true);
+        return io.jenkins.plugins.lark.notice.config.snapshot.LarkConfigSnapshotMapper.toSnapshot(source);
     }
 
     private static LarkRobotConfig createRobot(String id) {
