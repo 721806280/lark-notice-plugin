@@ -91,6 +91,77 @@ public class LarkConfigSnapshotTest {
         throw new AssertionError("Expected import validation to fail for redacted snapshots");
     }
 
+    @Test
+    public void importPreviewShouldSummarizeReplaceAndMergeModes() {
+        LarkGlobalConfig current = new LarkGlobalConfig(
+                null,
+                false,
+                Set.of("SUCCESS"),
+                new ArrayList<>(List.of(createRobot("robot-a"), createRobot("robot-b")))
+        );
+        LarkConfigSnapshotMapper.ImportedGlobalConfig imported = LarkConfigSnapshotMapper.fromSnapshot(
+                LarkConfigSnapshotMapper.toSnapshot(
+                        new LarkGlobalConfig(null, true, Set.of("FAILURE"), new ArrayList<>(List.of(
+                                createRobot("robot-b"),
+                                createRobot("robot-c")
+                        ))),
+                        true
+                )
+        );
+
+        LarkConfigImportPreview replacePreview = LarkConfigImportPlanner.preview(current, imported, LarkConfigImportMode.REPLACE);
+        assertEquals("replace", replacePreview.getMode());
+        assertEquals(2, replacePreview.getCurrentRobotCount());
+        assertEquals(2, replacePreview.getImportedRobotCount());
+        assertEquals(1, replacePreview.getAddedRobotCount());
+        assertEquals(1, replacePreview.getUpdatedRobotCount());
+        assertEquals(1, replacePreview.getRemovedRobotCount());
+        assertEquals(0, replacePreview.getRetainedRobotCount());
+
+        LarkConfigImportPreview mergePreview = LarkConfigImportPlanner.preview(current, imported, LarkConfigImportMode.MERGE);
+        assertEquals("merge", mergePreview.getMode());
+        assertEquals(0, mergePreview.getRemovedRobotCount());
+        assertEquals(1, mergePreview.getRetainedRobotCount());
+        assertTrue(mergePreview.isGlobalSettingsOverwritten());
+    }
+
+    @Test
+    public void mergeImportShouldRetainExistingRobotsAndReplaceMatchingIds() {
+        LarkRobotConfig existingRobot = createRobot("robot-a");
+        existingRobot.setName("Existing robot-a");
+        LarkGlobalConfig current = new LarkGlobalConfig(
+                createProxy(),
+                false,
+                Set.of("SUCCESS"),
+                new ArrayList<>(List.of(existingRobot, createRobot("robot-b")))
+        );
+        LarkConfigSnapshotMapper.ImportedGlobalConfig imported = LarkConfigSnapshotMapper.fromSnapshot(
+                LarkConfigSnapshotMapper.toSnapshot(
+                        new LarkGlobalConfig(null, true, Set.of("FAILURE"), new ArrayList<>(List.of(
+                                createRobot("robot-b"),
+                                createRobot("robot-c")
+                        ))),
+                        true
+                )
+        );
+
+        LarkConfigSnapshotMapper.ImportedGlobalConfig merged = LarkConfigImportPlanner.apply(
+                current,
+                imported,
+                LarkConfigImportMode.MERGE
+        );
+
+        assertTrue(merged.isVerbose());
+        assertEquals(Set.of("FAILURE"), merged.getNoticeOccasions());
+        assertNull(merged.getProxyConfig());
+        assertEquals(3, merged.getRobotConfigs().size());
+        assertEquals("robot-a", merged.getRobotConfigs().get(0).getId());
+        assertEquals("Existing robot-a", merged.getRobotConfigs().get(0).getName());
+        assertEquals("robot-b", merged.getRobotConfigs().get(1).getId());
+        assertEquals("Robot robot-b", merged.getRobotConfigs().get(1).getName());
+        assertEquals("robot-c", merged.getRobotConfigs().get(2).getId());
+    }
+
     private static LarkProxyConfig createProxy() {
         LarkProxyConfig proxyConfig = new LarkProxyConfig();
         proxyConfig.setEnabled(true);

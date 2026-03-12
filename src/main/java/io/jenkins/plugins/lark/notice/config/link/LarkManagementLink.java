@@ -6,11 +6,14 @@ import hudson.model.Descriptor.FormException;
 import hudson.model.ManageJenkinsAction;
 import hudson.model.ManagementLink;
 import hudson.security.Permission;
+import hudson.util.FormApply;
 import io.jenkins.plugins.lark.notice.config.snapshot.LarkConfigSnapshot;
+import io.jenkins.plugins.lark.notice.config.snapshot.LarkConfigImportMode;
+import io.jenkins.plugins.lark.notice.config.snapshot.LarkConfigImportPlanner;
+import io.jenkins.plugins.lark.notice.config.snapshot.LarkConfigImportPreview;
 import io.jenkins.plugins.lark.notice.config.snapshot.LarkConfigSnapshotMapper;
 import io.jenkins.plugins.lark.notice.config.snapshot.LarkConfigSnapshotValidator;
 import io.jenkins.plugins.lark.notice.tools.JsonUtils;
-import hudson.util.FormApply;
 import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.config.LarkGlobalConfig;
 import io.jenkins.plugins.lark.notice.config.security.LarkPermissions;
@@ -143,34 +146,94 @@ public class LarkManagementLink extends ManagementLink {
     }
 
     /**
-     * Imports a JSON snapshot and replaces the current configuration on success.
+     * Parses an import payload and resolves the requested import mode.
      *
      * @param payload JSON snapshot payload pasted on the management page
-     * @return JSON response describing the import result
+     * @param modeValue raw import mode request parameter
+     * @return parsed import request
+     * @throws FormException when the payload or mode is invalid
+     */
+    private ParsedImportRequest parseImportRequest(String payload, String modeValue) throws FormException {
+        if (StringUtils.isBlank(payload)) {
+            throw new FormException(Messages.config_import_payload_missing(), "payload");
+        }
+
+        LarkConfigSnapshot snapshot = JsonUtils.readValue(payload, LarkConfigSnapshot.class);
+        LarkConfigSnapshotValidator.validateForImport(snapshot);
+
+        LarkConfigImportMode mode;
+        try {
+            mode = LarkConfigImportMode.fromValue(modeValue);
+        } catch (IllegalArgumentException ex) {
+            throw new FormException(Messages.config_import_mode_invalid(StringUtils.defaultIfBlank(modeValue, "null")), "mode");
+        }
+
+        return new ParsedImportRequest(mode, LarkConfigSnapshotMapper.fromSnapshot(snapshot));
+    }
+
+    /**
+     * Builds a preview response for a snapshot import without persisting any changes.
+     *
+     * @param payload JSON snapshot payload pasted on the management page
+     * @param mode raw import mode request parameter
+     * @return JSON response containing the preview summary
      */
     @POST
-    public HttpResponse doImport(@QueryParameter String payload) {
+    public HttpResponse doPreviewImport(@QueryParameter String payload, @QueryParameter String mode) {
         Jenkins.get().checkPermission(LarkPermissions.CONFIGURE);
 
         JSONObject response = new JSONObject();
         try {
-            if (StringUtils.isBlank(payload)) {
-                throw new FormException(Messages.config_import_payload_missing(), "payload");
-            }
+            ParsedImportRequest importRequest = parseImportRequest(payload, mode);
+            LarkConfigImportPreview preview = LarkConfigImportPlanner.preview(
+                    getGlobalConfig(),
+                    importRequest.getImported(),
+                    importRequest.getMode()
+            );
 
-            LarkConfigSnapshot snapshot = JsonUtils.readValue(payload, LarkConfigSnapshot.class);
-            LarkConfigSnapshotValidator.validateForImport(snapshot);
+            response.put("ok", true);
+            response.put("message", Messages.config_import_preview_success());
+            response.put("data", JSONObject.fromObject(preview));
+            return jsonResponse(response);
+        } catch (FormException ex) {
+            response.put("ok", false);
+            response.put("message", ex.getMessage());
+            return jsonResponse(response);
+        } catch (Exception ex) {
+            response.put("ok", false);
+            response.put("message", Messages.config_import_payload_invalid(StringUtils.defaultIfBlank(ex.getMessage(), ex.getClass().getSimpleName())));
+            return jsonResponse(response);
+        }
+    }
 
-            LarkConfigSnapshotMapper.ImportedGlobalConfig imported = LarkConfigSnapshotMapper.fromSnapshot(snapshot);
+    /**
+     * Imports a JSON snapshot and applies it to the current configuration on success.
+     *
+     * @param payload JSON snapshot payload pasted on the management page
+     * @param mode raw import mode request parameter
+     * @return JSON response describing the import result
+     */
+    @POST
+    public HttpResponse doImport(@QueryParameter String payload, @QueryParameter String mode) {
+        Jenkins.get().checkPermission(LarkPermissions.CONFIGURE);
+
+        JSONObject response = new JSONObject();
+        try {
+            ParsedImportRequest importRequest = parseImportRequest(payload, mode);
             LarkGlobalConfig globalConfig = getGlobalConfig();
-            globalConfig.setVerbose(imported.isVerbose());
-            globalConfig.setNoticeOccasions(imported.getNoticeOccasions());
-            globalConfig.setProxyConfig(imported.getProxyConfig());
-            globalConfig.setRobotConfigs(imported.getRobotConfigs());
+            LarkConfigSnapshotMapper.ImportedGlobalConfig planned = LarkConfigImportPlanner.apply(
+                    globalConfig,
+                    importRequest.getImported(),
+                    importRequest.getMode()
+            );
+            globalConfig.setVerbose(planned.isVerbose());
+            globalConfig.setNoticeOccasions(planned.getNoticeOccasions());
+            globalConfig.setProxyConfig(planned.getProxyConfig());
+            globalConfig.setRobotConfigs(planned.getRobotConfigs());
             globalConfig.save();
 
             response.put("ok", true);
-            response.put("message", Messages.config_import_success(imported.getRobotConfigs().size()));
+            response.put("message", Messages.config_import_success(planned.getRobotConfigs().size()));
             return jsonResponse(response);
         } catch (FormException ex) {
             response.put("ok", false);
@@ -209,4 +272,24 @@ public class LarkManagementLink extends ManagementLink {
         return "lark-notice-config-" + timestamp + (includeSecrets ? "" : "-no-secrets") + ".json";
     }
 
+    /**
+     * Parsed import request bundle used by preview and apply flows.
+     */
+    private static final class ParsedImportRequest {
+        private final LarkConfigImportMode mode;
+        private final LarkConfigSnapshotMapper.ImportedGlobalConfig imported;
+
+        private ParsedImportRequest(LarkConfigImportMode mode, LarkConfigSnapshotMapper.ImportedGlobalConfig imported) {
+            this.mode = mode;
+            this.imported = imported;
+        }
+
+        private LarkConfigImportMode getMode() {
+            return mode;
+        }
+
+        private LarkConfigSnapshotMapper.ImportedGlobalConfig getImported() {
+            return imported;
+        }
+    }
 }

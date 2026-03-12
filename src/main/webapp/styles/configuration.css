@@ -87,6 +87,10 @@
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+    margin-bottom: 12px;
+}
+
+.lark-management-tools__note {
     margin-bottom: 16px;
 }
 
@@ -97,8 +101,42 @@
     margin-top: 6px;
 }
 
+.lark-management-import-form__mode {
+    margin-top: 10px;
+}
+
+.lark-management-import-form__mode .jenkins-select {
+    min-width: 240px;
+    margin-top: 6px;
+}
+
 .lark-management-import-form__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
     margin-top: 8px;
+}
+
+.lark-management-import-preview {
+    margin-top: 12px;
+}
+
+.lark-management-import-preview__title {
+    margin-top: 10px;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.lark-management-import-preview__summary {
+    display: grid;
+    grid-template-columns: max-content minmax(80px, 1fr);
+    gap: 6px 12px;
+    margin: 0;
+}
+
+.lark-management-import-preview__summary dt,
+.lark-management-import-preview__summary dd {
+    margin: 0;
 }
 
 .lark-management-import-result {

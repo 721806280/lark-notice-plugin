@@ -75,6 +75,17 @@ public final class LarkConfigSnapshotMapper {
         return imported;
     }
 
+    static LarkProxyConfig copyProxyConfig(LarkProxyConfig proxyConfig) {
+        return toProxyConfig(toProxySnapshot(proxyConfig));
+    }
+
+    static LarkRobotConfig copyRobotConfig(LarkRobotConfig robotConfig) {
+        if (robotConfig == null) {
+            return null;
+        }
+        return toRobotConfig(toRobotSnapshot(robotConfig, true));
+    }
+
     private static ProxySnapshot toProxySnapshot(LarkProxyConfig proxyConfig) {
         if (proxyConfig == null) {
             return null;

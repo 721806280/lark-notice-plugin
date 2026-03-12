@@ -60,6 +60,9 @@ public class ConfigurationPageRenderTest {
         assertEquals(1, countMatches(managementHtml, "/plugin/lark-notice/scripts/management-config-tools.js"));
         assertTrue(managementHtml.contains("name=\"larkManagementLinkForm\""));
         assertTrue(managementHtml.contains("name=\"larkManagementImportForm\""));
+        assertTrue(managementHtml.contains("Replace all settings"));
+        assertTrue(managementHtml.contains("lark-config-preview-btn"));
+        assertTrue(managementHtml.contains("No-secrets exports are for review or sharing only and cannot be imported."));
         assertTrue(managementHtml.contains("name=\"robotConfigs\""));
         assertTrue(managementHtml.contains("id=\"proxyConfigContainer\""));
         assertTrue(managementHtml.contains("data-validate-button-method=\"test\""));

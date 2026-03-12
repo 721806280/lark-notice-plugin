@@ -3,11 +3,12 @@ package io.jenkins.plugins.lark.notice.config.link;
 import io.jenkins.plugins.lark.notice.config.LarkRetryConfig;
 import io.jenkins.plugins.lark.notice.config.LarkRobotConfig;
 import io.jenkins.plugins.lark.notice.config.LarkSecurityPolicyConfig;
+import io.jenkins.plugins.lark.notice.config.snapshot.LarkConfigSnapshotMapper;
 import io.jenkins.plugins.lark.notice.tools.JsonUtils;
 import net.sf.json.JSONObject;
+import org.htmlunit.HttpMethod;
 import org.htmlunit.Page;
 import org.htmlunit.WebRequest;
-import org.htmlunit.HttpMethod;
 import org.htmlunit.util.NameValuePair;
 import io.jenkins.plugins.lark.notice.config.LarkGlobalConfig;
 import io.jenkins.plugins.lark.notice.config.security.LarkPermissions;
@@ -83,6 +84,84 @@ public class LarkManagementLinkTest {
         assertTrue(LarkGlobalConfig.getInstance().isVerbose());
         assertEquals(1, LarkGlobalConfig.getInstance().getRobotConfigs().size());
         assertEquals("import-robot", LarkGlobalConfig.getInstance().getRobotConfigs().get(0).getId());
+    }
+
+    @Test
+    public void previewImportEndpointShouldReturnSummaryForMergeMode() throws Exception {
+        LarkGlobalConfig.getInstance().setRobotConfigs(new ArrayList<>(List.of(
+                createRobot("existing-robot"),
+                createRobot("import-robot")
+        )));
+
+        String payload = JsonUtils.toJson(LarkConfigSnapshotMapper.toSnapshot(
+                new LarkGlobalConfig(
+                        null,
+                        true,
+                        Set.of("SUCCESS"),
+                        new ArrayList<>(List.of(createRobot("import-robot"), createRobot("new-robot")))
+                ),
+                true
+        ));
+        JenkinsRule.WebClient webClient = jenkins.createWebClient();
+        WebRequest request = new WebRequest(new URL(jenkins.getURL(), "manage/lark/previewImport"), HttpMethod.POST);
+        request.setRequestParameters(List.of(
+                new NameValuePair("payload", payload),
+                new NameValuePair("mode", "merge")
+        ));
+        webClient.addCrumb(request);
+
+        Page page = webClient.getPage(request);
+        JSONObject response = JSONObject.fromObject(page.getWebResponse().getContentAsString());
+        JSONObject data = response.getJSONObject("data");
+
+        assertTrue(response.getBoolean("ok"));
+        assertEquals("merge", data.getString("mode"));
+        assertEquals(2, data.getInt("currentRobotCount"));
+        assertEquals(2, data.getInt("importedRobotCount"));
+        assertEquals(1, data.getInt("addedRobotCount"));
+        assertEquals(1, data.getInt("updatedRobotCount"));
+        assertEquals(1, data.getInt("retainedRobotCount"));
+        assertEquals(0, data.getInt("removedRobotCount"));
+    }
+
+    @Test
+    public void importEndpointShouldMergeRobotsById() throws Exception {
+        LarkRobotConfig existingRobot = createRobot("existing-robot");
+        existingRobot.setName("Existing Robot");
+        LarkGlobalConfig.getInstance().setVerbose(false);
+        LarkGlobalConfig.getInstance().setRobotConfigs(new ArrayList<>(List.of(
+                existingRobot,
+                createRobot("shared-robot")
+        )));
+
+        String payload = JsonUtils.toJson(LarkConfigSnapshotMapper.toSnapshot(
+                new LarkGlobalConfig(
+                        null,
+                        true,
+                        Set.of("FAILURE"),
+                        new ArrayList<>(List.of(createRobot("shared-robot"), createRobot("new-robot")))
+                ),
+                true
+        ));
+        JenkinsRule.WebClient webClient = jenkins.createWebClient();
+        WebRequest request = new WebRequest(new URL(jenkins.getURL(), "manage/lark/import"), HttpMethod.POST);
+        request.setRequestParameters(List.of(
+                new NameValuePair("payload", payload),
+                new NameValuePair("mode", "merge")
+        ));
+        webClient.addCrumb(request);
+
+        Page page = webClient.getPage(request);
+        JSONObject response = JSONObject.fromObject(page.getWebResponse().getContentAsString());
+
+        assertTrue(response.getBoolean("ok"));
+        assertTrue(LarkGlobalConfig.getInstance().isVerbose());
+        assertEquals(Set.of("FAILURE"), LarkGlobalConfig.getInstance().getNoticeOccasions());
+        assertEquals(3, LarkGlobalConfig.getInstance().getRobotConfigs().size());
+        assertEquals("existing-robot", LarkGlobalConfig.getInstance().getRobotConfigs().get(0).getId());
+        assertEquals("Existing Robot", LarkGlobalConfig.getInstance().getRobotConfigs().get(0).getName());
+        assertEquals("shared-robot", LarkGlobalConfig.getInstance().getRobotConfigs().get(1).getId());
+        assertEquals("new-robot", LarkGlobalConfig.getInstance().getRobotConfigs().get(2).getId());
     }
 
     private static io.jenkins.plugins.lark.notice.config.snapshot.LarkConfigSnapshot createImportPayload() {

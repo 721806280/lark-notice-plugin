@@ -17,8 +17,14 @@
                     <a class="jenkins-button" href="export?includeSecrets=true">${%management.export.with.secrets}</a>
                     <a class="jenkins-button" href="export?includeSecrets=false">${%management.export.without.secrets}</a>
                 </div>
+                <div class="jenkins-alert jenkins-alert-info lark-management-tools__note">
+                    ${%management.export.without.secrets.note}
+                </div>
 
-                <f:form action="import" method="POST" name="larkManagementImportForm" class="lark-management-import-form">
+                <f:form action="import"
+                        method="POST"
+                        name="larkManagementImportForm"
+                        class="lark-management-import-form">
                     <label class="jenkins-label" for="lark-config-import-payload">${%management.import.title}</label>
                     <textarea
                             id="lark-config-import-payload"
@@ -27,7 +33,21 @@
                             placeholder="${%management.import.placeholder}"
                             spellcheck="false"
                     ></textarea>
+                    <div class="lark-management-import-form__mode">
+                        <label class="jenkins-label" for="lark-config-import-mode">${%management.import.mode.label}</label>
+                        <select id="lark-config-import-mode" name="mode" class="jenkins-select">
+                            <option value="replace">${%management.import.mode.replace}</option>
+                            <option value="merge">${%management.import.mode.merge}</option>
+                        </select>
+                    </div>
                     <div class="lark-management-import-form__actions">
+                        <button
+                                type="button"
+                                class="jenkins-button lark-config-preview-btn"
+                                data-preview-request-failed-message="${%management.import.preview.request.failure}"
+                        >
+                            ${%management.import.preview.button}
+                        </button>
                         <button
                                 type="submit"
                                 class="jenkins-button lark-config-import-btn"
@@ -36,6 +56,19 @@
                             ${%management.import.button}
                         </button>
                     </div>
+                    <div
+                            class="lark-management-import-preview"
+                            data-preview-title="${%management.import.preview.title}"
+                            data-preview-current-label="${%management.import.preview.current}"
+                            data-preview-imported-label="${%management.import.preview.imported}"
+                            data-preview-added-label="${%management.import.preview.added}"
+                            data-preview-updated-label="${%management.import.preview.updated}"
+                            data-preview-removed-label="${%management.import.preview.removed}"
+                            data-preview-retained-label="${%management.import.preview.retained}"
+                            data-preview-global-label="${%management.import.preview.global}"
+                            data-preview-global-yes-label="${%management.import.preview.global.yes}"
+                            data-preview-global-no-label="${%management.import.preview.global.no}"
+                    ></div>
                     <div class="lark-management-import-result"><!-- async import result --></div>
                 </f:form>
             </section>
