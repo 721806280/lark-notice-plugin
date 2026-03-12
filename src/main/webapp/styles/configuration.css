@@ -15,6 +15,28 @@
     margin-bottom: 10px;
 }
 
+.lark-bots-repeatable .repeated-chunk::before {
+    content: none !important;
+    display: none !important;
+}
+
+/* Jenkins renders a top divider on the first nested section inside each robot block; suppress it locally. */
+.robot-config-container .jenkins-section:first-of-type,
+.robot-config-container .jenkins-section:first-of-type .jenkins-section__title {
+    border-top: 0 !important;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    box-shadow: none !important;
+}
+
+.robot-config-container .jenkins-section:first-of-type::before,
+.robot-config-container .jenkins-section:first-of-type::after,
+.robot-config-container .jenkins-section:first-of-type .jenkins-section__title::before,
+.robot-config-container .jenkins-section:first-of-type .jenkins-section__title::after {
+    content: none !important;
+    display: none !important;
+}
+
 .robot-security-repeatable .repeated-chunk {
     border: 0 !important;
     padding: 0 !important;
