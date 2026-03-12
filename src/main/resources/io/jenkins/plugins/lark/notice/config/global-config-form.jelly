@@ -2,7 +2,7 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler">
     <st:once>
         <script type="text/javascript"
-                src="${rootURL}/plugin/lark-notice/scripts/robotConfigValidator.js"/>
+                src="${rootURL}/plugin/lark-notice/scripts/robot-config-validator.js"/>
         <link rel="stylesheet" type="text/css"
               href="${rootURL}/plugin/lark-notice/styles/configuration.css"/>
     </st:once>

@@ -5,7 +5,7 @@
     <j:set var="enabledNotifierConfigs" value="${instance == null ? java.util.Collections.emptyList() : instance.getEnabledNotifierConfigs()}"/>
     <st:once>
         <script type="text/javascript"
-                src="${rootURL}/plugin/lark-notice/scripts/notifierConfig.js"/>
+                src="${rootURL}/plugin/lark-notice/scripts/notifier-config.js"/>
         <link rel="stylesheet" type="text/css"
               href="${rootURL}/plugin/lark-notice/styles/configuration.css"/>
     </st:once>
