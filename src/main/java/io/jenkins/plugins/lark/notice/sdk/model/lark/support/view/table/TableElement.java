@@ -19,7 +19,11 @@ public class TableElement {
     /**
      * 组件标签，固定为 "table"
      */
-    private final String tag = "table";
+    private static final String TAG = "table";
+
+    public String getTag() {
+        return TAG;
+    }
 
     /**
      * 每页最大展示的数据行数。支持 [1,10] 整数，默认值 5

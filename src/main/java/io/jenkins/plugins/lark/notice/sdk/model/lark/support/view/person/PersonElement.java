@@ -16,7 +16,11 @@ public class PersonElement {
     /**
      * 组件标签，固定为 "person"
      */
-    private final String tag = "person";
+    private static final String TAG = "person";
+
+    public String getTag() {
+        return TAG;
+    }
 
     /**
      * 人员头像尺寸。默认值为 medium。

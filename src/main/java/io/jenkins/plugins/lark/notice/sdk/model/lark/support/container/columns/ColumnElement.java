@@ -20,7 +20,11 @@ public class ColumnElement {
     /**
      * 组件标签，固定为 "column"
      */
-    private final String tag = "column";
+    private static final String TAG = "column";
+
+    public String getTag() {
+        return TAG;
+    }
 
     /**
      * 操作组件的唯一标识

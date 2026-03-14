@@ -19,7 +19,11 @@ public class ColumnSetElement {
     /**
      * 组件标签，固定为 "column_set"
      */
-    private final String tag = "column_set";
+    private static final String TAG = "column_set";
+
+    public String getTag() {
+        return TAG;
+    }
 
     /**
      * 操作组件的唯一标识

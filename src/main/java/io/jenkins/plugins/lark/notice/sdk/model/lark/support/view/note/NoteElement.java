@@ -17,7 +17,11 @@ public class NoteElement {
     /**
      * 组件标签，固定为 "note"
      */
-    private final String tag = "note";
+    private static final String TAG = "note";
+
+    public String getTag() {
+        return TAG;
+    }
 
     /**
      * 备注内容元素列表，支持图标、图片、文本等

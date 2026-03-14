@@ -18,6 +18,10 @@ public class HrElement {
      * 组件标签，固定为 "hr"
      */
     @JsonProperty("tag")
-    private final String tag = "hr";
+    private static final String TAG = "hr";
+
+    public String getTag() {
+        return TAG;
+    }
 
 }

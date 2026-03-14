@@ -21,7 +21,11 @@ public class InputElement {
     /**
      * 输入框的标签，固定为 "input"
      */
-    private final String tag = "input";
+    private static final String TAG = "input";
+
+    public String getTag() {
+        return TAG;
+    }
 
     /**
      * 输入框的唯一标识，用于识别用户提交的文本

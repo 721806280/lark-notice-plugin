@@ -289,10 +289,10 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
                 }
 
                 MessageSender sender = robotType.obtainInstance(RobotConfigModel.of(robotConfig, proxySelector));
-                SendResult sendResult = MessageDispatcher.getInstance()
-                        .send(null, robotConfig.getId(), buildTestMessage(robotType), sender);
-                boolean ok = sendResult != null && sendResult.isOk();
-                String detail = sendResult == null ? null : sendResult.getMsg();
+                SendResult sendResult = Objects.requireNonNull(MessageDispatcher.getInstance()
+                        .send(null, robotConfig.getId(), buildTestMessage(robotType), sender), "sendResult");
+                boolean ok = sendResult.isOk();
+                String detail = sendResult.getMsg();
                 response.put("ok", ok);
                 response.put("message", ok
                         ? Messages.form_validation_test_success()

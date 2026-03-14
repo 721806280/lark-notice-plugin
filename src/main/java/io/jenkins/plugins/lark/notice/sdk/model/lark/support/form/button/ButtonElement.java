@@ -21,7 +21,11 @@ public class ButtonElement {
     /**
      * 组件标签，固定为 "button"
      */
-    private final String tag = "button";
+    private static final String TAG = "button";
+
+    public String getTag() {
+        return TAG;
+    }
 
     /**
      * 按钮类型，默认 default

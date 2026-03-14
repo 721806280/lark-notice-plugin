@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.jenkins.plugins.lark.notice.sdk.model.lark.support.view.icon.Icon;
 import lombok.Data;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +15,7 @@ import java.util.Map;
  */
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Header implements Serializable {
+public class Header {
     /**
      * 卡片主标题。必填。要为标题配置多语言，参考配置卡片多语言文档
      */

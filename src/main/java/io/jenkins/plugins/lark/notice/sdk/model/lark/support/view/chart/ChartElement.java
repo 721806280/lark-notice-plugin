@@ -18,7 +18,11 @@ public class ChartElement {
     /**
      * 组件标签，固定为 "chart"
      */
-    private final String tag = "chart";
+    private static final String TAG = "chart";
+
+    public String getTag() {
+        return TAG;
+    }
 
     /**
      * 图表宽高比。格式为 "x:y"，如 "16:9"

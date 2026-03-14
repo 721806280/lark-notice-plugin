@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,7 +16,7 @@ import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.LF;
  */
 @Getter
 @Setter
-public abstract class BaseLarkMessage implements Serializable {
+public abstract class BaseLarkMessage {
 
     @JsonProperty("msg_type")
     private String msgType;

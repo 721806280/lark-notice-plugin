@@ -15,7 +15,11 @@ public class FallbackElement {
     /**
      * 降级文案标签，固定为 "fallback_text"
      */
-    private final String tag = "fallback_text";
+    private static final String TAG = "fallback_text";
+
+    public String getTag() {
+        return TAG;
+    }
 
     /**
      * 降级文案内容

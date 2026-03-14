@@ -19,7 +19,11 @@ public class PersonListElement {
     /**
      * 组件标签，固定为 "person_list"
      */
-    private final String tag = "person_list";
+    private static final String TAG = "person_list";
+
+    public String getTag() {
+        return TAG;
+    }
 
     /**
      * 当人员列表中有无效用户 ID 时，是否忽略无效 ID。

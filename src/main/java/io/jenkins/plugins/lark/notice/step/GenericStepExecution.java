@@ -18,6 +18,8 @@ import org.jenkinsci.plugins.workflow.steps.StepExecution;
  */
 public class GenericStepExecution<T extends AbstractStep> extends StepExecution {
 
+    private static final long serialVersionUID = 1L;
+
     private final transient T step;
 
     /**

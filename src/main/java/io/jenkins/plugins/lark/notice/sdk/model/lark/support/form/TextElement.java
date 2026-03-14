@@ -14,7 +14,11 @@ public class TextElement {
     /**
      * 文本类型标签，固定为 "plain_text"
      */
-    private final String tag = "plain_text";
+    private static final String TAG = "plain_text";
+
+    public String getTag() {
+        return TAG;
+    }
 
     /**
      * 文本内容
