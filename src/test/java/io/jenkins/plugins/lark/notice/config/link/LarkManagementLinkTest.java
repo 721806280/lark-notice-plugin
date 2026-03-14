@@ -56,14 +56,17 @@ public class LarkManagementLinkTest {
     public void exportEndpointShouldReturnJsonSnapshot() throws Exception {
         LarkGlobalConfig.getInstance().setRobotConfigs(new ArrayList<>(List.of(createRobot("export-robot"))));
 
-        JenkinsRule.WebClient webClient = jenkins.createWebClient();
-        Page page = webClient.getPage(new URL(jenkins.getURL(), "manage/lark/export"));
+        try (JenkinsRule.WebClient webClient = jenkins.createWebClient()) {
+            WebRequest request = new WebRequest(new URL(jenkins.getURL(), "manage/lark/export"), HttpMethod.POST);
+            webClient.addCrumb(request);
+            Page page = webClient.getPage(request);
 
-        String content = page.getWebResponse().getContentAsString();
-        assertTrue(content.contains("\"schemaVersion\""));
-        assertTrue(content.contains("\"webhook\""));
-        assertTrue(content.contains("export-robot"));
-        assertTrue(page.getWebResponse().getResponseHeaderValue("Content-Disposition").contains("lark-notice-config-"));
+            String content = page.getWebResponse().getContentAsString();
+            assertTrue(content.contains("\"schemaVersion\""));
+            assertTrue(content.contains("\"webhook\""));
+            assertTrue(content.contains("export-robot"));
+            assertTrue(page.getWebResponse().getResponseHeaderValue("Content-Disposition").contains("lark-notice-config-"));
+        }
     }
 
     @Test
@@ -72,18 +75,19 @@ public class LarkManagementLinkTest {
         LarkGlobalConfig.getInstance().setRobotConfigs(new ArrayList<>());
 
         String payload = JsonUtils.toJson(createImportPayload());
-        JenkinsRule.WebClient webClient = jenkins.createWebClient();
-        WebRequest request = new WebRequest(new URL(jenkins.getURL(), "manage/lark/import"), HttpMethod.POST);
-        request.setRequestParameters(List.of(new NameValuePair("payload", payload)));
-        webClient.addCrumb(request);
+        try (JenkinsRule.WebClient webClient = jenkins.createWebClient()) {
+            WebRequest request = new WebRequest(new URL(jenkins.getURL(), "manage/lark/import"), HttpMethod.POST);
+            request.setRequestParameters(List.of(new NameValuePair("payload", payload)));
+            webClient.addCrumb(request);
 
-        Page page = webClient.getPage(request);
-        JSONObject response = JSONObject.fromObject(page.getWebResponse().getContentAsString());
+            Page page = webClient.getPage(request);
+            JSONObject response = JSONObject.fromObject(page.getWebResponse().getContentAsString());
 
-        assertTrue(response.getBoolean("ok"));
-        assertTrue(LarkGlobalConfig.getInstance().isVerbose());
-        assertEquals(1, LarkGlobalConfig.getInstance().getRobotConfigs().size());
-        assertEquals("import-robot", LarkGlobalConfig.getInstance().getRobotConfigs().get(0).getId());
+            assertTrue(response.getBoolean("ok"));
+            assertTrue(LarkGlobalConfig.getInstance().isVerbose());
+            assertEquals(1, LarkGlobalConfig.getInstance().getRobotConfigs().size());
+            assertEquals("import-robot", LarkGlobalConfig.getInstance().getRobotConfigs().get(0).getId());
+        }
     }
 
     @Test
@@ -101,26 +105,27 @@ public class LarkManagementLinkTest {
                         new ArrayList<>(List.of(createRobot("import-robot"), createRobot("new-robot")))
                 )
         ));
-        JenkinsRule.WebClient webClient = jenkins.createWebClient();
-        WebRequest request = new WebRequest(new URL(jenkins.getURL(), "manage/lark/previewImport"), HttpMethod.POST);
-        request.setRequestParameters(List.of(
-                new NameValuePair("payload", payload),
-                new NameValuePair("mode", "merge")
-        ));
-        webClient.addCrumb(request);
+        try (JenkinsRule.WebClient webClient = jenkins.createWebClient()) {
+            WebRequest request = new WebRequest(new URL(jenkins.getURL(), "manage/lark/previewImport"), HttpMethod.POST);
+            request.setRequestParameters(List.of(
+                    new NameValuePair("payload", payload),
+                    new NameValuePair("mode", "merge")
+            ));
+            webClient.addCrumb(request);
 
-        Page page = webClient.getPage(request);
-        JSONObject response = JSONObject.fromObject(page.getWebResponse().getContentAsString());
-        JSONObject data = response.getJSONObject("data");
+            Page page = webClient.getPage(request);
+            JSONObject response = JSONObject.fromObject(page.getWebResponse().getContentAsString());
+            JSONObject data = response.getJSONObject("data");
 
-        assertTrue(response.getBoolean("ok"));
-        assertEquals("merge", data.getString("mode"));
-        assertEquals(2, data.getInt("currentRobotCount"));
-        assertEquals(2, data.getInt("importedRobotCount"));
-        assertEquals(1, data.getInt("addedRobotCount"));
-        assertEquals(1, data.getInt("updatedRobotCount"));
-        assertEquals(1, data.getInt("retainedRobotCount"));
-        assertEquals(0, data.getInt("removedRobotCount"));
+            assertTrue(response.getBoolean("ok"));
+            assertEquals("merge", data.getString("mode"));
+            assertEquals(2, data.getInt("currentRobotCount"));
+            assertEquals(2, data.getInt("importedRobotCount"));
+            assertEquals(1, data.getInt("addedRobotCount"));
+            assertEquals(1, data.getInt("updatedRobotCount"));
+            assertEquals(1, data.getInt("retainedRobotCount"));
+            assertEquals(0, data.getInt("removedRobotCount"));
+        }
     }
 
     @Test
@@ -141,25 +146,26 @@ public class LarkManagementLinkTest {
                         new ArrayList<>(List.of(createRobot("shared-robot"), createRobot("new-robot")))
                 )
         ));
-        JenkinsRule.WebClient webClient = jenkins.createWebClient();
-        WebRequest request = new WebRequest(new URL(jenkins.getURL(), "manage/lark/import"), HttpMethod.POST);
-        request.setRequestParameters(List.of(
-                new NameValuePair("payload", payload),
-                new NameValuePair("mode", "merge")
-        ));
-        webClient.addCrumb(request);
+        try (JenkinsRule.WebClient webClient = jenkins.createWebClient()) {
+            WebRequest request = new WebRequest(new URL(jenkins.getURL(), "manage/lark/import"), HttpMethod.POST);
+            request.setRequestParameters(List.of(
+                    new NameValuePair("payload", payload),
+                    new NameValuePair("mode", "merge")
+            ));
+            webClient.addCrumb(request);
 
-        Page page = webClient.getPage(request);
-        JSONObject response = JSONObject.fromObject(page.getWebResponse().getContentAsString());
+            Page page = webClient.getPage(request);
+            JSONObject response = JSONObject.fromObject(page.getWebResponse().getContentAsString());
 
-        assertTrue(response.getBoolean("ok"));
-        assertTrue(LarkGlobalConfig.getInstance().isVerbose());
-        assertEquals(Set.of("FAILURE"), LarkGlobalConfig.getInstance().getNoticeOccasions());
-        assertEquals(3, LarkGlobalConfig.getInstance().getRobotConfigs().size());
-        assertEquals("existing-robot", LarkGlobalConfig.getInstance().getRobotConfigs().get(0).getId());
-        assertEquals("Existing Robot", LarkGlobalConfig.getInstance().getRobotConfigs().get(0).getName());
-        assertEquals("shared-robot", LarkGlobalConfig.getInstance().getRobotConfigs().get(1).getId());
-        assertEquals("new-robot", LarkGlobalConfig.getInstance().getRobotConfigs().get(2).getId());
+            assertTrue(response.getBoolean("ok"));
+            assertTrue(LarkGlobalConfig.getInstance().isVerbose());
+            assertEquals(Set.of("FAILURE"), LarkGlobalConfig.getInstance().getNoticeOccasions());
+            assertEquals(3, LarkGlobalConfig.getInstance().getRobotConfigs().size());
+            assertEquals("existing-robot", LarkGlobalConfig.getInstance().getRobotConfigs().get(0).getId());
+            assertEquals("Existing Robot", LarkGlobalConfig.getInstance().getRobotConfigs().get(0).getName());
+            assertEquals("shared-robot", LarkGlobalConfig.getInstance().getRobotConfigs().get(1).getId());
+            assertEquals("new-robot", LarkGlobalConfig.getInstance().getRobotConfigs().get(2).getId());
+        }
     }
 
     private static io.jenkins.plugins.lark.notice.config.snapshot.LarkConfigSnapshot createImportPayload() {

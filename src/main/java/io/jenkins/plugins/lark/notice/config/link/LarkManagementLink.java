@@ -138,6 +138,7 @@ public class LarkManagementLink extends ManagementLink {
      *
      * @return file download response
      */
+    @POST
     public HttpResponse doExport() {
         Jenkins.get().checkPermission(LarkPermissions.CONFIGURE);
         LarkConfigSnapshot snapshot = LarkConfigSnapshotMapper.toSnapshot(getGlobalConfig());

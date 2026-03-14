@@ -27,7 +27,9 @@
                         <h2 class="lark-management-card__title">${%management.export.title}</h2>
                         <p class="lark-management-card__description">${%management.export.description}</p>
                         <div class="lark-management-tools__exports">
-                            <a class="jenkins-button" href="export">${%management.export.with.secrets}</a>
+                            <f:form action="export" method="POST" name="larkManagementExportForm">
+                                <button type="submit" class="jenkins-button">${%management.export.with.secrets}</button>
+                            </f:form>
                         </div>
                     </section>
 
