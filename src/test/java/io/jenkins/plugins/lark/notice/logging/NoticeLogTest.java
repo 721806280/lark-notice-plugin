@@ -60,11 +60,6 @@ public class NoticeLogTest {
     }
 
     private static TaskListener taskListener(ByteArrayOutputStream output) {
-        return new TaskListener() {
-            @Override
-            public PrintStream getLogger() {
-                return new PrintStream(output, true, StandardCharsets.UTF_8);
-            }
-        };
+        return () -> new PrintStream(output, true, StandardCharsets.UTF_8);
     }
 }

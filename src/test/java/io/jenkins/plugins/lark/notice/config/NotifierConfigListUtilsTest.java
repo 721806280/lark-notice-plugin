@@ -20,6 +20,22 @@ import static org.junit.Assert.assertNull;
  */
 public class NotifierConfigListUtilsTest {
 
+    private static LarkNotifierConfig createNotifierConfig(String robotId) {
+        return new LarkNotifierConfig(
+                false,
+                false,
+                true,
+                robotId,
+                "Robot-" + robotId,
+                false,
+                "",
+                "title",
+                "content",
+                "",
+                Set.of("START")
+        );
+    }
+
     @Test
     public void copyOrNullShouldKeepNull() {
         assertNull(NotifierConfigListUtils.copyOrNull(null));
@@ -65,22 +81,6 @@ public class NotifierConfigListUtilsTest {
                         .findFirst()
                         .orElseThrow()
                         .getValue()
-        );
-    }
-
-    private static LarkNotifierConfig createNotifierConfig(String robotId) {
-        return new LarkNotifierConfig(
-                false,
-                false,
-                true,
-                robotId,
-                "Robot-" + robotId,
-                false,
-                "",
-                "title",
-                "content",
-                "",
-                Set.of("START")
         );
     }
 }
