@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
@@ -125,6 +126,23 @@ public class LarkManagementLinkTest {
             assertEquals(1, data.getInt("updatedRobotCount"));
             assertEquals(1, data.getInt("retainedRobotCount"));
             assertEquals(0, data.getInt("removedRobotCount"));
+        }
+    }
+
+    @Test
+    public void importEndpointShouldRejectSnapshotFromNewerPluginVersion() throws Exception {
+        io.jenkins.plugins.lark.notice.config.snapshot.LarkConfigSnapshot snapshot = createImportPayload();
+        snapshot.setPluginVersion("999.0");
+
+        try (JenkinsRule.WebClient webClient = jenkins.createWebClient()) {
+            WebRequest request = new WebRequest(new URL(jenkins.getURL(), "manage/lark/import"), HttpMethod.POST);
+            request.setRequestParameters(List.of(new NameValuePair("payload", JsonUtils.toJson(snapshot))));
+            webClient.addCrumb(request);
+
+            Page page = webClient.getPage(request);
+            JSONObject response = JSONObject.fromObject(page.getWebResponse().getContentAsString());
+
+            assertFalse(response.getBoolean("ok"));
         }
     }
 

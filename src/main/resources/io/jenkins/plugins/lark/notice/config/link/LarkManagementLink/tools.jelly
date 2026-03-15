@@ -6,6 +6,10 @@
         <l:main-panel>
             <st:once>
                 <script type="text/javascript"
+                        src="${rootURL}/plugin/lark-notice/scripts/request-utils.js"/>
+                <script type="text/javascript"
+                        src="${rootURL}/plugin/lark-notice/scripts/ui-utils.js"/>
+                <script type="text/javascript"
                         src="${rootURL}/plugin/lark-notice/scripts/management-config-tools.js"/>
                 <link rel="stylesheet" type="text/css"
                       href="${rootURL}/plugin/lark-notice/styles/configuration.css"/>

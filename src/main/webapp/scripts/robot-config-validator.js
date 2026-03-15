@@ -7,24 +7,7 @@ function validateRobotConfig(_this) {
     _this.disabled = true;
 
     var checkUrl = _this.getAttribute('data-validate-button-descriptor-url') + '/' + _this.getAttribute('data-validate-button-method');
-    var headers = {
-        "Content-Type": "application/x-www-form-urlencoded"
-    };
-    headers[crumb.fieldName] = crumb.value;
-
-    fetch(checkUrl, {
-        method: 'POST',
-        headers: headers,
-        body: getParams(robot),
-        credentials: 'include'
-    }).then(function (response) {
-        return response.text().then(function (responseText) {
-            return {
-                ok: response.ok,
-                text: responseText
-            };
-        });
-    }).then(function (payload) {
+    LarkNoticeRequest.postForm(checkUrl, getParams(robot)).then(function (payload) {
         var parsed = parseValidationResponse(payload.text);
         var ok = parsed.ok === null ? payload.ok : (payload.ok && parsed.ok);
         var message = parsed.message;
@@ -48,17 +31,14 @@ function parseValidationResponse(responseText) {
         return emptyResult;
     }
 
-    var payload;
-    try {
-        payload = JSON.parse(responseText);
-    } catch (e) {
+    var payload = LarkNoticeRequest.parseJsonObject(responseText);
+    if (!payload) {
         var text = responseText.trim();
         return {
             ok: /^error\s*[:：]/i.test(text) ? false : null,
             message: /^[{\[]/.test(text) ? '' : text
         };
     }
-
     var data = payload && typeof payload.data === 'object' && payload.data !== null ? payload.data : payload;
     var ok = typeof data.ok === 'boolean' ? data.ok : null;
 
@@ -72,10 +52,7 @@ function parseValidationResponse(responseText) {
 }
 
 function renderValidationResult(container, message, isSuccess) {
-    container.textContent = message;
-    container.className = 'robot-config-validate-msg';
-    container.classList.add('jenkins-alert', isSuccess ? 'jenkins-alert-success' : 'jenkins-alert-danger');
-    Behaviour.applySubtree(container);
+    LarkNoticeUi.renderAlertMessage(container, 'robot-config-validate-msg', message, isSuccess);
 }
 
 function copyRobotId(button) {

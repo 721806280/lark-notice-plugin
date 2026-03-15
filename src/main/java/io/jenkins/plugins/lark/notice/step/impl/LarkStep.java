@@ -210,21 +210,20 @@ public class LarkStep extends AbstractStep {
             return null;
         }
         ImgElement imgElement = new ImgElement();
-        imgElement.setImgKey(imgModel.getImgKey());
-        imgElement.setAlt(TextElement.of(imgModel.getAltContent()));
-        imgElement.setTitle(TitleElement.buildPlainText(imgModel.getTitle()));
+        imgElement.setImgKey(expandNullable(envVars, imgModel.getImgKey()));
+        imgElement.setAlt(TextElement.of(expandNullable(envVars, imgModel.getAltContent())));
+        imgElement.setTitle(TitleElement.buildPlainText(expandNullable(envVars, imgModel.getTitle())));
 
         imgElement.setCornerRadius(imgModel.getCornerRadius());
         imgElement.setScaleType(imgModel.getScaleType());
         imgElement.setSize(imgModel.getSize());
         imgElement.setTransparent(imgModel.getTransparent());
         imgElement.setPreview(imgModel.getPreview());
-
-        TextElement textElement = new TextElement();
-        textElement.setContent(envVars.expand(imgModel.getAltContent()));
-
-        imgElement.setAlt(textElement);
         return imgElement;
+    }
+
+    private String expandNullable(EnvVars envVars, String value) {
+        return value == null ? null : envVars.expand(value);
     }
 
     /**

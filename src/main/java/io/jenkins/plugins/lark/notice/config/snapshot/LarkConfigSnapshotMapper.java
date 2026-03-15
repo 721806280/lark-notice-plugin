@@ -179,7 +179,7 @@ public final class LarkConfigSnapshotMapper {
         );
     }
 
-    private static String resolvePluginVersion() {
+    static String resolvePluginVersion() {
         Jenkins jenkins = Jenkins.getInstanceOrNull();
         if (jenkins == null) {
             return null;

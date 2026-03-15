@@ -17,7 +17,11 @@ import org.kohsuke.stapler.StaplerRequest2;
 import java.net.ProxySelector;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -38,6 +42,7 @@ public class LarkGlobalConfig extends GlobalConfiguration {
     private boolean verbose;
     private Set<String> noticeOccasions = defaultNoticeOccasions();
     private ArrayList<LarkRobotConfig> robotConfigs = new ArrayList<>();
+    private transient volatile Map<String, LarkRobotConfig> robotConfigIndex;
 
     /**
      * Data-bound constructor for setting up global Lark notification configurations.
@@ -79,9 +84,10 @@ public class LarkGlobalConfig extends GlobalConfiguration {
      * @return An Optional containing the LarkRobotConfig if found, otherwise an empty Optional.
      */
     public static Optional<LarkRobotConfig> getRobot(String robotId) {
-        return getInstance().robotConfigs.stream()
-                .filter(item -> robotId.equals(item.getId()))
-                .findAny();
+        if (robotId == null) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(getInstance().robotIndex().get(robotId));
     }
 
     /**
@@ -134,6 +140,16 @@ public class LarkGlobalConfig extends GlobalConfiguration {
     public void setRobotConfigs(ArrayList<LarkRobotConfig> robotConfigs) {
         MessageSenderRegistry.getInstance().clear();
         this.robotConfigs = robotConfigs == null ? new ArrayList<>() : new ArrayList<>(robotConfigs);
+        invalidateRobotIndex();
+    }
+
+    /**
+     * Returns a read-only snapshot of the configured robots to avoid accidental external mutation.
+     *
+     * @return immutable robot configuration list
+     */
+    public List<LarkRobotConfig> getRobotConfigs() {
+        return Collections.unmodifiableList(new ArrayList<>(robotConfigs));
     }
 
 
@@ -187,6 +203,33 @@ public class LarkGlobalConfig extends GlobalConfiguration {
      */
     public LarkRobotConfigDescriptor getLarkRobotConfigDescriptor() {
         return Jenkins.get().getDescriptorByType(LarkRobotConfigDescriptor.class);
+    }
+
+    private Map<String, LarkRobotConfig> robotIndex() {
+        Map<String, LarkRobotConfig> index = robotConfigIndex;
+        if (index != null) {
+            return index;
+        }
+        synchronized (this) {
+            if (robotConfigIndex == null) {
+                robotConfigIndex = buildRobotIndex(robotConfigs);
+            }
+            return robotConfigIndex;
+        }
+    }
+
+    private void invalidateRobotIndex() {
+        robotConfigIndex = null;
+    }
+
+    private static Map<String, LarkRobotConfig> buildRobotIndex(ArrayList<LarkRobotConfig> robotConfigs) {
+        Map<String, LarkRobotConfig> index = new LinkedHashMap<>();
+        for (LarkRobotConfig robotConfig : robotConfigs) {
+            if (robotConfig != null && robotConfig.getId() != null) {
+                index.put(robotConfig.getId(), robotConfig);
+            }
+        }
+        return index;
     }
 
 }

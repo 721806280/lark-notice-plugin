@@ -54,19 +54,7 @@ function submitConfigRequest(form, action) {
 
     toggleImportButtons(importButton, previewButton, true);
 
-    fetch(actionUrl, {
-        method: 'POST',
-        headers: buildImportHeaders(),
-        body: new URLSearchParams(new FormData(form)),
-        credentials: 'include'
-    }).then(function (response) {
-        return response.text().then(function (responseText) {
-            return {
-                ok: response.ok,
-                text: responseText
-            };
-        });
-    }).then(function (payload) {
+    LarkNoticeRequest.postForm(actionUrl, new URLSearchParams(new FormData(form))).then(function (payload) {
         var parsed = parseConfigResponse(payload.text);
         var ok = parsed.ok === null ? payload.ok : (payload.ok && parsed.ok);
         var message = parsed.message || requestFailedMessage;
@@ -137,36 +125,25 @@ function toggleImportButtons(importButton, previewButton, disabled) {
     }
 }
 
-function buildImportHeaders() {
-    var headers = {
-        "Content-Type": "application/x-www-form-urlencoded"
-    };
-    if (typeof crumb === 'object' && crumb) {
-        headers[crumb.fieldName] = crumb.value;
-    }
-    return headers;
-}
-
 function parseConfigResponse(responseText) {
     var emptyResult = {ok: null, message: '', data: null};
     if (!responseText || responseText.trim().length === 0) {
         return emptyResult;
     }
 
-    try {
-        var payload = JSON.parse(responseText);
-        return {
-            ok: typeof payload.ok === 'boolean' ? payload.ok : null,
-            message: typeof payload.message === 'string' ? payload.message : '',
-            data: payload.data && typeof payload.data === 'object' ? payload.data : null
-        };
-    } catch (error) {
+    var payload = LarkNoticeRequest.parseJsonObject(responseText);
+    if (!payload) {
         return {
             ok: null,
             message: responseText.trim(),
             data: null
         };
     }
+    return {
+        ok: typeof payload.ok === 'boolean' ? payload.ok : null,
+        message: typeof payload.message === 'string' ? payload.message : '',
+        data: payload.data && typeof payload.data === 'object' ? payload.data : null
+    };
 }
 
 function renderPreviewResult(container, message, data, isSuccess) {
@@ -174,18 +151,14 @@ function renderPreviewResult(container, message, data, isSuccess) {
         return;
     }
 
-    container.textContent = '';
-    container.className = 'lark-management-import-preview';
+    LarkNoticeUi.resetContainerClass(container, 'lark-management-import-preview');
 
     if (!message && !data) {
         renderPreviewEmptyState(container);
         return;
     }
 
-    var alert = document.createElement('div');
-    alert.className = 'jenkins-alert ' + (isSuccess ? 'jenkins-alert-success' : 'jenkins-alert-danger');
-    alert.textContent = message;
-    container.appendChild(alert);
+    container.appendChild(LarkNoticeUi.createAlert(message, isSuccess));
 
     if (!isSuccess || !data) {
         return;
@@ -223,8 +196,7 @@ function renderPreviewEmptyState(container) {
     if (!container) {
         return;
     }
-    container.textContent = '';
-    container.className = 'lark-management-import-preview';
+    LarkNoticeUi.resetContainerClass(container, 'lark-management-import-preview');
 
     var empty = document.createElement('div');
     empty.className = 'lark-management-import-preview__empty';
@@ -257,14 +229,5 @@ function appendPreviewMetric(summary, label, value) {
 }
 
 function renderImportResult(container, message, isSuccess) {
-    if (!container) {
-        return;
-    }
-    container.textContent = message;
-    container.className = 'lark-management-import-result';
-    if (!message) {
-        return;
-    }
-    container.classList.add('jenkins-alert', isSuccess ? 'jenkins-alert-success' : 'jenkins-alert-danger');
-    Behaviour.applySubtree(container);
+    LarkNoticeUi.renderAlertMessage(container, 'lark-management-import-result', message, isSuccess);
 }

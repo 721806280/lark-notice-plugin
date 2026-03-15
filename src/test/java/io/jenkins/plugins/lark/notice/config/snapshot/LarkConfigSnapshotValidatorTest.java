@@ -35,6 +35,19 @@ public class LarkConfigSnapshotValidatorTest {
     }
 
     @Test
+    public void validateForImportShouldRejectNewerPluginVersion() {
+        LarkConfigSnapshot snapshot = createValidSnapshot();
+        snapshot.setPluginVersion("2.1.0");
+
+        try {
+            LarkConfigSnapshotValidator.validateForImport(snapshot, "2.0.0");
+            fail("Expected FormException");
+        } catch (FormException e) {
+            assertEquals("payload", e.getFormField());
+        }
+    }
+
+    @Test
     public void validateForImportShouldRejectInvalidNoticeOccasion() {
         LarkConfigSnapshot snapshot = createValidSnapshot();
         snapshot.setNoticeOccasions(Set.of("UNKNOWN"));
@@ -81,6 +94,14 @@ public class LarkConfigSnapshotValidatorTest {
     @Test
     public void validateForImportShouldAcceptValidSnapshot() throws Exception {
         LarkConfigSnapshotValidator.validateForImport(createValidSnapshot());
+    }
+
+    @Test
+    public void validateForImportShouldAcceptOlderPluginVersion() throws Exception {
+        LarkConfigSnapshot snapshot = createValidSnapshot();
+        snapshot.setPluginVersion("1.9.9");
+
+        LarkConfigSnapshotValidator.validateForImport(snapshot, "2.0.0");
     }
 
     private static LarkConfigSnapshot createValidSnapshot() {

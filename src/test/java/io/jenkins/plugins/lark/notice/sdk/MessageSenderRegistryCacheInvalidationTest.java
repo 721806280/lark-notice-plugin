@@ -13,6 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests cache invalidation behavior in {@link MessageSenderRegistry}.
@@ -38,6 +41,30 @@ public class MessageSenderRegistryCacheInvalidationTest {
 
         LarkGlobalConfig.getInstance().setProxyConfig(new LarkProxyConfig(Proxy.Type.HTTP, "127.0.0.1", 8080, true));
         assertEquals(0, senderRegistry.cacheSize());
+    }
+
+    @Test
+    public void robotConfigChangeShouldClearCachedSendersAndRefreshLookup() {
+        MessageSenderRegistry senderRegistry = MessageSenderRegistry.getInstance();
+
+        senderRegistry.resolve("robot-a");
+        assertEquals(1, senderRegistry.cacheSize());
+
+        LarkGlobalConfig.getInstance().setRobotConfigs(new ArrayList<>(List.of(createRobot("robot-b"))));
+
+        assertEquals(0, senderRegistry.cacheSize());
+        assertFalse(LarkGlobalConfig.getRobot("robot-a").isPresent());
+        assertTrue(LarkGlobalConfig.getRobot("robot-b").isPresent());
+    }
+
+    @Test
+    public void getRobotConfigsShouldExposeReadOnlySnapshot() {
+        List<LarkRobotConfig> robotConfigs = LarkGlobalConfig.getInstance().getRobotConfigs();
+
+        assertEquals(1, robotConfigs.size());
+        assertThrows(UnsupportedOperationException.class, () -> robotConfigs.add(createRobot("robot-c")));
+        assertEquals(1, LarkGlobalConfig.getInstance().getRobotConfigs().size());
+        assertTrue(LarkGlobalConfig.getRobot("robot-a").isPresent());
     }
 
     private static LarkRobotConfig createRobot(String id) {

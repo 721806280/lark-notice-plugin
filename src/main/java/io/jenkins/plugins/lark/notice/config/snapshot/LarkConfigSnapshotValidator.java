@@ -1,6 +1,7 @@
 package io.jenkins.plugins.lark.notice.config.snapshot;
 
 import hudson.model.Descriptor.FormException;
+import hudson.util.VersionNumber;
 import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.enums.NoticeOccasionEnum;
 import io.jenkins.plugins.lark.notice.enums.RobotType;
@@ -32,15 +33,38 @@ public final class LarkConfigSnapshotValidator {
      * @throws FormException when the snapshot is incomplete, unsupported, or semantically invalid
      */
     public static void validateForImport(LarkConfigSnapshot snapshot) throws FormException {
+        validateForImport(snapshot, LarkConfigSnapshotMapper.resolvePluginVersion());
+    }
+
+    static void validateForImport(LarkConfigSnapshot snapshot, String currentPluginVersion) throws FormException {
         if (snapshot == null) {
             throw new FormException(Messages.config_import_payload_missing(), IMPORT_FIELD);
         }
         if (snapshot.getSchemaVersion() == null || snapshot.getSchemaVersion() != LarkConfigSnapshot.CURRENT_SCHEMA_VERSION) {
             throw new FormException(Messages.config_import_schema_unsupported(), IMPORT_FIELD);
         }
+        validatePluginCompatibility(snapshot.getPluginVersion(), currentPluginVersion);
         validateNoticeOccasions(snapshot.getNoticeOccasions());
         validateProxy(snapshot.getProxyConfig());
         validateRobots(snapshot.getRobotConfigs());
+    }
+
+    private static void validatePluginCompatibility(String snapshotPluginVersion, String currentPluginVersion) throws FormException {
+        if (StringUtils.isBlank(snapshotPluginVersion) || StringUtils.isBlank(currentPluginVersion)) {
+            return;
+        }
+        try {
+            VersionNumber snapshotVersion = new VersionNumber(snapshotPluginVersion);
+            VersionNumber currentVersion = new VersionNumber(currentPluginVersion);
+            if (snapshotVersion.compareTo(currentVersion) > 0) {
+                throw new FormException(
+                        Messages.config_import_plugin_version_unsupported(snapshotPluginVersion, currentPluginVersion),
+                        IMPORT_FIELD
+                );
+            }
+        } catch (IllegalArgumentException ignored) {
+            // Ignore non-standard plugin versions and continue with schema validation.
+        }
     }
 
     private static void validateNoticeOccasions(Set<String> noticeOccasions) throws FormException {
