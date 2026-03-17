@@ -6,6 +6,8 @@ import io.jenkins.plugins.lark.notice.config.LarkProxyConfig;
 import io.jenkins.plugins.lark.notice.config.LarkRetryConfig;
 import io.jenkins.plugins.lark.notice.config.LarkRobotConfig;
 import io.jenkins.plugins.lark.notice.config.LarkSecurityPolicyConfig;
+import io.jenkins.plugins.lark.notice.enums.RobotProtocolType;
+import io.jenkins.plugins.lark.notice.enums.WebhookEndpointMode;
 import org.junit.Test;
 
 import java.net.Proxy;
@@ -38,6 +40,8 @@ public class LarkConfigSnapshotTest {
 
         assertEquals(1, snapshot.getRobotConfigs().size());
         assertEquals("https://open.feishu.cn/open-apis/bot/v2/hook/robot-a", snapshot.getRobotConfigs().get(0).getWebhook());
+        assertEquals(RobotProtocolType.LARK_COMPATIBLE, snapshot.getRobotConfigs().get(0).getProtocolType());
+        assertEquals(WebhookEndpointMode.BASE_URL_AND_TOKEN, snapshot.getRobotConfigs().get(0).getEndpointMode());
 
         assertTrue(imported.isVerbose());
         assertEquals(Set.of("SUCCESS", "FAILURE"), imported.getNoticeOccasions());
@@ -45,6 +49,8 @@ public class LarkConfigSnapshotTest {
         assertEquals("robot-a", imported.getRobotConfigs().get(0).getId());
         assertEquals("Robot robot-a", imported.getRobotConfigs().get(0).getName());
         assertEquals("https://open.feishu.cn/open-apis/bot/v2/hook/robot-a", imported.getRobotConfigs().get(0).getWebhook());
+        assertEquals(RobotProtocolType.LARK_COMPATIBLE, imported.getRobotConfigs().get(0).getProtocolType());
+        assertEquals(WebhookEndpointMode.BASE_URL_AND_TOKEN, imported.getRobotConfigs().get(0).getEndpointMode());
         assertTrue(imported.getRobotConfigs().get(0).getRetryConfig().isEnabled());
         assertEquals(Proxy.Type.HTTP, imported.getProxyConfig().getType());
     }
@@ -137,6 +143,8 @@ public class LarkConfigSnapshotTest {
                         new LarkSecurityPolicyConfig("NO_SSL", "true", "No SSL")
                 )
         );
+        robotConfig.setProtocolType(RobotProtocolType.LARK_COMPATIBLE);
+        robotConfig.setEndpointMode(WebhookEndpointMode.BASE_URL_AND_TOKEN);
         robotConfig.setRetryConfig(new LarkRetryConfig(true, 3, 500, 5000, 2.0d, 0.2d));
         return robotConfig;
     }

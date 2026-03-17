@@ -4,11 +4,11 @@ import io.jenkins.plugins.lark.notice.model.RobotConfigModel;
 import io.jenkins.plugins.lark.notice.sdk.MessageSender;
 import io.jenkins.plugins.lark.notice.sdk.impl.DingMessageSender;
 import io.jenkins.plugins.lark.notice.sdk.impl.LarkMessageSender;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.SneakyThrows;
+import org.apache.commons.lang3.StringUtils;
 
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * Supported robot platform types and their sender factories.
@@ -16,11 +16,9 @@ import java.net.URL;
  * @author xm.z
  */
 @Getter
-@AllArgsConstructor
 public enum RobotType {
 
-    // Lark
-    LARK("Lark", "open.larksuite.com", "text_tag") {
+    LARK("Lark Compatible", "text_tag", "/open-apis/bot/v2/hook/") {
         /**
          * {@inheritDoc}
          */
@@ -30,17 +28,7 @@ public enum RobotType {
         }
     },
 
-    FS("飞书", "open.feishu.cn", "text_tag") {
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public MessageSender obtainInstance(RobotConfigModel robotConfig) {
-            return new LarkMessageSender(robotConfig);
-        }
-    },
-
-    DING_TAlK("钉钉", "api.dingtalk.com", "font") {
+    DING_TAlK("钉钉", "font", "/robot/send") {
         /**
          * {@inheritDoc}
          */
@@ -52,25 +40,46 @@ public enum RobotType {
 
     private final String name;
 
-    private final String host;
-
     private final String statusTagName;
 
+    private final String webhookPathPrefix;
+
+    RobotType(String name, String statusTagName, String webhookPathPrefix) {
+        this.name = name;
+        this.statusTagName = statusTagName;
+        this.webhookPathPrefix = webhookPathPrefix;
+    }
+
     /**
-     * Resolves the robot type from a webhook URL host.
+     * Resolves the robot type from a webhook URL using both host and path conventions.
+     * Custom Feishu deployments may use private domains while still keeping the standard
+     * bot webhook path, so host checks alone are insufficient.
      *
      * @param url webhook URL
-     * @return matching robot type, or {@code null} when the host is not recognized
+     * @return matching robot type, or {@code null} when the URL is not recognized
      */
-    @SneakyThrows
     public static RobotType fromUrl(String url) {
-        String host = new URL(url).getHost();
-        for (RobotType type : RobotType.values()) {
-            if (host.contains(type.getHost())) {
-                return type;
-            }
+        ParsedWebhook webhook = ParsedWebhook.parse(url);
+        if (webhook == null) {
+            return null;
+        }
+        if (DING_TAlK.matches(webhook)) {
+            return DING_TAlK;
+        }
+        if (LARK.matches(webhook)) {
+            return LARK;
         }
         return null;
+    }
+
+    /**
+     * Returns whether the supplied webhook URL matches any supported robot platform.
+     *
+     * @param url webhook URL
+     * @return {@code true} when the webhook is supported
+     */
+    public static boolean isSupportedWebhook(String url) {
+        return fromUrl(url) != null;
     }
 
     /**
@@ -81,4 +90,38 @@ public enum RobotType {
      */
     public abstract MessageSender obtainInstance(RobotConfigModel robotConfig);
 
+    private boolean matches(ParsedWebhook webhook) {
+        return webhook != null
+                && webhook.httpScheme
+                && StringUtils.startsWith(webhook.path, webhookPathPrefix);
+    }
+
+    private static final class ParsedWebhook {
+
+        private final boolean httpScheme;
+        private final String path;
+
+        private ParsedWebhook(boolean httpScheme, String path) {
+            this.httpScheme = httpScheme;
+            this.path = path;
+        }
+
+        private static ParsedWebhook parse(String url) {
+            if (StringUtils.isBlank(url)) {
+                return null;
+            }
+            try {
+                URI uri = new URI(url.trim());
+                String scheme = StringUtils.defaultString(uri.getScheme());
+                String path = StringUtils.defaultString(uri.getPath());
+                if (StringUtils.isBlank(uri.getHost()) || StringUtils.isBlank(path)) {
+                    return null;
+                }
+                boolean httpScheme = "http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme);
+                return new ParsedWebhook(httpScheme, path);
+            } catch (URISyntaxException ex) {
+                return null;
+            }
+        }
+    }
 }

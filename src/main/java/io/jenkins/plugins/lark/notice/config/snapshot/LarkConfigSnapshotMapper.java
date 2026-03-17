@@ -101,6 +101,8 @@ public final class LarkConfigSnapshotMapper {
         snapshot.setId(robotConfig.getId());
         snapshot.setName(robotConfig.getName());
         snapshot.setWebhook(robotConfig.getWebhook());
+        snapshot.setProtocolType(robotConfig.getProtocolType());
+        snapshot.setEndpointMode(robotConfig.getEndpointMode());
         snapshot.setRetryConfig(toRetrySnapshot(robotConfig.getRetryConfig()));
 
         List<SecurityPolicySnapshot> policies = robotConfig.getSecurityPolicyConfigs().stream()
@@ -152,6 +154,8 @@ public final class LarkConfigSnapshotMapper {
                 snapshot.getWebhook(),
                 toSecurityPolicyConfigs(snapshot.getSecurityPolicyConfigs())
         );
+        robotConfig.setProtocolType(snapshot.getProtocolType());
+        robotConfig.setEndpointMode(snapshot.getEndpointMode());
         robotConfig.setRetryConfig(toRetryConfig(snapshot.getRetryConfig()));
         return robotConfig;
     }

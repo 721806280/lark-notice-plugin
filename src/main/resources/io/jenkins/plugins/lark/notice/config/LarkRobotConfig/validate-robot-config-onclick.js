@@ -10,6 +10,10 @@ Behaviour.specify('.robot-config-copy-id-btn', 'copy-robot-id', 0, function (ele
     });
 });
 
+Behaviour.specify('.robot-config-container', 'bind-robot-endpoint-config', 0, function (element) {
+    initRobotEndpointConfig(element);
+});
+
 // Toggle retry details visibility when the enable checkbox changes.
 Behaviour.specify('.lark-retry-config', 'toggle-retry-details', 0, function (element) {
     bindRetryDetailsVisibility(element);

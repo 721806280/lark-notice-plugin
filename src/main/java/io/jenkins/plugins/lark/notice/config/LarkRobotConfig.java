@@ -10,8 +10,10 @@ import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.config.security.LarkPermissions;
 import io.jenkins.plugins.lark.notice.enums.BuildStatusEnum;
 import io.jenkins.plugins.lark.notice.enums.MsgTypeEnum;
+import io.jenkins.plugins.lark.notice.enums.RobotProtocolType;
 import io.jenkins.plugins.lark.notice.enums.RobotType;
 import io.jenkins.plugins.lark.notice.enums.SecurityPolicyEnum;
+import io.jenkins.plugins.lark.notice.enums.WebhookEndpointMode;
 import io.jenkins.plugins.lark.notice.model.BuildJobModel;
 import io.jenkins.plugins.lark.notice.model.MessageModel;
 import io.jenkins.plugins.lark.notice.model.RobotConfigModel;
@@ -70,6 +72,26 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
     private Secret webhook;
 
     /**
+     * Explicit protocol family used to resolve the sender implementation.
+     */
+    private RobotProtocolType protocolType;
+
+    /**
+     * UI input mode used to collect the webhook endpoint.
+     */
+    private WebhookEndpointMode endpointMode;
+
+    /**
+     * Transient base URL used by the "base URL + token" input mode.
+     */
+    private transient String baseUrl;
+
+    /**
+     * Transient webhook token used by the "base URL + token" input mode.
+     */
+    private transient String webhookToken;
+
+    /**
      * List of security policy configurations, includes a set of Key-Value pairs.
      */
     private List<LarkSecurityPolicyConfig> securityPolicyConfigs;
@@ -120,6 +142,43 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
     }
 
     /**
+     * Returns the configured protocol family, inferring it from the existing webhook for legacy configurations.
+     *
+     * @return configured or inferred protocol family
+     */
+    public RobotProtocolType getProtocolType() {
+        RobotProtocolType inferred = protocolType != null ? protocolType : RobotProtocolType.inferFromWebhook(getWebhook());
+        return inferred == null ? RobotProtocolType.LARK_COMPATIBLE : inferred;
+    }
+
+    /**
+     * Returns the selected endpoint mode, defaulting old configurations to the full webhook mode.
+     *
+     * @return endpoint mode
+     */
+    public WebhookEndpointMode getEndpointMode() {
+        return RobotWebhookResolver.resolveEndpointMode(getProtocolType(), endpointMode, baseUrl, webhookToken);
+    }
+
+    /**
+     * Returns the current base URL input value, deriving it from the canonical webhook when possible.
+     *
+     * @return base URL for token mode
+     */
+    public String getBaseUrl() {
+        return StringUtils.defaultIfBlank(baseUrl, RobotWebhookResolver.extractBaseUrl(getWebhook()));
+    }
+
+    /**
+     * Returns the current webhook token input value, deriving it from the canonical webhook when possible.
+     *
+     * @return webhook token for token mode
+     */
+    public String getWebhookToken() {
+        return StringUtils.defaultIfBlank(webhookToken, RobotWebhookResolver.extractWebhookToken(getWebhook()));
+    }
+
+    /**
      * Infers the robot type from the configured webhook URL.
      *
      * @return resolved robot type, or {@code null} when the webhook is blank or unsupported
@@ -129,7 +188,10 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
         if (StringUtils.isBlank(webhook)) {
             return null;
         }
-        return RobotType.fromUrl(webhook);
+        RobotProtocolType resolvedProtocol = getProtocolType();
+        return RobotWebhookResolver.isSupportedWebhook(resolvedProtocol, webhook)
+                ? resolvedProtocol.toRobotType()
+                : null;
     }
 
     /**
@@ -181,6 +243,46 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
     @DataBoundSetter
     public void setRetryConfig(LarkRetryConfig retryConfig) {
         this.retryConfig = retryConfig;
+    }
+
+    /**
+     * Updates the robot protocol family used for sender selection.
+     *
+     * @param protocolType protocol family
+     */
+    @DataBoundSetter
+    public void setProtocolType(RobotProtocolType protocolType) {
+        this.protocolType = protocolType;
+    }
+
+    /**
+     * Updates the endpoint input mode used by the UI.
+     *
+     * @param endpointMode endpoint mode
+     */
+    @DataBoundSetter
+    public void setEndpointMode(WebhookEndpointMode endpointMode) {
+        this.endpointMode = endpointMode;
+    }
+
+    /**
+     * Updates the transient base URL used by the token input mode.
+     *
+     * @param baseUrl base URL
+     */
+    @DataBoundSetter
+    public void setBaseUrl(String baseUrl) {
+        this.baseUrl = StringUtils.trimToEmpty(baseUrl);
+    }
+
+    /**
+     * Updates the transient webhook token used by the token input mode.
+     *
+     * @param webhookToken webhook token
+     */
+    @DataBoundSetter
+    public void setWebhookToken(String webhookToken) {
+        this.webhookToken = StringUtils.trimToEmpty(webhookToken);
     }
 
 
@@ -255,7 +357,7 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
             if (!Jenkins.get().hasPermission(LarkPermissions.CONFIGURE)) {
                 return FormValidation.error(Messages.form_validation_permission_denied());
             }
-            return StringUtils.isBlank(value) || Objects.isNull(RobotType.fromUrl(value)) ?
+            return !RobotType.isSupportedWebhook(value) ?
                     FormValidation.error(Messages.form_validation_webhook_invalid()) : FormValidation.ok();
         }
 
@@ -271,14 +373,26 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
          */
         @RequirePOST
         public HttpResponse doTest(@QueryParameter String id, @QueryParameter String name,
-                                   @QueryParameter String webhook, @QueryParameter String proxy,
+                                   @QueryParameter String protocolType, @QueryParameter String endpointMode,
+                                   @QueryParameter String webhook, @QueryParameter String baseUrl,
+                                   @QueryParameter String webhookToken, @QueryParameter String proxy,
                                    @QueryParameter String securityConfigs) {
             Jenkins.get().checkPermission(LarkPermissions.CONFIGURE);
 
             JSONObject response = new JSONObject();
             try {
                 List<LarkSecurityPolicyConfig> securityPolicyConfigs = parseSecurityPolicyConfigs(securityConfigs);
-                LarkRobotConfig robotConfig = new LarkRobotConfig(id, name, webhook, securityPolicyConfigs);
+                RobotProtocolType resolvedProtocolType = RobotWebhookResolver.resolveProtocolType(
+                        RobotProtocolType.fromValue(protocolType), webhook, baseUrl, webhookToken);
+                WebhookEndpointMode resolvedEndpointMode = RobotWebhookResolver.resolveEndpointMode(
+                        resolvedProtocolType, WebhookEndpointMode.fromValue(endpointMode), baseUrl, webhookToken);
+                String resolvedWebhook = RobotWebhookResolver.resolveWebhook(
+                        resolvedProtocolType, resolvedEndpointMode, webhook, baseUrl, webhookToken);
+                LarkRobotConfig robotConfig = new LarkRobotConfig(id, name, resolvedWebhook, securityPolicyConfigs);
+                robotConfig.setProtocolType(resolvedProtocolType);
+                robotConfig.setEndpointMode(resolvedEndpointMode);
+                robotConfig.setBaseUrl(baseUrl);
+                robotConfig.setWebhookToken(webhookToken);
                 ProxySelector proxySelector = parseProxySelector(proxy);
 
                 RobotType robotType = robotConfig.obtainRobotType();

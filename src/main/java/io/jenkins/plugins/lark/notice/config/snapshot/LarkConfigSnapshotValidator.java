@@ -3,9 +3,12 @@ package io.jenkins.plugins.lark.notice.config.snapshot;
 import hudson.model.Descriptor.FormException;
 import hudson.util.VersionNumber;
 import io.jenkins.plugins.lark.notice.Messages;
+import io.jenkins.plugins.lark.notice.config.RobotWebhookResolver;
 import io.jenkins.plugins.lark.notice.enums.NoticeOccasionEnum;
+import io.jenkins.plugins.lark.notice.enums.RobotProtocolType;
 import io.jenkins.plugins.lark.notice.enums.RobotType;
 import io.jenkins.plugins.lark.notice.enums.SecurityPolicyEnum;
+import io.jenkins.plugins.lark.notice.enums.WebhookEndpointMode;
 import org.apache.commons.lang3.StringUtils;
 
 import java.net.Proxy;
@@ -118,7 +121,28 @@ public final class LarkConfigSnapshotValidator {
         if (StringUtils.isBlank(robotConfig.getName())) {
             throw new FormException(Messages.form_validation_name_required(), IMPORT_FIELD);
         }
-        if (StringUtils.isBlank(robotConfig.getWebhook()) || RobotType.fromUrl(robotConfig.getWebhook()) == null) {
+        RobotProtocolType protocolType = RobotWebhookResolver.resolveProtocolType(
+                robotConfig.getProtocolType(),
+                robotConfig.getWebhook(),
+                null,
+                null
+        );
+        WebhookEndpointMode endpointMode = RobotWebhookResolver.resolveEndpointMode(
+                protocolType,
+                robotConfig.getEndpointMode(),
+                null,
+                null
+        );
+        String resolvedWebhook = RobotWebhookResolver.resolveWebhook(
+                protocolType,
+                endpointMode,
+                robotConfig.getWebhook(),
+                null,
+                null
+        );
+        if (StringUtils.isBlank(resolvedWebhook)
+                || !RobotType.isSupportedWebhook(resolvedWebhook)
+                || !RobotWebhookResolver.isSupportedWebhook(protocolType, resolvedWebhook)) {
             throw new FormException(Messages.form_validation_webhook_invalid(), IMPORT_FIELD);
         }
         validateRetry(robotConfig.getRetryConfig());

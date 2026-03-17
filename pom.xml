@@ -107,6 +107,7 @@
                         <exclude>**/NotificationServiceLayerTest.java</exclude>
                         <exclude>**/NotifierIntegrationTest.java</exclude>
                         <exclude>**/InjectedTest.java</exclude>
+                        <exclude>**/LarkStepTest.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -135,6 +136,7 @@
                                         <include>**/NotificationServiceLayerTest.java</include>
                                         <include>**/NotifierIntegrationTest.java</include>
                                         <include>**/InjectedTest.java</include>
+                                        <include>**/LarkStepTest.java</include>
                                     </includes>
                                 </configuration>
                             </execution>

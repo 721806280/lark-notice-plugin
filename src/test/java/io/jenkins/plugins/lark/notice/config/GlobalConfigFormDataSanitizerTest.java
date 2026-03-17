@@ -81,6 +81,77 @@ public class GlobalConfigFormDataSanitizerTest {
     }
 
     @Test
+    public void shouldAcceptRobotConfigWithCustomFeishuWebhookHost() throws Exception {
+        JSONArray robots = new JSONArray();
+        JSONObject robot = createRobot("robot-a");
+        robot.put("webhook", "https://feishu.example.com/open-apis/bot/v2/hook/robot-a");
+        robots.add(robot);
+
+        JSONArray normalized = GlobalConfigFormDataSanitizer.normalizeRobotConfigsPayload(robots);
+
+        assertEquals(1, normalized.size());
+        assertEquals("https://feishu.example.com/open-apis/bot/v2/hook/robot-a",
+                normalized.getJSONObject(0).getString("webhook"));
+    }
+
+    @Test
+    public void shouldResolveRobotConfigFromBaseUrlAndTokenMode() throws Exception {
+        JSONArray robots = new JSONArray();
+        JSONObject robot = createRobot("robot-a");
+        robot.put("protocolType", "LARK_COMPATIBLE");
+        robot.put("endpointMode", "BASE_URL_AND_TOKEN");
+        robot.put("webhook", "");
+        robot.put("baseUrl", "https://feishu.example.com");
+        robot.put("webhookToken", "robot-a");
+        robots.add(robot);
+
+        JSONArray normalized = GlobalConfigFormDataSanitizer.normalizeRobotConfigsPayload(robots);
+
+        assertEquals("https://feishu.example.com/open-apis/bot/v2/hook/robot-a",
+                normalized.getJSONObject(0).getString("webhook"));
+        assertEquals("LARK_COMPATIBLE", normalized.getJSONObject(0).getString("protocolType"));
+        assertEquals("BASE_URL_AND_TOKEN", normalized.getJSONObject(0).getString("endpointMode"));
+    }
+
+    @Test
+    public void shouldForceFullWebhookModeForDingTalk() throws Exception {
+        JSONArray robots = new JSONArray();
+        JSONObject robot = createRobot("robot-a");
+        robot.put("protocolType", "DING_TALK");
+        robot.put("endpointMode", "BASE_URL_AND_TOKEN");
+        robot.put("webhook", "https://api.dingtalk.com/robot/send?access_token=token");
+        robot.put("baseUrl", "https://oapi.dingtalk.com");
+        robot.put("webhookToken", "token");
+        robots.add(robot);
+
+        JSONArray normalized = GlobalConfigFormDataSanitizer.normalizeRobotConfigsPayload(robots);
+
+        assertEquals("DING_TALK", normalized.getJSONObject(0).getString("protocolType"));
+        assertEquals("FULL_WEBHOOK", normalized.getJSONObject(0).getString("endpointMode"));
+        assertEquals("https://api.dingtalk.com/robot/send?access_token=token",
+                normalized.getJSONObject(0).getString("webhook"));
+    }
+
+    @Test
+    public void shouldRejectTokenModeWhenBaseUrlInvalid() throws Exception {
+        JSONArray robots = new JSONArray();
+        JSONObject robot = createRobot("robot-a");
+        robot.put("protocolType", "LARK_COMPATIBLE");
+        robot.put("endpointMode", "BASE_URL_AND_TOKEN");
+        robot.put("webhook", "");
+        robot.put("baseUrl", "feishu.internal");
+        robot.put("webhookToken", "robot-a");
+        robots.add(robot);
+
+        try {
+            GlobalConfigFormDataSanitizer.normalizeRobotConfigsPayload(robots);
+            fail("Expected FormException");
+        } catch (FormException e) {
+            assertEquals("robotConfigs[0].baseUrl", e.getFormField());
+        }
+    }
+
+    @Test
     public void shouldRejectRobotConfigWithMalformedWebhook() throws Exception {
         JSONArray robots = new JSONArray();
         JSONObject robot = createRobot("robot-a");

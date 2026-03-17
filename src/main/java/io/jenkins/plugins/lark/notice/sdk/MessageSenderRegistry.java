@@ -79,6 +79,9 @@ public class MessageSenderRegistry {
         return LarkGlobalConfig.getRobot(robotId)
                 .map(robotConfig -> {
                     RobotType robotType = robotConfig.obtainRobotType();
+                    if (robotType == null) {
+                        return null;
+                    }
                     RobotConfigModel robotConfigModel = RobotConfigModel.of(
                             robotConfig,
                             LarkGlobalConfig.getInstance().obtainProxySelector()

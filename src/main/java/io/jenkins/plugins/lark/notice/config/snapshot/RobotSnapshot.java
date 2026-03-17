@@ -1,6 +1,8 @@
 package io.jenkins.plugins.lark.notice.config.snapshot;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.jenkins.plugins.lark.notice.enums.RobotProtocolType;
+import io.jenkins.plugins.lark.notice.enums.WebhookEndpointMode;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -31,6 +33,16 @@ public class RobotSnapshot {
      * Webhook URL, optionally omitted in redacted exports.
      */
     private String webhook;
+
+    /**
+     * Explicit protocol family used for sender resolution.
+     */
+    private RobotProtocolType protocolType;
+
+    /**
+     * UI endpoint mode preference.
+     */
+    private WebhookEndpointMode endpointMode;
 
     /**
      * Per-robot retry settings.

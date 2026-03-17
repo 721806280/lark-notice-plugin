@@ -3,6 +3,11 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
          xmlns:f="/lib/form">
     <j:set var="robotIdValue" value="${instance != null ? instance.getId() : ''}"/>
+    <j:set var="protocolTypeValue" value="${instance != null ? instance.getProtocolType().name() : 'LARK_COMPATIBLE'}"/>
+    <j:set var="endpointModeValue" value="${instance != null ? instance.getEndpointMode().name() : 'FULL_WEBHOOK'}"/>
+    <j:set var="webhookValue" value="${instance != null ? instance.getWebhook() : ''}"/>
+    <j:set var="baseUrlValue" value="${instance != null ? instance.getBaseUrl() : ''}"/>
+    <j:set var="webhookTokenValue" value="${instance != null ? instance.getWebhookToken() : ''}"/>
     <div class="robot-config-container">
         <f:invisibleEntry>
             <input type="hidden" name="id" value="${robotIdValue}"/>
@@ -12,9 +17,56 @@
                      help="/descriptor/io.jenkins.plugins.lark.notice.config.LarkRobotConfig/help/name">
                 <f:textbox name="name"/>
             </f:entry>
-            <f:entry title="${%robot.webhook}" field="webhook"
-                     help="/descriptor/io.jenkins.plugins.lark.notice.config.LarkRobotConfig/help/webhook">
-                <f:textbox name="webhook"/>
+            <f:entry title="${%robot.endpoint.editor}" help="/descriptor/io.jenkins.plugins.lark.notice.config.LarkRobotConfig/help/webhook">
+                <div class="robot-endpoint-workspace"
+                     data-feishu-base-url="https://open.feishu.cn"
+                     data-lark-base-url="https://open.larksuite.com"
+                     data-ding-talk-webhook-prefix="https://oapi.dingtalk.com/robot/send?access_token="
+                     data-token-label="${%robot.endpoint.input.token}"
+                     data-webhook-label="${%robot.endpoint.input.webhook}"
+                     data-custom-toggle-label="${%robot.endpoint.custom.toggle}"
+                     data-provider-hint="${%robot.provider.hint}"
+                     data-token-hint-feishu="${%robot.endpoint.input.hint.feishu}"
+                     data-token-hint-lark="${%robot.endpoint.input.hint.lark}"
+                     data-token-hint-ding-talk="${%robot.endpoint.input.hint.ding.talk}"
+                     data-custom-hint="${%robot.endpoint.input.hint.custom}"
+                     data-token-placeholder="${%robot.endpoint.input.placeholder.token}"
+                     data-webhook-placeholder="${%robot.endpoint.input.placeholder.webhook}">
+                    <input type="hidden" name="protocolType" value="${protocolTypeValue}" class="robot-protocol-type-input"/>
+                    <input type="hidden" name="endpointMode" value="${endpointModeValue}" class="robot-endpoint-mode-input"/>
+                    <input type="hidden" name="webhook" value="${webhookValue}" class="robot-webhook-input"/>
+                    <input type="hidden" name="baseUrl" value="${baseUrlValue}" class="robot-base-url-input"/>
+                    <input type="hidden" name="webhookToken" value="${webhookTokenValue}" class="robot-webhook-token-input"/>
+
+                    <div class="robot-endpoint-composer">
+                        <div class="robot-endpoint-composer__controls">
+                            <label class="robot-endpoint-composer__provider">
+                                <span class="jenkins-visually-hidden">${%robot.provider}</span>
+                                <select class="jenkins-select robot-provider-select">
+                                    <option value="FEISHU">${%robot.provider.feishu}</option>
+                                    <option value="LARK">${%robot.provider.lark}</option>
+                                    <option value="DING_TALK">${%robot.provider.ding.talk}</option>
+                                </select>
+                            </label>
+                            <label class="robot-custom-toggle robot-custom-toggle--inline">
+                                <input type="checkbox" class="robot-custom-webhook-toggle"/>
+                                <span class="robot-custom-toggle__indicator" aria-hidden="true"></span>
+                                <span class="robot-custom-toggle__label">${%robot.endpoint.custom.toggle}</span>
+                            </label>
+                        </div>
+                        <label class="robot-editor-field robot-editor-field--single robot-endpoint-composer__field">
+                            <span class="jenkins-visually-hidden robot-endpoint-input-label">${%robot.endpoint.input.token}</span>
+                            <input type="text" class="setting-input robot-endpoint-input" autocomplete="off"/>
+                        </label>
+                    </div>
+
+                    <div class="jenkins-description robot-endpoint-composer__hint robot-endpoint-input-hint"><!-- endpoint hint --></div>
+                    <div class="robot-preview-inline">
+                        <span class="robot-preview-inline__label">${%robot.endpoint.preview}</span>
+                        <div class="jenkins-description robot-webhook-preview"
+                             data-empty-preview-message="${%robot.endpoint.preview.empty}"><!-- endpoint preview --></div>
+                    </div>
+                </div>
             </f:entry>
         </f:section>
 
