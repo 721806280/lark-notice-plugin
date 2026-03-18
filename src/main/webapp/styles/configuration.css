@@ -88,14 +88,113 @@
     margin-top: 10px;
 }
 
+.lark-notifier-editor {
+    display: grid;
+    gap: 10px;
+}
+
+.lark-notifier-editor__title {
+    margin: 0;
+    color: #0f172a;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.lark-notifier-inline-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 400;
+}
+
+.lark-notifier-status-control {
+    display: inline-flex;
+    align-items: center;
+    min-height: 38px;
+    padding: 0 12px;
+    border: 1px solid rgba(203, 213, 225, 0.96);
+    border-radius: 10px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.lark-notifier-inline-toggle--status {
+    color: #334155;
+}
+
+.lark-notifier-inline-toggle--status input {
+    margin: 0;
+}
+
+.lark-notifier-editor .jenkins-form-item {
+    margin-bottom: 10px;
+}
+
+.lark-notifier-editor .jenkins-form-item:last-child {
+    margin-bottom: 0;
+}
+
+.lark-notifier-editor .jenkins-form-label {
+    margin-bottom: 6px;
+}
+
+.lark-notifier-editor textarea.jenkins-input,
+.lark-notifier-editor textarea.setting-input {
+    min-height: 104px;
+}
+
+.lark-notifier-mode-switch {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.lark-notifier-mode-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 11px;
+    border: 1px solid rgba(203, 213, 225, 0.96);
+    border-radius: 999px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    color: #0f172a;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.lark-notifier-mode-chip > input {
+    margin: 0;
+}
+
+.lark-notifier-mode-note {
+    margin-top: 6px;
+    padding: 8px 10px;
+    border: 1px dashed rgba(148, 163, 184, 0.7);
+    border-radius: 10px;
+    background: rgba(248, 250, 252, 0.92);
+    color: var(--text-color-secondary, #526173);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.lark-notifier-mode-help {
+    display: none;
+}
+
+.lark-notifier-message-help {
+    display: none;
+}
+
 .lark-notice-option {
     display: inline-flex;
     align-items: center;
-    margin: 0 8px 8px 0;
-    padding: 7px 12px;
+    margin: 0 6px 6px 0;
+    padding: 6px 10px;
     border: 1px solid rgba(203, 213, 225, 0.85);
     border-radius: 999px;
     background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+    font-size: 12px;
 }
 
 .lark-notice-raw-content {
@@ -123,7 +222,7 @@
 
 .lark-bots-repeatable .repeated-container > .repeated-chunk {
     position: relative;
-    padding: 22px 22px 18px;
+    padding: 20px 20px 16px;
     border: 1px solid var(--lark-border);
     border-radius: 18px;
     background: var(--lark-surface);
@@ -146,8 +245,8 @@
 
 .lark-bots-repeatable .repeatable-delete {
     position: absolute;
-    top: 18px;
-    right: 18px;
+    top: 16px;
+    right: 16px;
     z-index: 1;
 }
 
