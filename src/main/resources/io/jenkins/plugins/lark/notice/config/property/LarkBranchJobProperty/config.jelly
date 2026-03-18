@@ -1,4 +1,4 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler">
-    <st:include page="/io/jenkins/plugins/lark/notice/config/notifier-config-section.jelly"/>
+    <st:include page="/io/jenkins/plugins/lark/notice/config/notifier-config-section.jelly" class="${descriptor.sharedViewsClass}"/>
 </j:jelly>

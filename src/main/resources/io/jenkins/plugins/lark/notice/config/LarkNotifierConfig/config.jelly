@@ -12,7 +12,7 @@
             <f:entry title="${%notifier.occasions}" field="noticeOccasions">
                 <j:set var="occasionOptions" value="${descriptor.getNoticeOccasionTypes()}"/>
                 <j:set var="checkedOccasionNames" value="${instance.noticeOccasions}"/>
-                <st:include page="/io/jenkins/plugins/lark/notice/config/notice-occasion-options.jelly"/>
+                <st:include page="/io/jenkins/plugins/lark/notice/config/notice-occasion-options.jelly" class="${descriptor.sharedViewsClass}"/>
             </f:entry>
             <div class="raw-content lark-notice-raw-content">
                 <f:entry field="message" title="${%notifier.message}" description="${%notifier.message.description}">

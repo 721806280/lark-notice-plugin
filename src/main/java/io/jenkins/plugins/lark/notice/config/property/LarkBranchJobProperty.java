@@ -94,5 +94,14 @@ public class LarkBranchJobProperty extends BranchProperty implements LarkNotifie
         public List<LarkNotifierConfig> getDefaultNotifierConfigs() {
             return NotifierConfigListUtils.fromGlobalRobots();
         }
+
+        /**
+         * Exposes the shared Jelly view owner class for stable {@code st:include} lookups.
+         *
+         * @return shared view owner class
+         */
+        public Class<?> getSharedViewsClass() {
+            return io.jenkins.plugins.lark.notice.config.SharedConfigViews.class;
+        }
     }
 }

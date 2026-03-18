@@ -205,6 +205,15 @@ public class LarkGlobalConfig extends GlobalConfiguration {
         return Jenkins.get().getDescriptorByType(LarkRobotConfigDescriptor.class);
     }
 
+    /**
+     * Exposes the shared Jelly view owner class for stable {@code st:include} lookups.
+     *
+     * @return shared view owner class
+     */
+    public Class<?> getSharedViewsClass() {
+        return SharedConfigViews.class;
+    }
+
     private Map<String, LarkRobotConfig> robotIndex() {
         Map<String, LarkRobotConfig> index = robotConfigIndex;
         if (index != null) {

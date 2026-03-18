@@ -215,6 +215,15 @@ public class LarkNotifierConfig implements Describable<LarkNotifierConfig> {
         public NoticeOccasionEnum[] getNoticeOccasionTypes() {
             return NoticeOccasionEnum.values();
         }
+
+        /**
+         * Exposes the shared Jelly view owner class for stable {@code st:include} lookups.
+         *
+         * @return shared view owner class
+         */
+        public Class<?> getSharedViewsClass() {
+            return SharedConfigViews.class;
+        }
     }
 
 }
