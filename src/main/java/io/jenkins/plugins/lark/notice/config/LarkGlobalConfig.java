@@ -1,11 +1,13 @@
 package io.jenkins.plugins.lark.notice.config;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import io.jenkins.plugins.lark.notice.config.LarkRobotConfig.LarkRobotConfigDescriptor;
 import io.jenkins.plugins.lark.notice.config.security.LarkPermissions;
 import io.jenkins.plugins.lark.notice.enums.NoticeOccasionEnum;
 import io.jenkins.plugins.lark.notice.sdk.MessageSenderRegistry;
 import jenkins.model.GlobalConfiguration;
+import jenkins.model.GlobalConfigurationCategory;
 import jenkins.model.Jenkins;
 import lombok.Getter;
 import lombok.ToString;
@@ -212,6 +214,12 @@ public class LarkGlobalConfig extends GlobalConfiguration {
      */
     public Class<?> getSharedViewsClass() {
         return SharedConfigViews.class;
+    }
+
+    @NonNull
+    @Override
+    public GlobalConfigurationCategory getCategory() {
+        return GlobalConfigurationCategory.get(LarkGlobalConfigurationCategory.class);
     }
 
     private Map<String, LarkRobotConfig> robotIndex() {

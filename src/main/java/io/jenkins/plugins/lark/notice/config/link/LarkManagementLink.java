@@ -91,7 +91,7 @@ public class LarkManagementLink extends ManagementLink {
     @NonNull
     @Override
     public Category getCategory() {
-        return Category.UNCATEGORIZED;
+        return Category.CONFIGURATION;
     }
 
     /**
