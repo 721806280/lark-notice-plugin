@@ -195,6 +195,24 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
     }
 
     /**
+     * Returns the UI-facing provider label inferred from the same endpoint rules used by the global robot form.
+     *
+     * @return provider label shown to users
+     */
+    public String getProviderDisplayName() {
+        if (RobotProtocolType.DING_TALK.equals(getProtocolType())) {
+            return Messages.notifier_robot_provider_ding_talk();
+        }
+
+        String normalizedBaseUrl = RobotWebhookResolver.normalizeBaseUrl(getBaseUrl());
+        if ("https://open.larksuite.com".equalsIgnoreCase(normalizedBaseUrl)
+                || StringUtils.containsIgnoreCase(getWebhook(), "open.larksuite.com")) {
+            return Messages.notifier_robot_provider_lark();
+        }
+        return Messages.notifier_robot_provider_feishu();
+    }
+
+    /**
      * Gets the list of security policy configurations, includes a set of Key-Value pairs
      *
      * @return List of security policy configurations

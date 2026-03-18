@@ -2,7 +2,7 @@
 
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:f="/lib/form">
     <div class="lark-notifier-editor">
-        <div class="lark-notifier-editor__title">${instance.getRobotName()}</div>
+        <div class="lark-notifier-editor__title">${instance.getRobotDisplayName()}</div>
 
         <f:entry title="${%notifier.status}">
             <div class="lark-notifier-status-control">

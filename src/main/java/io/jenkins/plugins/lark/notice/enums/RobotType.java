@@ -6,6 +6,7 @@ import io.jenkins.plugins.lark.notice.sdk.impl.DingMessageSender;
 import io.jenkins.plugins.lark.notice.sdk.impl.LarkMessageSender;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -18,7 +19,8 @@ import java.net.URISyntaxException;
 @Getter
 public enum RobotType {
 
-    LARK("Lark Compatible", "text_tag", "/open-apis/bot/v2/hook/") {
+    //
+    LARK("Lark", "text_tag", "/open-apis/bot/v2/hook/") {
         /**
          * {@inheritDoc}
          */
@@ -93,7 +95,7 @@ public enum RobotType {
     private boolean matches(ParsedWebhook webhook) {
         return webhook != null
                 && webhook.httpScheme
-                && StringUtils.startsWith(webhook.path, webhookPathPrefix);
+                && Strings.CS.startsWith(webhook.path, webhookPathPrefix);
     }
 
     private static final class ParsedWebhook {

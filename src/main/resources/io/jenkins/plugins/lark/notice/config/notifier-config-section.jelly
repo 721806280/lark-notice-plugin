@@ -24,9 +24,9 @@
                 <j:forEach var="config" items="${enabledNotifierConfigs}">
                     <j:set var="instance" value="${config}"/>
                     <j:set var="descriptor" value="${config.descriptor}"/>
-                    <div class="repeated-chunk" name="notifierConfigs" title="${config.robotName}"
+                    <div class="repeated-chunk" name="notifierConfigs" title="${config.robotDisplayName}"
                          descriptorId="${config.robotId}">
-                        <local:body title="${config.robotName}" instance="${config}">
+                        <local:body title="${config.robotDisplayName}" instance="${config}">
                             <st:include from="${descriptor}"
                                         page="${descriptor.configPage}" optional="true"/>
                         </local:body>
@@ -37,8 +37,8 @@
                     <j:forEach var="config" items="${notifierConfigs}">
                         <j:set var="instance" value="${config}"/>
                         <j:set var="descriptor" value="${config.descriptor}"/>
-                        <div name="notifierConfigs" title="${config.robotName}" descriptorId="${config.robotId}">
-                            <local:body title="${config.robotName}">
+                        <div name="notifierConfigs" title="${config.robotDisplayName}" descriptorId="${config.robotId}">
+                            <local:body title="${config.robotDisplayName}">
                                 <l:renderOnDemand tag="div" clazz="config-page" capture="descriptor,it,instance">
                                     <l:ajax>
                                         <st:include from="${descriptor}"

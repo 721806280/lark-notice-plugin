@@ -184,6 +184,18 @@ public class LarkNotifierConfig implements Describable<LarkNotifierConfig> {
     }
 
     /**
+     * Returns a UI-friendly robot label that includes the resolved robot platform when available.
+     *
+     * @return display label such as {@code Bot A (Lark)}
+     */
+    public String getRobotDisplayName() {
+        String robotTypeLabel = LarkGlobalConfig.getRobot(getRobotId())
+                .map(LarkRobotConfig::getProviderDisplayName)
+                .orElse(null);
+        return StringUtils.isBlank(robotTypeLabel) ? getRobotName() : String.format("%s (%s)", getRobotName(), robotTypeLabel);
+    }
+
+    /**
      * Copies properties from another notifierConfig instance to this one.
      *
      * @param notifierConfig Notification configuration to copy from
