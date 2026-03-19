@@ -3,13 +3,13 @@ package io.jenkins.plugins.lark.notice.model;
 import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.enums.BuildStatusEnum;
 import io.jenkins.plugins.lark.notice.enums.RobotType;
-import io.jenkins.plugins.lark.notice.i18n.NoticeI18n;
+import io.jenkins.plugins.lark.notice.service.BuildMessageLineFormatter;
+import io.jenkins.plugins.lark.notice.service.BuildMessageLineFormatter.BuildMessageLineValues;
 import io.jenkins.plugins.lark.notice.tools.Utils;
 import lombok.Builder;
 import lombok.Data;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -113,17 +113,18 @@ public class BuildJobModel {
             lines.add(String.format("## <%s color='%s'>%s</%s>", tagName, statusType.getColor(), title, tagName));
             lines.add("---");
         }
-        // Append the shared build details for all robot types.
-        Collections.addAll(lines,
-                String.format("\uD83D\uDCCB **%s**: [%s](%s)", NoticeI18n.buildMessageProjectName(locale), projectName, projectUrl),
-                String.format("\uD83D\uDD22 **%s**: [%s](%s)", NoticeI18n.buildMessageJobName(locale), jobName, jobUrl),
-                String.format("\uD83C\uDF1F **%s**:  <%s color='%s'>%s</%s>",
-                        NoticeI18n.buildMessageStatus(locale),
-                        tagName, statusType.getColor(), statusType.getLabel(locale), tagName),
-                String.format("\uD83D\uDD50 **%s**:  %s", NoticeI18n.buildMessageDuration(locale), duration),
-                String.format("\uD83D\uDC64 **%s**:  %s", NoticeI18n.buildMessageExecutor(locale), executorName),
-                content == null ? "" : content
+        BuildMessageLineValues values = new BuildMessageLineValues(
+                projectName,
+                projectUrl,
+                jobName,
+                jobUrl,
+                statusType.getLabel(locale),
+                statusType.getColor(),
+                duration,
+                executorName,
+                content
         );
+        lines.addAll(BuildMessageLineFormatter.buildBodyLines(locale, robotType, values, true));
         return String.join(hasDingTask ? "  " + LF : LF, lines);
     }
 
