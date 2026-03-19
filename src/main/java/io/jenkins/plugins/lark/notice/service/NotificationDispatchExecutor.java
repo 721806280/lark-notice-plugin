@@ -11,7 +11,6 @@ import io.jenkins.plugins.lark.notice.config.LarkRobotConfig;
 import io.jenkins.plugins.lark.notice.config.MessageLocaleResolver;
 import io.jenkins.plugins.lark.notice.enums.NoticeOccasionEnum;
 import io.jenkins.plugins.lark.notice.enums.RobotType;
-import io.jenkins.plugins.lark.notice.i18n.NoticeI18n;
 import io.jenkins.plugins.lark.notice.logging.NoticeLog;
 import io.jenkins.plugins.lark.notice.logging.NoticeLogKey;
 import io.jenkins.plugins.lark.notice.logging.NoticeTrace;
@@ -25,8 +24,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Locale;
 import java.util.Set;
 
-import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.LF;
-import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.defaultTitle;
 
 /**
  * Executes one concrete message dispatch for a matched notifier config.
@@ -117,12 +114,9 @@ public final class NotificationDispatchExecutor {
      * @param envVars environment variables
      */
     static void applyModelTemplateValues(LarkNotifierConfig config, BuildJobModel model, EnvVars envVars, Locale locale) {
-        String configuredTitle = StringUtils.trimToNull(config.getTitle());
-        String resolvedTitleTemplate = configuredTitle == null || NoticeI18n.isBuiltInDefaultTitle(configuredTitle)
-                ? defaultTitle(locale)
-                : configuredTitle;
+        String resolvedTitleTemplate = NotificationTemplateTextResolver.resolveTitleTemplate(config.getTitle(), locale);
         model.setTitle(envVars.expand(resolvedTitleTemplate));
-        model.setContent(envVars.expand(config.getContent()).replaceAll("\\\\n", LF));
+        model.setContent(NotificationTemplateTextResolver.expandContent(config.getContent(), envVars));
     }
 
     /**

@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Locale;
 
 import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.LF;
-import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.defaultTitle;
 
 /**
  * Builds editable default templates for notifier configuration pages.
@@ -41,11 +40,8 @@ public final class NotificationTemplateService {
     }
 
     static String buildEditableDefaultTemplate(LarkNotifierConfig config, Locale locale, RobotType robotType) {
-        String configuredTitle = StringUtils.trimToNull(config.getTitle());
-        String titleTemplate = configuredTitle == null || NoticeI18n.isBuiltInDefaultTitle(configuredTitle)
-                ? defaultTitle(locale)
-                : configuredTitle;
-        String contentTemplate = StringUtils.defaultString(config.getContent()).replaceAll("\\\\n", LF);
+        String titleTemplate = NotificationTemplateTextResolver.resolveTitleTemplate(config.getTitle(), locale);
+        String contentTemplate = NotificationTemplateTextResolver.normalizeContent(config.getContent());
         String tagName = robotType.getStatusTagName();
         String separator = RobotType.DING_TAlK.equals(robotType) ? "  " + LF : LF;
         List<String> lines = new ArrayList<>();
