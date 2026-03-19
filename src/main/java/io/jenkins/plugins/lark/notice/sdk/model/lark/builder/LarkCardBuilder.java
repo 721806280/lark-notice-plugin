@@ -170,6 +170,8 @@ public class LarkCardBuilder {
         column.setWeight(5);
         column.setVerticalAlign("top");
         column.setDirection("horizontal");
+        // Keep an empty link object here. The button behavior carries the real URL, while the
+        // surrounding column still expects an action node in the current card schema usage.
         column.setAction(new Link());
 
         ButtonElement buttonElement = new ButtonElement();

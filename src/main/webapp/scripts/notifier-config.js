@@ -1,9 +1,9 @@
 (function () {
-    var MODE_SELECTOR = '.lark-notifier-mode-input';
-    var ROOT_SELECTOR = '[name="notifierConfigs"]';
+    var NOTIFIER_MODE_SELECTOR = '.lark-notifier-mode-input';
+    var NOTIFIER_ROOT_SELECTOR = '[name="notifierConfigs"]';
     var RAW_VALUE_SELECTOR = '.lark-notifier-raw-value';
-    var MESSAGE_SELECTOR = 'textarea[name="_.message"]';
-    var LOAD_DEFAULT_SELECTOR = '.lark-notifier-load-default-btn';
+    var CUSTOM_MESSAGE_SELECTOR = 'textarea[name="_.message"]';
+    var LOAD_DEFAULT_TEMPLATE_SELECTOR = '.lark-notifier-load-default-btn';
     var TEMPLATE_STATUS_SELECTOR = '.lark-notifier-template-status';
 
     function setDisabled(container, disabled) {
@@ -56,7 +56,7 @@
         return params;
     }
 
-    function requestDefaultTemplate(root, onSuccess) {
+    function loadDefaultTemplate(root, onSuccess) {
         var editor = root.querySelector('.lark-notifier-editor');
         var templateUrl = editor && editor.getAttribute('data-template-url');
         var requestFailedMessage = editor && editor.getAttribute('data-template-request-failed-message')
@@ -114,8 +114,8 @@
         }
     }
 
-    function resolveCustomPayloadKind(root) {
-        var messageField = root.querySelector(MESSAGE_SELECTOR);
+    function detectCustomPayloadKind(root) {
+        var messageField = root.querySelector(CUSTOM_MESSAGE_SELECTOR);
         return messageField && parseJsonObject(messageField.value) ? 'json' : 'custom';
     }
 
@@ -133,7 +133,7 @@
         var messageCustomHelp = root.querySelector('.lark-notifier-message-help-custom');
         var messageJsonHelp = root.querySelector('.lark-notifier-message-help-json');
         var rawValue = root.querySelector(RAW_VALUE_SELECTOR);
-        var customPayloadKind = resolveCustomPayloadKind(root);
+        var customPayloadKind = detectCustomPayloadKind(root);
         var isCustomJson = mode === 'custom' && customPayloadKind === 'json';
 
         if (rawContent) {
@@ -169,7 +169,7 @@
     }
 
     function findScopeRoot(input) {
-        return input.closest(ROOT_SELECTOR) || input.closest('.jenkins-form-item') || document;
+        return input.closest(NOTIFIER_ROOT_SELECTOR) || input.closest('.jenkins-form-item') || document;
     }
 
     function inferMode(root) {
@@ -185,17 +185,17 @@
     function refreshAll(root) {
         var roots = [];
         if (!root || root === document) {
-            roots = Array.prototype.slice.call(document.querySelectorAll(ROOT_SELECTOR));
-        } else if (root.matches && root.matches(ROOT_SELECTOR)) {
+            roots = Array.prototype.slice.call(document.querySelectorAll(NOTIFIER_ROOT_SELECTOR));
+        } else if (root.matches && root.matches(NOTIFIER_ROOT_SELECTOR)) {
             roots = [root];
         } else {
-            roots = Array.prototype.slice.call(root.querySelectorAll(ROOT_SELECTOR));
+            roots = Array.prototype.slice.call(root.querySelectorAll(NOTIFIER_ROOT_SELECTOR));
         }
 
         roots.forEach(function (scopeRoot) {
             applyPlaceholders(scopeRoot);
             var mode = inferMode(scopeRoot);
-            var modeInput = scopeRoot.querySelector(MODE_SELECTOR + '[value="' + mode + '"]');
+            var modeInput = scopeRoot.querySelector(NOTIFIER_MODE_SELECTOR + '[value="' + mode + '"]');
             if (modeInput) {
                 modeInput.checked = true;
             }
@@ -207,7 +207,7 @@
         refreshAll(document);
 
         document.addEventListener('change', function (event) {
-            if (!event.target.matches(MODE_SELECTOR)) {
+            if (!event.target.matches(NOTIFIER_MODE_SELECTOR)) {
                 return;
             }
             var modeRoot = findScopeRoot(event.target);
@@ -215,27 +215,27 @@
         });
 
         document.addEventListener('input', function (event) {
-            if (!event.target.matches(MESSAGE_SELECTOR)) {
+            if (!event.target.matches(CUSTOM_MESSAGE_SELECTOR)) {
                 return;
             }
             var root = findScopeRoot(event.target);
-            var modeInput = root.querySelector(MODE_SELECTOR + ':checked');
+            var modeInput = root.querySelector(NOTIFIER_MODE_SELECTOR + ':checked');
             var mode = modeInput ? modeInput.value : inferMode(root);
             updateDisplay(root, mode);
         });
 
         document.addEventListener('click', function (event) {
-            if (!event.target.matches(LOAD_DEFAULT_SELECTOR)) {
+            if (!event.target.matches(LOAD_DEFAULT_TEMPLATE_SELECTOR)) {
                 return;
             }
             var root = findScopeRoot(event.target);
-            requestDefaultTemplate(root, function (payload) {
-                var messageField = root.querySelector(MESSAGE_SELECTOR);
+            loadDefaultTemplate(root, function (payload) {
+                var messageField = root.querySelector(CUSTOM_MESSAGE_SELECTOR);
                 if (!messageField) {
                     return;
                 }
                 messageField.value = payload.defaultTemplate || '';
-                var modeInput = root.querySelector(MODE_SELECTOR + ':checked');
+                var modeInput = root.querySelector(NOTIFIER_MODE_SELECTOR + ':checked');
                 var mode = modeInput ? modeInput.value : inferMode(root);
                 updateDisplay(root, mode);
             });
@@ -251,7 +251,7 @@
                     if (!node || node.nodeType !== Node.ELEMENT_NODE) {
                         return;
                     }
-                    if (node.matches && node.matches(ROOT_SELECTOR)) {
+                    if (node.matches && node.matches(NOTIFIER_ROOT_SELECTOR)) {
                         refreshAll(node);
                         return;
                     }

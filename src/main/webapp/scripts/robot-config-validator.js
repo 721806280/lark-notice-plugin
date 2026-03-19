@@ -1,27 +1,27 @@
-function validateRobotConfig(_this) {
-    var robot = _this.closest('.robot-config-container');
-    var validateMsg = robot.querySelector('.robot-config-validate-msg');
-    var requestFailedMessage = _this.getAttribute('data-validate-request-failed-message') || 'Validation request failed.';
-    validateMsg.textContent = '';
-    validateMsg.className = 'robot-config-validate-msg';
-    _this.disabled = true;
+function validateRobotConfig(triggerButton) {
+    var robotContainer = triggerButton.closest('.robot-config-container');
+    var validationMessage = robotContainer.querySelector('.robot-config-validate-msg');
+    var requestFailedMessage = triggerButton.getAttribute('data-validate-request-failed-message') || 'Validation request failed.';
+    validationMessage.textContent = '';
+    validationMessage.className = 'robot-config-validate-msg';
+    triggerButton.disabled = true;
 
-    var checkUrl = _this.getAttribute('data-validate-button-descriptor-url') + '/' + _this.getAttribute('data-validate-button-method');
-    LarkNoticeRequest.postForm(checkUrl, getParams(robot)).then(function (payload) {
+    var validationUrl = triggerButton.getAttribute('data-validate-button-descriptor-url') + '/' + triggerButton.getAttribute('data-validate-button-method');
+    LarkNoticeRequest.postForm(validationUrl, buildValidationParams(robotContainer)).then(function (payload) {
         var parsed = parseValidationResponse(payload.text);
         var ok = parsed.ok === null ? payload.ok : (payload.ok && parsed.ok);
         var message = parsed.message;
         if (!message) {
             message = payload.ok
-                ? (_this.getAttribute('data-validate-generic-success-message') || 'Validation passed.')
+                ? (triggerButton.getAttribute('data-validate-generic-success-message') || 'Validation passed.')
                 : requestFailedMessage;
         }
-        renderValidationResult(validateMsg, message, ok);
+        renderValidationResult(validationMessage, message, ok);
     }).catch(function (error) {
         console.error(error);
-        renderValidationResult(validateMsg, requestFailedMessage, false);
+        renderValidationResult(validationMessage, requestFailedMessage, false);
     }).then(function () {
-        _this.disabled = false;
+        triggerButton.disabled = false;
     });
 }
 
@@ -121,6 +121,7 @@ function bindRobotLocaleFormSync(robot) {
     }
     form.dataset.robotLocaleFormSyncBound = 'true';
 
+    // Jenkins repeatable blocks do not always emit a locale change event before submit.
     var syncAllRobotLocales = function () {
         Array.from(form.querySelectorAll('.robot-config-container')).forEach(syncRobotLocaleValue);
     };
@@ -144,6 +145,7 @@ function ensureRobotLocaleGroupName(robot) {
     }
     robot.dataset.localeGroupAssigned = 'true';
 
+    // Draft repeatable entries do not have a persisted ID yet, so assign an isolated radio group name.
     var robotIdInput = robot.querySelector('input[name="id"]');
     var robotKey = robotIdInput && robotIdInput.value ? robotIdInput.value : 'draft-' + nextRobotLocaleGroupId();
     var radioName = 'uiRobotLocale-' + robotKey;
@@ -158,6 +160,7 @@ function seedRobotLocaleUiState(robot) {
     }
     robot.dataset.localeUiSeeded = 'true';
 
+    // Collapse any legacy or blank value to the explicit two-option UI shown in the editor.
     var localeValueField = robot.querySelector('.robot-message-locale-value');
     var localeValue = localeValueField ? localeValueField.value : '';
     var resolvedValue = localeValue === 'ZH_CN' || localeValue === 'EN_US' ? localeValue : 'ZH_CN';
@@ -247,7 +250,7 @@ function writeTextToClipboard(text) {
  * @param {HTMLElement} robot - Robot configuration container element.
  * @returns {URLSearchParams} Request parameters for the validation endpoint.
  */
-function getParams(robot) {
+function buildValidationParams(robot) {
     syncRobotLocaleValue(robot);
 
     // Read the shared proxy settings from the global proxy section.

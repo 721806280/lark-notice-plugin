@@ -8,6 +8,7 @@ import hudson.model.Descriptor;
 import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.enums.NoticeOccasionEnum;
 import io.jenkins.plugins.lark.notice.service.NotificationTemplateService;
+import io.jenkins.plugins.lark.notice.tools.HttpResponses;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,12 +18,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.QueryParameter;
-import org.kohsuke.stapler.StaplerRequest2;
-import org.kohsuke.stapler.StaplerResponse2;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 
 import jenkins.model.Jenkins;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -255,9 +253,9 @@ public class LarkNotifierConfig implements Describable<LarkNotifierConfig> {
         }
 
         /**
-         * Generates one preview payload for the current notifier form values.
+         * Loads the built-in editable template for the selected robot and current notifier fields.
          *
-         * @return JSON response with preview fields
+         * @return JSON response containing the template text
          */
         @RequirePOST
         public HttpResponse doLoadDefaultTemplate(@QueryParameter String robotId,
@@ -283,24 +281,13 @@ public class LarkNotifierConfig implements Describable<LarkNotifierConfig> {
 
                 response.put("ok", true);
                 response.put("defaultTemplate", NotificationTemplateService.buildEditableDefaultTemplate(config));
-                return jsonResponse(response);
+                return HttpResponses.json(response);
             } catch (Exception ex) {
                 response.put("ok", false);
                 response.put("message", Messages.config_import_payload_invalid(
                         StringUtils.defaultIfBlank(ex.getMessage(), ex.getClass().getSimpleName())));
-                return jsonResponse(response);
+                return HttpResponses.json(response);
             }
-        }
-
-        private HttpResponse jsonResponse(JSONObject response) {
-            return new HttpResponse() {
-                @Override
-                public void generateResponse(StaplerRequest2 req, StaplerResponse2 rsp, Object node)
-                        throws IOException {
-                    rsp.setContentType("application/json; charset=UTF-8");
-                    rsp.getWriter().write(response.toString());
-                }
-            };
         }
     }
 

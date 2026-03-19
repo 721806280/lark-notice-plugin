@@ -13,6 +13,7 @@ import io.jenkins.plugins.lark.notice.config.snapshot.LarkConfigImportPlanner;
 import io.jenkins.plugins.lark.notice.config.snapshot.LarkConfigImportPreview;
 import io.jenkins.plugins.lark.notice.config.snapshot.LarkConfigSnapshotMapper;
 import io.jenkins.plugins.lark.notice.config.snapshot.LarkConfigSnapshotValidator;
+import io.jenkins.plugins.lark.notice.tools.HttpResponses;
 import io.jenkins.plugins.lark.notice.tools.JsonUtils;
 import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.config.LarkGlobalConfig;
@@ -142,7 +143,7 @@ public class LarkManagementLink extends ManagementLink {
     public HttpResponse doExport() {
         Jenkins.get().checkPermission(LarkPermissions.CONFIGURE);
         LarkConfigSnapshot snapshot = LarkConfigSnapshotMapper.toSnapshot(getGlobalConfig());
-        return downloadResponse(JsonUtils.toPrettyJson(snapshot), buildExportFileName());
+        return HttpResponses.downloadJson(JsonUtils.toPrettyJson(snapshot), buildExportFileName());
     }
 
     /**
@@ -194,15 +195,15 @@ public class LarkManagementLink extends ManagementLink {
             response.put("ok", true);
             response.put("message", Messages.config_import_preview_success());
             response.put("data", JSONObject.fromObject(preview));
-            return jsonResponse(response);
+            return HttpResponses.json(response);
         } catch (FormException ex) {
             response.put("ok", false);
             response.put("message", ex.getMessage());
-            return jsonResponse(response);
+            return HttpResponses.json(response);
         } catch (Exception ex) {
             response.put("ok", false);
             response.put("message", Messages.config_import_payload_invalid(StringUtils.defaultIfBlank(ex.getMessage(), ex.getClass().getSimpleName())));
-            return jsonResponse(response);
+            return HttpResponses.json(response);
         }
     }
 
@@ -234,37 +235,16 @@ public class LarkManagementLink extends ManagementLink {
 
             response.put("ok", true);
             response.put("message", Messages.config_import_success(planned.getRobotConfigs().size()));
-            return jsonResponse(response);
+            return HttpResponses.json(response);
         } catch (FormException ex) {
             response.put("ok", false);
             response.put("message", ex.getMessage());
-            return jsonResponse(response);
+            return HttpResponses.json(response);
         } catch (Exception ex) {
             response.put("ok", false);
             response.put("message", Messages.config_import_payload_invalid(StringUtils.defaultIfBlank(ex.getMessage(), ex.getClass().getSimpleName())));
-            return jsonResponse(response);
+            return HttpResponses.json(response);
         }
-    }
-
-    private HttpResponse downloadResponse(String body, String fileName) {
-        return new HttpResponse() {
-            @Override
-            public void generateResponse(StaplerRequest2 req, StaplerResponse2 rsp, Object node) throws IOException, ServletException {
-                rsp.setContentType("application/json; charset=UTF-8");
-                rsp.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
-                rsp.getWriter().write(body);
-            }
-        };
-    }
-
-    private HttpResponse jsonResponse(JSONObject response) {
-        return new HttpResponse() {
-            @Override
-            public void generateResponse(StaplerRequest2 req, StaplerResponse2 rsp, Object node) throws IOException, ServletException {
-                rsp.setContentType("application/json; charset=UTF-8");
-                rsp.getWriter().write(response.toString());
-            }
-        };
     }
 
     private String buildExportFileName() {

@@ -61,4 +61,21 @@ public enum MessageLocaleStrategy {
         Locale resolved = Objects.requireNonNullElse(locale, Locale.getDefault());
         return Locale.SIMPLIFIED_CHINESE.getLanguage().equalsIgnoreCase(resolved.getLanguage()) ? ZH_CN : EN_US;
     }
+
+    /**
+     * Parses one raw configuration value, falling back to {@link #SYSTEM_DEFAULT}.
+     *
+     * @param value raw enum name from form submissions or snapshots
+     * @return parsed strategy, never {@code null}
+     */
+    public static MessageLocaleStrategy parse(String value) {
+        if (value == null || value.isBlank()) {
+            return SYSTEM_DEFAULT;
+        }
+        try {
+            return MessageLocaleStrategy.valueOf(value);
+        } catch (IllegalArgumentException ex) {
+            return SYSTEM_DEFAULT;
+        }
+    }
 }

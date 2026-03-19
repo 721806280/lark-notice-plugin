@@ -22,24 +22,21 @@ import io.jenkins.plugins.lark.notice.model.RobotConfigModel;
 import io.jenkins.plugins.lark.notice.sdk.MessageDispatcher;
 import io.jenkins.plugins.lark.notice.sdk.MessageSender;
 import io.jenkins.plugins.lark.notice.sdk.model.SendResult;
+import io.jenkins.plugins.lark.notice.tools.HttpResponses;
 import io.jenkins.plugins.lark.notice.tools.JsonUtils;
 import jenkins.model.Jenkins;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import jakarta.servlet.ServletException;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.QueryParameter;
-import org.kohsuke.stapler.StaplerRequest2;
-import org.kohsuke.stapler.StaplerResponse2;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 
-import java.io.IOException;
 import java.net.ProxySelector;
 import java.util.*;
 import java.util.Locale;
@@ -459,14 +456,14 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
                 robotConfig.setEndpointMode(resolvedEndpointMode);
                 robotConfig.setBaseUrl(baseUrl);
                 robotConfig.setWebhookToken(webhookToken);
-                robotConfig.setMessageLocaleStrategy(parseLocaleStrategy(messageLocaleStrategy));
+                robotConfig.setMessageLocaleStrategy(MessageLocaleStrategy.parse(messageLocaleStrategy));
                 ProxySelector proxySelector = parseProxySelector(proxy);
 
                 RobotType robotType = robotConfig.obtainRobotType();
                 if (Objects.isNull(robotType)) {
                     response.put("ok", false);
                     response.put("message", Messages.form_validation_webhook_invalid());
-                    return jsonResponse(response);
+                    return HttpResponses.json(response);
                 }
 
                 MessageSender sender = robotType.obtainInstance(RobotConfigModel.of(robotConfig, proxySelector));
@@ -480,14 +477,14 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
                         : StringUtils.isNotBlank(detail)
                         ? Messages.form_validation_test_failure_with_detail(detail)
                         : Messages.form_validation_test_failure());
-                return jsonResponse(response);
+                return HttpResponses.json(response);
             } catch (Exception e) {
                 String detail = StringUtils.defaultIfBlank(e.getMessage(), null);
                 response.put("ok", false);
                 response.put("message", StringUtils.isNotBlank(detail)
                         ? Messages.form_validation_test_failure_with_detail(detail)
                         : Messages.form_validation_test_failure());
-                return jsonResponse(response);
+                return HttpResponses.json(response);
             }
         }
 
@@ -502,36 +499,6 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
             return Optional.ofNullable(JsonUtils.readValue(proxy, LarkProxyConfig.class))
                     .orElseGet(LarkProxyConfig::new)
                     .obtainProxySelector();
-        }
-
-        private MessageLocaleStrategy parseLocaleStrategy(String value) {
-            if (StringUtils.isBlank(value)) {
-                return MessageLocaleStrategy.SYSTEM_DEFAULT;
-            }
-            try {
-                return MessageLocaleStrategy.valueOf(value);
-            } catch (IllegalArgumentException ex) {
-                return MessageLocaleStrategy.SYSTEM_DEFAULT;
-            }
-        }
-
-        private HttpResponse jsonResponse(JSONObject response) {
-            return new HttpResponse() {
-                /**
-                 * Writes the JSON response for the test endpoint.
-                 *
-                 * @param req  stapler request
-                 * @param rsp  stapler response
-                 * @param node bound node
-                 * @throws IOException      if writing fails
-                 * @throws ServletException if response handling fails
-                 */
-                @Override
-                public void generateResponse(StaplerRequest2 req, StaplerResponse2 rsp, Object node) throws IOException, ServletException {
-                    rsp.setContentType("application/json; charset=UTF-8");
-                    rsp.getWriter().write(response.toString());
-                }
-            };
         }
 
         /**
