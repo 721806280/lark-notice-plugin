@@ -22,12 +22,10 @@ public final class MessageLocaleResolver {
      * @return effective locale for default notification rendering
      */
     public static Locale resolve(LarkNotifierConfig notifierConfig) {
-        MessageLocaleStrategy robotStrategy = notifierConfig == null
-                ? MessageLocaleStrategy.SYSTEM_DEFAULT
-                : LarkGlobalConfig.getRobot(notifierConfig.getRobotId())
-                .map(LarkRobotConfig::getMessageLocaleStrategy)
-                .orElse(MessageLocaleStrategy.SYSTEM_DEFAULT);
-        return resolve(robotStrategy);
+        if (notifierConfig == null) {
+            return resolve((MessageLocaleStrategy) null);
+        }
+        return resolveForRobotId(notifierConfig.getRobotId());
     }
 
     /**
@@ -38,5 +36,28 @@ public final class MessageLocaleResolver {
      */
     public static Locale resolve(MessageLocaleStrategy robotStrategy) {
         return (robotStrategy == null ? MessageLocaleStrategy.SYSTEM_DEFAULT : robotStrategy).toLocale();
+    }
+
+    /**
+     * Resolves one effective locale for the provided robot configuration.
+     *
+     * @param robotConfig robot configuration, may be {@code null}
+     * @return effective locale for default notification rendering
+     */
+    public static Locale resolve(LarkRobotConfig robotConfig) {
+        return resolve(robotConfig == null ? null : robotConfig.getMessageLocaleStrategy());
+    }
+
+    /**
+     * Resolves one effective locale for the robot identified by the given id.
+     *
+     * @param robotId robot identifier, may be {@code null}
+     * @return effective locale for default notification rendering
+     */
+    public static Locale resolveForRobotId(String robotId) {
+        MessageLocaleStrategy robotStrategy = LarkGlobalConfig.getRobot(robotId)
+                .map(LarkRobotConfig::getMessageLocaleStrategy)
+                .orElse(MessageLocaleStrategy.SYSTEM_DEFAULT);
+        return resolve(robotStrategy);
     }
 }

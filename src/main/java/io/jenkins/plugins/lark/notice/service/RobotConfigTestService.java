@@ -5,6 +5,7 @@ import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.config.LarkProxyConfig;
 import io.jenkins.plugins.lark.notice.config.LarkRobotConfig;
 import io.jenkins.plugins.lark.notice.config.LarkSecurityPolicyConfig;
+import io.jenkins.plugins.lark.notice.config.MessageLocaleResolver;
 import io.jenkins.plugins.lark.notice.config.RobotWebhookResolver;
 import io.jenkins.plugins.lark.notice.enums.BuildStatusEnum;
 import io.jenkins.plugins.lark.notice.enums.MessageLocaleStrategy;
@@ -69,7 +70,7 @@ public final class RobotConfigTestService {
 
             MessageSender sender = robotType.obtainInstance(RobotConfigModel.of(robotConfig, proxySelector));
             SendResult sendResult = Objects.requireNonNull(MessageDispatcher.getInstance()
-                    .send(null, robotConfig.getId(), buildTestMessage(robotType, robotConfig.getMessageLocaleStrategy().toLocale()), sender), "sendResult");
+                    .send(null, robotConfig.getId(), buildTestMessage(robotType, MessageLocaleResolver.resolve(robotConfig)), sender), "sendResult");
             boolean ok = sendResult.isOk();
             String detail = sendResult.getMsg();
             String message = ok
