@@ -5,6 +5,7 @@
     <j:set var="robotIdValue" value="${instance != null ? instance.getId() : ''}"/>
     <j:set var="protocolTypeValue" value="${instance != null ? instance.getProtocolType().name() : 'LARK_COMPATIBLE'}"/>
     <j:set var="endpointModeValue" value="${instance != null ? instance.getEndpointMode().name() : 'FULL_WEBHOOK'}"/>
+    <j:set var="messageLocaleStrategyValue" value="${instance != null ? instance.getUiMessageLocaleStrategy().name() : descriptor.getDefaultUiMessageLocaleStrategy().name()}"/>
     <j:set var="webhookValue" value="${instance != null ? instance.getWebhook() : ''}"/>
     <j:set var="baseUrlValue" value="${instance != null ? instance.getBaseUrl() : ''}"/>
     <j:set var="webhookTokenValue" value="${instance != null ? instance.getWebhookToken() : ''}"/>
@@ -66,6 +67,25 @@
                         <div class="jenkins-description robot-webhook-preview"
                              data-empty-preview-message="${%robot.endpoint.preview.empty}"><!-- endpoint preview --></div>
                     </div>
+                </div>
+            </f:entry>
+            <f:entry field="messageLocaleStrategy" title="${%robot.message.language}">
+                <input type="hidden" name="messageLocaleStrategy"
+                       value="${messageLocaleStrategyValue}"
+                       class="robot-message-locale-value"/>
+                <div class="lark-segmented-control lark-locale-switch">
+                    <label class="lark-segmented-control__option">
+                        <input class="robot-locale-input" type="radio"
+                               name="uiRobotLocale-${robotIdValue}"
+                               value="ZH_CN"/>
+                        <span title="${%robot.message.language.zh_cn}">${%robot.message.language.short.zh_cn}</span>
+                    </label>
+                    <label class="lark-segmented-control__option">
+                        <input class="robot-locale-input" type="radio"
+                               name="uiRobotLocale-${robotIdValue}"
+                               value="EN_US"/>
+                        <span title="${%robot.message.language.en_us}">${%robot.message.language.short.en_us}</span>
+                    </label>
                 </div>
             </f:entry>
         </f:section>

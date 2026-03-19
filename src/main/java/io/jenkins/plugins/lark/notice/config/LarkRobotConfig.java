@@ -9,11 +9,13 @@ import hudson.util.Secret;
 import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.config.security.LarkPermissions;
 import io.jenkins.plugins.lark.notice.enums.BuildStatusEnum;
+import io.jenkins.plugins.lark.notice.enums.MessageLocaleStrategy;
 import io.jenkins.plugins.lark.notice.enums.MsgTypeEnum;
 import io.jenkins.plugins.lark.notice.enums.RobotProtocolType;
 import io.jenkins.plugins.lark.notice.enums.RobotType;
 import io.jenkins.plugins.lark.notice.enums.SecurityPolicyEnum;
 import io.jenkins.plugins.lark.notice.enums.WebhookEndpointMode;
+import io.jenkins.plugins.lark.notice.i18n.NoticeI18n;
 import io.jenkins.plugins.lark.notice.model.BuildJobModel;
 import io.jenkins.plugins.lark.notice.model.MessageModel;
 import io.jenkins.plugins.lark.notice.model.RobotConfigModel;
@@ -40,6 +42,7 @@ import org.kohsuke.stapler.interceptor.RequirePOST;
 import java.io.IOException;
 import java.net.ProxySelector;
 import java.util.*;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.NOTICE_ICON;
@@ -100,6 +103,11 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
      * Retry configuration for this robot.
      */
     private LarkRetryConfig retryConfig;
+
+    /**
+     * Locale strategy used by built-in default message content for this robot.
+     */
+    private MessageLocaleStrategy messageLocaleStrategy = MessageLocaleStrategy.SYSTEM_DEFAULT;
 
     /**
      * Constructor for initializing robot configuration object
@@ -236,6 +244,24 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
         return retryConfig == null ? LarkRetryConfig.defaultConfig() : retryConfig;
     }
 
+    /**
+     * Returns the message locale strategy configured for this robot.
+     *
+     * @return configured locale strategy, never {@code null}
+     */
+    public MessageLocaleStrategy getMessageLocaleStrategy() {
+        return messageLocaleStrategy == null ? MessageLocaleStrategy.SYSTEM_DEFAULT : messageLocaleStrategy;
+    }
+
+    /**
+     * Returns the locale strategy shown by the robot editor.
+     *
+     * @return explicit UI strategy
+     */
+    public MessageLocaleStrategy getUiMessageLocaleStrategy() {
+        return getMessageLocaleStrategy().toSelectableStrategy();
+    }
+
     private Map<String, LarkSecurityPolicyConfig> indexSecurityPoliciesByType() {
         if (securityPolicyConfigs == null || securityPolicyConfigs.isEmpty()) {
             return Collections.emptyMap();
@@ -261,6 +287,18 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
     @DataBoundSetter
     public void setRetryConfig(LarkRetryConfig retryConfig) {
         this.retryConfig = retryConfig;
+    }
+
+    /**
+     * Updates the locale strategy used for built-in default messages sent by this robot.
+     *
+     * @param messageLocaleStrategy locale strategy, or {@code null} to reset to system default
+     */
+    @DataBoundSetter
+    public void setMessageLocaleStrategy(MessageLocaleStrategy messageLocaleStrategy) {
+        this.messageLocaleStrategy = messageLocaleStrategy == null
+                ? MessageLocaleStrategy.SYSTEM_DEFAULT
+                : messageLocaleStrategy;
     }
 
     /**
@@ -350,6 +388,15 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
         }
 
         /**
+         * Returns the explicit locale strategy used to seed new robot forms.
+         *
+         * @return default UI locale strategy
+         */
+        public MessageLocaleStrategy getDefaultUiMessageLocaleStrategy() {
+            return MessageLocaleStrategy.fromLocale(Locale.getDefault());
+        }
+
+        /**
          * Validates whether the robot name is empty
          *
          * @param value Robot name
@@ -394,7 +441,8 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
                                    @QueryParameter String protocolType, @QueryParameter String endpointMode,
                                    @QueryParameter String webhook, @QueryParameter String baseUrl,
                                    @QueryParameter String webhookToken, @QueryParameter String proxy,
-                                   @QueryParameter String securityConfigs) {
+                                   @QueryParameter String securityConfigs,
+                                   @QueryParameter String messageLocaleStrategy) {
             Jenkins.get().checkPermission(LarkPermissions.CONFIGURE);
 
             JSONObject response = new JSONObject();
@@ -411,6 +459,7 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
                 robotConfig.setEndpointMode(resolvedEndpointMode);
                 robotConfig.setBaseUrl(baseUrl);
                 robotConfig.setWebhookToken(webhookToken);
+                robotConfig.setMessageLocaleStrategy(parseLocaleStrategy(messageLocaleStrategy));
                 ProxySelector proxySelector = parseProxySelector(proxy);
 
                 RobotType robotType = robotConfig.obtainRobotType();
@@ -422,7 +471,7 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
 
                 MessageSender sender = robotType.obtainInstance(RobotConfigModel.of(robotConfig, proxySelector));
                 SendResult sendResult = Objects.requireNonNull(MessageDispatcher.getInstance()
-                        .send(null, robotConfig.getId(), buildTestMessage(robotType), sender), "sendResult");
+                        .send(null, robotConfig.getId(), buildTestMessage(robotType, robotConfig.getMessageLocaleStrategy().toLocale()), sender), "sendResult");
                 boolean ok = sendResult.isOk();
                 String detail = sendResult.getMsg();
                 response.put("ok", ok);
@@ -455,6 +504,17 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
                     .obtainProxySelector();
         }
 
+        private MessageLocaleStrategy parseLocaleStrategy(String value) {
+            if (StringUtils.isBlank(value)) {
+                return MessageLocaleStrategy.SYSTEM_DEFAULT;
+            }
+            try {
+                return MessageLocaleStrategy.valueOf(value);
+            } catch (IllegalArgumentException ex) {
+                return MessageLocaleStrategy.SYSTEM_DEFAULT;
+            }
+        }
+
         private HttpResponse jsonResponse(JSONObject response) {
             return new HttpResponse() {
                 /**
@@ -479,19 +539,19 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
          *
          * @return The test message model.
          */
-        private MessageModel buildTestMessage(RobotType robotType) {
+        private MessageModel buildTestMessage(RobotType robotType, Locale locale) {
             String rootUrl = Jenkins.get().getRootUrl();
             User user = Optional.ofNullable(User.current()).orElse(User.getUnknown());
 
             BuildJobModel buildJobModel = BuildJobModel.builder()
-                    .projectName(Messages.robot_test_project_name()).title(Messages.notification_default_title())
-                    .projectUrl(rootUrl).jobName(Messages.robot_test_job_name()).jobUrl(rootUrl + "/configure")
+                    .projectName(NoticeI18n.robotTestProjectName(locale)).title(NoticeI18n.defaultTitle(locale))
+                    .projectUrl(rootUrl).jobName(NoticeI18n.robotTestJobName(locale)).jobUrl(rootUrl + "/configure")
                     .statusType(BuildStatusEnum.SUCCESS).duration("-")
                     .executorName(user.getDisplayName()).build();
 
             return MessageModel.builder().type(MsgTypeEnum.CARD)
-                    .title(NOTICE_ICON + " " + Messages.robot_test_success_title())
-                    .text(buildJobModel.toMarkdown(robotType))
+                    .title(NOTICE_ICON + " " + NoticeI18n.robotTestSuccessTitle(locale))
+                    .text(buildJobModel.toMarkdown(robotType, locale))
                     .atAll(false).build();
         }
     }

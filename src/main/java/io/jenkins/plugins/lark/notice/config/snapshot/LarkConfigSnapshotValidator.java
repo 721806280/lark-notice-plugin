@@ -5,6 +5,7 @@ import hudson.util.VersionNumber;
 import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.config.RobotWebhookResolver;
 import io.jenkins.plugins.lark.notice.enums.NoticeOccasionEnum;
+import io.jenkins.plugins.lark.notice.enums.MessageLocaleStrategy;
 import io.jenkins.plugins.lark.notice.enums.RobotProtocolType;
 import io.jenkins.plugins.lark.notice.enums.RobotType;
 import io.jenkins.plugins.lark.notice.enums.SecurityPolicyEnum;
@@ -43,7 +44,9 @@ public final class LarkConfigSnapshotValidator {
         if (snapshot == null) {
             throw new FormException(Messages.config_import_payload_missing(), IMPORT_FIELD);
         }
-        if (snapshot.getSchemaVersion() == null || snapshot.getSchemaVersion() != LarkConfigSnapshot.CURRENT_SCHEMA_VERSION) {
+        if (snapshot.getSchemaVersion() == null
+                || snapshot.getSchemaVersion() < 1
+                || snapshot.getSchemaVersion() > LarkConfigSnapshot.CURRENT_SCHEMA_VERSION) {
             throw new FormException(Messages.config_import_schema_unsupported(), IMPORT_FIELD);
         }
         validatePluginCompatibility(snapshot.getPluginVersion(), currentPluginVersion);
@@ -80,6 +83,17 @@ public final class LarkConfigSnapshotValidator {
             } catch (Exception ex) {
                 throw new FormException(Messages.config_import_notice_occasion_invalid(occasion), IMPORT_FIELD);
             }
+        }
+    }
+
+    private static void validateMessageLocaleStrategy(MessageLocaleStrategy messageLocaleStrategy) throws FormException {
+        if (messageLocaleStrategy == null) {
+            return;
+        }
+        try {
+            MessageLocaleStrategy.valueOf(messageLocaleStrategy.name());
+        } catch (Exception ex) {
+            throw new FormException(Messages.config_import_payload_invalid("Unsupported message locale strategy."), IMPORT_FIELD);
         }
     }
 
@@ -145,6 +159,7 @@ public final class LarkConfigSnapshotValidator {
                 || !RobotWebhookResolver.isSupportedWebhook(protocolType, resolvedWebhook)) {
             throw new FormException(Messages.form_validation_webhook_invalid(), IMPORT_FIELD);
         }
+        validateMessageLocaleStrategy(robotConfig.getMessageLocaleStrategy());
         validateRetry(robotConfig.getRetryConfig());
         validateSecurityPolicies(robotConfig.getSecurityPolicyConfigs());
     }

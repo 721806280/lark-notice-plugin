@@ -1,17 +1,28 @@
 package io.jenkins.plugins.lark.notice.config;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.model.Describable;
 import hudson.model.Descriptor;
+import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.enums.NoticeOccasionEnum;
+import io.jenkins.plugins.lark.notice.service.NotificationTemplateService;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import net.sf.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.HttpResponse;
+import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
+import org.kohsuke.stapler.interceptor.RequirePOST;
 
+import jenkins.model.Jenkins;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -219,6 +230,12 @@ public class LarkNotifierConfig implements Describable<LarkNotifierConfig> {
     @Extension
     public static class LarkNotifierConfigDescriptor extends Descriptor<LarkNotifierConfig> {
 
+        @NonNull
+        @Override
+        public String getDisplayName() {
+            return Messages.plugin_name();
+        }
+
         /**
          * Retrieves a list of selectable notice occasions.
          *
@@ -235,6 +252,55 @@ public class LarkNotifierConfig implements Describable<LarkNotifierConfig> {
          */
         public Class<?> getSharedViewsClass() {
             return SharedConfigViews.class;
+        }
+
+        /**
+         * Generates one preview payload for the current notifier form values.
+         *
+         * @return JSON response with preview fields
+         */
+        @RequirePOST
+        public HttpResponse doLoadDefaultTemplate(@QueryParameter String robotId,
+                                                  @QueryParameter String title,
+                                                  @QueryParameter String content) {
+            Jenkins.get().checkPermission(Jenkins.READ);
+
+            JSONObject response = new JSONObject();
+            try {
+                LarkNotifierConfig config = new LarkNotifierConfig(
+                        false,
+                        false,
+                        true,
+                        robotId,
+                        "",
+                        false,
+                        "",
+                        title,
+                        content,
+                        "",
+                        null
+                );
+
+                response.put("ok", true);
+                response.put("defaultTemplate", NotificationTemplateService.buildEditableDefaultTemplate(config));
+                return jsonResponse(response);
+            } catch (Exception ex) {
+                response.put("ok", false);
+                response.put("message", Messages.config_import_payload_invalid(
+                        StringUtils.defaultIfBlank(ex.getMessage(), ex.getClass().getSimpleName())));
+                return jsonResponse(response);
+            }
+        }
+
+        private HttpResponse jsonResponse(JSONObject response) {
+            return new HttpResponse() {
+                @Override
+                public void generateResponse(StaplerRequest2 req, StaplerResponse2 rsp, Object node)
+                        throws IOException {
+                    rsp.setContentType("application/json; charset=UTF-8");
+                    rsp.getWriter().write(response.toString());
+                }
+            };
         }
     }
 

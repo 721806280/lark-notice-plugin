@@ -8,8 +8,10 @@ import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.config.LarkGlobalConfig;
 import io.jenkins.plugins.lark.notice.config.LarkNotifierConfig;
 import io.jenkins.plugins.lark.notice.config.LarkRobotConfig;
+import io.jenkins.plugins.lark.notice.config.MessageLocaleResolver;
 import io.jenkins.plugins.lark.notice.enums.NoticeOccasionEnum;
 import io.jenkins.plugins.lark.notice.enums.RobotType;
+import io.jenkins.plugins.lark.notice.i18n.NoticeI18n;
 import io.jenkins.plugins.lark.notice.logging.NoticeLog;
 import io.jenkins.plugins.lark.notice.logging.NoticeLogKey;
 import io.jenkins.plugins.lark.notice.logging.NoticeTrace;
@@ -20,6 +22,7 @@ import io.jenkins.plugins.lark.notice.sdk.MessageDispatcher;
 import io.jenkins.plugins.lark.notice.sdk.model.SendResult;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Locale;
 import java.util.Set;
 
 import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.LF;
@@ -65,9 +68,10 @@ public final class NotificationDispatchExecutor {
                 NoticeLog.field(NoticeLogKey.AT_USER_TOTAL, atUserIds.size()));
 
         BuildJobModel model = context.model();
-        applyModelTemplateValues(config, model, context.envVars());
-        String messageText = resolveMessageText(config, model, context.envVars(), robotType);
-        MessageModel messageModel = buildMessageModel(model, config, atUserIds, messageText);
+        Locale locale = MessageLocaleResolver.resolve(config);
+        applyModelTemplateValues(config, model, context.envVars(), locale);
+        String messageText = resolveMessageText(config, model, context.envVars(), robotType, locale);
+        MessageModel messageModel = buildMessageModel(model, config, atUserIds, messageText, locale);
 
         SendResult result = messageDispatcher.send(listener, config.getRobotId(), messageModel);
         handleSendResult(source, run, listener, occasion, config.getRobotId(), result);
@@ -112,8 +116,12 @@ public final class NotificationDispatchExecutor {
      * @param model  build model
      * @param envVars environment variables
      */
-    static void applyModelTemplateValues(LarkNotifierConfig config, BuildJobModel model, EnvVars envVars) {
-        model.setTitle(envVars.expand(StringUtils.defaultIfBlank(config.getTitle(), defaultTitle())));
+    static void applyModelTemplateValues(LarkNotifierConfig config, BuildJobModel model, EnvVars envVars, Locale locale) {
+        String configuredTitle = StringUtils.trimToNull(config.getTitle());
+        String resolvedTitleTemplate = configuredTitle == null || NoticeI18n.isBuiltInDefaultTitle(configuredTitle)
+                ? defaultTitle(locale)
+                : configuredTitle;
+        model.setTitle(envVars.expand(resolvedTitleTemplate));
         model.setContent(envVars.expand(config.getContent()).replaceAll("\\\\n", LF));
     }
 
@@ -127,8 +135,8 @@ public final class NotificationDispatchExecutor {
      * @return final message text
      */
     static String resolveMessageText(LarkNotifierConfig config, BuildJobModel model, EnvVars envVars,
-                                     RobotType robotType) {
-        return config.isRaw() ? envVars.expand(config.getMessage()) : model.toMarkdown(robotType);
+                                     RobotType robotType, Locale locale) {
+        return config.isRaw() ? envVars.expand(config.getMessage()) : model.toMarkdown(robotType, locale);
     }
 
     /**
@@ -141,8 +149,8 @@ public final class NotificationDispatchExecutor {
      * @return built message model
      */
     static MessageModel buildMessageModel(BuildJobModel model, LarkNotifierConfig config,
-                                          Set<String> atUserIds, String messageText) {
-        return model.messageModelBuilder()
+                                          Set<String> atUserIds, String messageText, Locale locale) {
+        return model.messageModelBuilder(locale)
                 .atAll(config.isAtAll())
                 .atUserIds(atUserIds)
                 .text(messageText)

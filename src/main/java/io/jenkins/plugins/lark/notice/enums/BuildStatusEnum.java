@@ -1,10 +1,12 @@
 package io.jenkins.plugins.lark.notice.enums;
 
 import io.jenkins.plugins.lark.notice.Messages;
+import io.jenkins.plugins.lark.notice.i18n.NoticeI18n;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -84,14 +86,24 @@ public enum BuildStatusEnum {
      * @return Localized label of this build status.
      */
     public String getLabel() {
+        return getLabel(Locale.getDefault());
+    }
+
+    /**
+     * Returns the localized label for the current build status using the provided locale.
+     *
+     * @param locale locale to render
+     * @return localized label of this build status
+     */
+    public String getLabel(Locale locale) {
         return switch (this) {
-            case START -> Messages.build_status_start();
-            case FAILURE -> Messages.build_status_failure();
-            case SUCCESS -> Messages.build_status_success();
-            case ABORTED -> Messages.build_status_aborted();
-            case UNSTABLE -> Messages.build_status_unstable();
-            case NOT_BUILT -> Messages.build_status_not_built();
-            case UNKNOWN -> Messages.build_status_unknown();
+            case START -> NoticeI18n.buildStatusLabel(locale, "start");
+            case FAILURE -> NoticeI18n.buildStatusLabel(locale, "failure");
+            case SUCCESS -> NoticeI18n.buildStatusLabel(locale, "success");
+            case ABORTED -> NoticeI18n.buildStatusLabel(locale, "aborted");
+            case UNSTABLE -> NoticeI18n.buildStatusLabel(locale, "unstable");
+            case NOT_BUILT -> NoticeI18n.buildStatusLabel(locale, "not_built");
+            case UNKNOWN -> NoticeI18n.buildStatusLabel(locale, "unknown");
         };
     }
 

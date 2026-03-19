@@ -54,6 +54,14 @@ public class BuildJobModelI18nTest {
         }
     }
 
+    @Test
+    public void shouldNormalizeDefaultButtonUrlsWhenJobUrlHasNoTrailingSlash() {
+        List<Button> buttons = Utils.createDefaultButtons("https://example.com/job/demo/42", Locale.US);
+
+        assertEquals("https://example.com/job/demo/42/changes", buttons.get(0).getUrl());
+        assertEquals("https://example.com/job/demo/42/console", buttons.get(1).getUrl());
+    }
+
     private static BuildJobModel createModel() {
         return BuildJobModel.builder()
                 .title("title")

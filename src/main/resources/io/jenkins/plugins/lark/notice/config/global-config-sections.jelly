@@ -17,7 +17,6 @@
                 <f:checkbox title="${%global.logging.verbose}"/>
             </f:entry>
         </f:section>
-
         <f:section title="${%global.section.proxy}">
             <f:property field="proxyConfig"
                         propertyDescriptor="${descriptor.getLarkProxyConfigDescriptor()}"/>

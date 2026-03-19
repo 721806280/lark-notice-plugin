@@ -4,6 +4,7 @@ import io.jenkins.plugins.lark.notice.config.LarkRetryConfig;
 import io.jenkins.plugins.lark.notice.config.LarkRobotConfig;
 import io.jenkins.plugins.lark.notice.config.LarkSecurityPolicyConfig;
 import io.jenkins.plugins.lark.notice.config.snapshot.LarkConfigSnapshotMapper;
+import io.jenkins.plugins.lark.notice.enums.MessageLocaleStrategy;
 import io.jenkins.plugins.lark.notice.tools.JsonUtils;
 import net.sf.json.JSONObject;
 import org.htmlunit.HttpMethod;
@@ -55,7 +56,9 @@ public class LarkManagementLinkTest {
 
     @Test
     public void exportEndpointShouldReturnJsonSnapshot() throws Exception {
-        LarkGlobalConfig.getInstance().setRobotConfigs(new ArrayList<>(List.of(createRobot("export-robot"))));
+        LarkRobotConfig robot = createRobot("export-robot");
+        robot.setMessageLocaleStrategy(MessageLocaleStrategy.ZH_CN);
+        LarkGlobalConfig.getInstance().setRobotConfigs(new ArrayList<>(List.of(robot)));
 
         try (JenkinsRule.WebClient webClient = jenkins.createWebClient()) {
             WebRequest request = new WebRequest(new URL(jenkins.getURL(), "manage/lark/export"), HttpMethod.POST);
@@ -64,6 +67,7 @@ public class LarkManagementLinkTest {
 
             String content = page.getWebResponse().getContentAsString();
             assertTrue(content.contains("\"schemaVersion\""));
+            assertTrue(content.contains("\"messageLocaleStrategy\":\"ZH_CN\""));
             assertTrue(content.contains("\"webhook\""));
             assertTrue(content.contains("export-robot"));
             assertTrue(page.getWebResponse().getResponseHeaderValue("Content-Disposition").contains("lark-notice-config-"));
@@ -88,6 +92,7 @@ public class LarkManagementLinkTest {
             assertTrue(LarkGlobalConfig.getInstance().isVerbose());
             assertEquals(1, LarkGlobalConfig.getInstance().getRobotConfigs().size());
             assertEquals("import-robot", LarkGlobalConfig.getInstance().getRobotConfigs().get(0).getId());
+            assertEquals(MessageLocaleStrategy.EN_US, LarkGlobalConfig.getInstance().getRobotConfigs().get(0).getMessageLocaleStrategy());
         }
     }
 
@@ -193,6 +198,7 @@ public class LarkManagementLinkTest {
                 Set.of("SUCCESS"),
                 new ArrayList<>(List.of(createRobot("import-robot")))
         );
+        source.getRobotConfigs().get(0).setMessageLocaleStrategy(MessageLocaleStrategy.EN_US);
         return io.jenkins.plugins.lark.notice.config.snapshot.LarkConfigSnapshotMapper.toSnapshot(source);
     }
 

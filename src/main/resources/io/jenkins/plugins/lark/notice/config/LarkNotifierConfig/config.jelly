@@ -1,76 +1,107 @@
 <?jelly escape-by-default='true'?>
 
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:f="/lib/form">
-    <div class="lark-notifier-editor">
-        <div class="lark-notifier-editor__title">${instance.getRobotDisplayName()}</div>
-
-        <f:entry title="${%notifier.status}">
-            <div class="lark-notifier-status-control">
-                <label class="lark-notifier-inline-toggle lark-notifier-inline-toggle--status">
-                    <f:checkbox field="disabled" checked="${instance.getDisabled()}"/>
-                    <span>${%notifier.disabled}</span>
-                </label>
+    <div class="lark-notifier-editor"
+         data-template-url="${descriptor.descriptorFullUrl}/loadDefaultTemplate"
+         data-template-request-failed-message="${%notifier.preview.request.failure}">
+        <div class="lark-notifier-header">
+            <div class="lark-notifier-header__copy">
+                <div class="lark-notifier-editor__title">${instance.getRobotDisplayName()}</div>
+                <div class="lark-notifier-header__meta">${%notifier.header.meta}</div>
             </div>
-        </f:entry>
-
-        <f:entry title="${%notifier.occasions}" field="noticeOccasions">
-            <j:set var="occasionOptions" value="${descriptor.getNoticeOccasionTypes()}"/>
-            <j:set var="checkedOccasionNames" value="${instance.noticeOccasions}"/>
-            <st:include page="/io/jenkins/plugins/lark/notice/config/notice-occasion-options.jelly" class="${descriptor.sharedViewsClass}"/>
-        </f:entry>
-
-        <f:entry title="${%notifier.mode}">
-            <div class="lark-notifier-mode-switch">
-                <label class="lark-notifier-mode-chip">
-                    <input class="lark-notifier-mode-input" type="radio"
-                           name="uiMode-${instance.getRobotId()}"
-                           value="default"/>
-                    <span>${%notifier.mode.default}</span>
-                </label>
-                <label class="lark-notifier-mode-chip">
-                    <input class="lark-notifier-mode-input" type="radio"
-                           name="uiMode-${instance.getRobotId()}"
-                           value="custom"/>
-                    <span>${%notifier.mode.custom}</span>
-                </label>
-            </div>
-            <div class="lark-notifier-mode-note lark-notifier-mode-help lark-notifier-mode-help-default">
-                ${%notifier.mode.default.description}
-            </div>
-            <div class="lark-notifier-mode-note lark-notifier-mode-help lark-notifier-mode-help-custom">
-                ${%notifier.mode.custom.description}
-            </div>
-        </f:entry>
-
-        <div class="lark-notifier-common-fields"
-             data-title-placeholder="${%notifier.title.placeholder}"
-             data-mentions-placeholder="${%notifier.mentions.placeholder}">
-            <f:entry field="title" title="${%notifier.title}">
-                <f:textbox placeholder="${%notifier.title.placeholder}"/>
-            </f:entry>
-            <f:entry title="${%notifier.mentions}" field="at">
-                <f:checkbox title="${%notifier.mentions.all}" field="atAll"/>
-                <f:textarea field="atUserId"/>
-            </f:entry>
+            <label class="lark-notifier-status-pill">
+                <f:checkbox field="disabled" checked="${instance.getDisabled()}"/>
+                <span>${%notifier.disabled}</span>
+            </label>
         </div>
 
-        <div class="lark-notifier-default-fields"
-             data-content-placeholder="${%notifier.content.placeholder}">
-            <f:entry field="content" title="${%notifier.content}">
-                <f:textarea field="content"/>
-            </f:entry>
-        </div>
+        <div class="lark-notifier-layout">
+            <div class="lark-notifier-main">
+                <div class="lark-notifier-panel">
+                    <div class="lark-notifier-panel__title">${%notifier.section.delivery}</div>
+                    <f:entry title="${%notifier.occasions}" field="noticeOccasions">
+                        <j:set var="occasionOptions" value="${descriptor.getNoticeOccasionTypes()}"/>
+                        <j:set var="checkedOccasionNames" value="${instance.noticeOccasions}"/>
+                        <st:include page="/io/jenkins/plugins/lark/notice/config/notice-occasion-options.jelly" class="${descriptor.sharedViewsClass}"/>
+                    </f:entry>
 
-        <div class="lark-notifier-message-fields lark-notice-raw-content"
-             data-message-placeholder="${%notifier.message.placeholder}">
-            <f:entry field="message" title="${%notifier.message}">
-                <f:textarea/>
-            </f:entry>
-            <div class="lark-notifier-mode-note lark-notifier-message-help lark-notifier-message-help-custom">
-                ${%notifier.message.custom.note}
-            </div>
-            <div class="lark-notifier-mode-note lark-notifier-message-help lark-notifier-message-help-json">
-                ${%notifier.message.json.note}
+                    <f:entry title="${%notifier.mode}">
+                        <div class="lark-notifier-mode-field">
+                            <div class="lark-notifier-mode-switch">
+                                <label class="lark-notifier-mode-chip">
+                                    <input class="lark-notifier-mode-input" type="radio"
+                                           name="uiMode-${instance.getRobotId()}"
+                                           value="default"/>
+                                    <span>${%notifier.mode.default}</span>
+                                </label>
+                                <label class="lark-notifier-mode-chip">
+                                    <input class="lark-notifier-mode-input" type="radio"
+                                           name="uiMode-${instance.getRobotId()}"
+                                           value="custom"/>
+                                    <span>${%notifier.mode.custom}</span>
+                                </label>
+                            </div>
+                            <div class="lark-notifier-mode-note lark-notifier-mode-note--compact lark-notifier-mode-help lark-notifier-mode-help-default">
+                                ${%notifier.mode.default.description}
+                            </div>
+                            <div class="lark-notifier-mode-note lark-notifier-mode-note--compact lark-notifier-mode-help lark-notifier-mode-help-custom">
+                                ${%notifier.mode.custom.description}
+                            </div>
+                        </div>
+                    </f:entry>
+                </div>
+
+                <div class="lark-notifier-panel lark-notifier-compose-panel">
+                    <div class="lark-notifier-panel__title">${%notifier.section.compose}</div>
+
+                    <div class="lark-notifier-common-fields"
+                         data-title-placeholder="${%notifier.title.placeholder}"
+                         data-mentions-placeholder="${%notifier.mentions.placeholder}">
+                        <f:entry field="title" title="${%notifier.title}">
+                            <f:textbox placeholder="${%notifier.title.placeholder}"/>
+                        </f:entry>
+                        <f:entry title="${%notifier.mentions}" field="at">
+                            <div class="lark-notifier-mentions">
+                                <label class="lark-notifier-inline-toggle">
+                                    <input type="checkbox" name="_.atAll" checked="${instance.getAtAll()}"/>
+                                    <span>${%notifier.mentions.all}</span>
+                                </label>
+                                <div class="lark-notifier-mentions__editor">
+                                    <div class="lark-notifier-field-hint">${%notifier.mentions.description}</div>
+                                    <f:textarea field="atUserId"/>
+                                </div>
+                            </div>
+                        </f:entry>
+                    </div>
+
+                    <div class="lark-notifier-default-fields lark-notifier-compose-section"
+                         data-content-placeholder="${%notifier.content.placeholder}">
+                        <div class="lark-notifier-compose-section__title">${%notifier.compose.default}</div>
+                        <f:entry field="content" title="${%notifier.content}">
+                            <f:textarea field="content"/>
+                        </f:entry>
+                    </div>
+
+                    <div class="lark-notifier-message-fields lark-notice-raw-content lark-notifier-compose-section"
+                         data-message-placeholder="${%notifier.message.placeholder}">
+                        <div class="lark-notifier-compose-section__title">${%notifier.compose.custom}</div>
+                        <f:entry field="message" title="${%notifier.message}">
+                            <f:textarea/>
+                        </f:entry>
+                        <div class="lark-notifier-custom-actions">
+                            <button type="button" class="jenkins-button lark-notifier-load-default-btn">
+                                ${%notifier.preview.load.default}
+                            </button>
+                        </div>
+                        <div class="lark-notifier-template-status"><!-- template status --></div>
+                        <div class="lark-notifier-mode-note lark-notifier-message-help lark-notifier-message-help-custom">
+                            ${%notifier.message.custom.note}
+                        </div>
+                        <div class="lark-notifier-mode-note lark-notifier-message-help lark-notifier-message-help-json">
+                            ${%notifier.message.json.note}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

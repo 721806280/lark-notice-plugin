@@ -1,10 +1,12 @@
 package io.jenkins.plugins.lark.notice.tools;
 
 import io.jenkins.plugins.lark.notice.Messages;
+import io.jenkins.plugins.lark.notice.i18n.NoticeI18n;
 import io.jenkins.plugins.lark.notice.sdk.model.lark.support.Button;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.LF;
@@ -45,14 +47,39 @@ public class Utils {
      * @return A list of {@link Button} objects, each representing an action that can be taken from the UI.
      */
     public static List<Button> createDefaultButtons(String jobUrl) {
-        String changeLog = jobUrl + "changes";
-        String console = jobUrl + "console";
+        return createDefaultButtons(jobUrl, Locale.getDefault());
+    }
+
+    /**
+     * Creates a default list of buttons for a given job URL using the provided locale.
+     *
+     * @param jobUrl The base URL for the job, used to construct specific action URLs for the buttons.
+     * @param locale locale used to render button labels
+     * @return A list of {@link Button} objects, each representing an action that can be taken from the UI.
+     */
+    public static List<Button> createDefaultButtons(String jobUrl, Locale locale) {
+        String normalizedJobUrl = ensureTrailingSlash(jobUrl);
+        String changeLog = normalizedJobUrl + "changes";
+        String console = normalizedJobUrl + "console";
 
         List<Button> buttons = new ArrayList<>();
-        buttons.add(new Button(Messages.build_message_button_change_log(), changeLog, "primary_filled"));
-        buttons.add(new Button(Messages.build_message_button_console(), console, "default"));
+        buttons.add(new Button(NoticeI18n.buildMessageButtonChangeLog(locale), changeLog, "primary_filled"));
+        buttons.add(new Button(NoticeI18n.buildMessageButtonConsole(locale), console, "default"));
 
         return buttons;
+    }
+
+    /**
+     * Ensures URLs used as directory-like prefixes end with one trailing slash.
+     *
+     * @param value candidate base URL
+     * @return normalized URL prefix
+     */
+    static String ensureTrailingSlash(String value) {
+        if (value == null || value.isBlank()) {
+            return "";
+        }
+        return value.endsWith("/") ? value : value + "/";
     }
 
     /**

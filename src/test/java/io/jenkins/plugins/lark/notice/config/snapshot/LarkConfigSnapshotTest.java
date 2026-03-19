@@ -6,6 +6,7 @@ import io.jenkins.plugins.lark.notice.config.LarkProxyConfig;
 import io.jenkins.plugins.lark.notice.config.LarkRetryConfig;
 import io.jenkins.plugins.lark.notice.config.LarkRobotConfig;
 import io.jenkins.plugins.lark.notice.config.LarkSecurityPolicyConfig;
+import io.jenkins.plugins.lark.notice.enums.MessageLocaleStrategy;
 import io.jenkins.plugins.lark.notice.enums.RobotProtocolType;
 import io.jenkins.plugins.lark.notice.enums.WebhookEndpointMode;
 import org.junit.Test;
@@ -34,6 +35,7 @@ public class LarkConfigSnapshotTest {
                 Set.of("SUCCESS", "FAILURE"),
                 new ArrayList<>(List.of(createRobot("robot-a")))
         );
+        globalConfig.getRobotConfigs().get(0).setMessageLocaleStrategy(MessageLocaleStrategy.ZH_CN);
 
         LarkConfigSnapshot snapshot = LarkConfigSnapshotMapper.toSnapshot(globalConfig);
         LarkConfigSnapshotMapper.ImportedGlobalConfig imported = LarkConfigSnapshotMapper.fromSnapshot(snapshot);
@@ -42,6 +44,7 @@ public class LarkConfigSnapshotTest {
         assertEquals("https://open.feishu.cn/open-apis/bot/v2/hook/robot-a", snapshot.getRobotConfigs().get(0).getWebhook());
         assertEquals(RobotProtocolType.LARK_COMPATIBLE, snapshot.getRobotConfigs().get(0).getProtocolType());
         assertEquals(WebhookEndpointMode.BASE_URL_AND_TOKEN, snapshot.getRobotConfigs().get(0).getEndpointMode());
+        assertEquals(MessageLocaleStrategy.ZH_CN, snapshot.getRobotConfigs().get(0).getMessageLocaleStrategy());
 
         assertTrue(imported.isVerbose());
         assertEquals(Set.of("SUCCESS", "FAILURE"), imported.getNoticeOccasions());
@@ -51,6 +54,7 @@ public class LarkConfigSnapshotTest {
         assertEquals("https://open.feishu.cn/open-apis/bot/v2/hook/robot-a", imported.getRobotConfigs().get(0).getWebhook());
         assertEquals(RobotProtocolType.LARK_COMPATIBLE, imported.getRobotConfigs().get(0).getProtocolType());
         assertEquals(WebhookEndpointMode.BASE_URL_AND_TOKEN, imported.getRobotConfigs().get(0).getEndpointMode());
+        assertEquals(MessageLocaleStrategy.ZH_CN, imported.getRobotConfigs().get(0).getMessageLocaleStrategy());
         assertTrue(imported.getRobotConfigs().get(0).getRetryConfig().isEnabled());
         assertEquals(Proxy.Type.HTTP, imported.getProxyConfig().getType());
     }
@@ -145,6 +149,7 @@ public class LarkConfigSnapshotTest {
         );
         robotConfig.setProtocolType(RobotProtocolType.LARK_COMPATIBLE);
         robotConfig.setEndpointMode(WebhookEndpointMode.BASE_URL_AND_TOKEN);
+        robotConfig.setMessageLocaleStrategy(MessageLocaleStrategy.EN_US);
         robotConfig.setRetryConfig(new LarkRetryConfig(true, 3, 500, 5000, 2.0d, 0.2d));
         return robotConfig;
     }

@@ -22,7 +22,7 @@ public class LarkConfigSnapshot {
     /**
      * Current snapshot schema version used for import/export compatibility checks.
      */
-    public static final int CURRENT_SCHEMA_VERSION = 1;
+    public static final int CURRENT_SCHEMA_VERSION = 2;
 
     /**
      * Snapshot schema version.

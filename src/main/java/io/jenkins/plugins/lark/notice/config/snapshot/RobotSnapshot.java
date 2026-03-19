@@ -1,6 +1,7 @@
 package io.jenkins.plugins.lark.notice.config.snapshot;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.jenkins.plugins.lark.notice.enums.MessageLocaleStrategy;
 import io.jenkins.plugins.lark.notice.enums.RobotProtocolType;
 import io.jenkins.plugins.lark.notice.enums.WebhookEndpointMode;
 import lombok.Data;
@@ -43,6 +44,11 @@ public class RobotSnapshot {
      * UI endpoint mode preference.
      */
     private WebhookEndpointMode endpointMode;
+
+    /**
+     * Locale strategy used for built-in default messages sent by this robot.
+     */
+    private MessageLocaleStrategy messageLocaleStrategy;
 
     /**
      * Per-robot retry settings.

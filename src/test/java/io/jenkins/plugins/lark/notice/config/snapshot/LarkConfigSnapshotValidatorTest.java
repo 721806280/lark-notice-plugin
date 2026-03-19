@@ -114,6 +114,7 @@ public class LarkConfigSnapshotValidatorTest {
     @Test
     public void validateForImportShouldAcceptOlderPluginVersion() throws Exception {
         LarkConfigSnapshot snapshot = createValidSnapshot();
+        snapshot.setSchemaVersion(1);
         snapshot.setPluginVersion("1.9.9");
 
         LarkConfigSnapshotValidator.validateForImport(snapshot, "2.0.0");

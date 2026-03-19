@@ -3,6 +3,7 @@ package io.jenkins.plugins.lark.notice.model;
 import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.enums.BuildStatusEnum;
 import io.jenkins.plugins.lark.notice.enums.RobotType;
+import io.jenkins.plugins.lark.notice.i18n.NoticeI18n;
 import io.jenkins.plugins.lark.notice.tools.Utils;
 import lombok.Builder;
 import lombok.Data;
@@ -10,6 +11,7 @@ import lombok.Data;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import static io.jenkins.plugins.lark.notice.enums.MsgTypeEnum.CARD;
 import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.LF;
@@ -92,6 +94,17 @@ public class BuildJobModel {
      * @return A string in Markdown format containing the build job details.
      */
     public String toMarkdown(RobotType robotType) {
+        return toMarkdown(robotType, Locale.getDefault());
+    }
+
+    /**
+     * Converts the build job details into a Markdown formatted string using the provided locale.
+     *
+     * @param robotType robot platform type
+     * @param locale locale to render labels with
+     * @return Markdown string containing the build job details
+     */
+    public String toMarkdown(RobotType robotType, Locale locale) {
         boolean hasDingTask = RobotType.DING_TAlK.equals(robotType);
         String tagName = robotType.getStatusTagName();
         List<String> lines = new ArrayList<>();
@@ -102,13 +115,13 @@ public class BuildJobModel {
         }
         // Append the shared build details for all robot types.
         Collections.addAll(lines,
-                String.format("\uD83D\uDCCB **%s**: [%s](%s)", Messages.build_message_project_name(), projectName, projectUrl),
-                String.format("\uD83D\uDD22 **%s**: [%s](%s)", Messages.build_message_job_name(), jobName, jobUrl),
+                String.format("\uD83D\uDCCB **%s**: [%s](%s)", NoticeI18n.buildMessageProjectName(locale), projectName, projectUrl),
+                String.format("\uD83D\uDD22 **%s**: [%s](%s)", NoticeI18n.buildMessageJobName(locale), jobName, jobUrl),
                 String.format("\uD83C\uDF1F **%s**:  <%s color='%s'>%s</%s>",
-                        Messages.build_message_status(),
-                        tagName, statusType.getColor(), statusType.getLabel(), tagName),
-                String.format("\uD83D\uDD50 **%s**:  %s", Messages.build_message_duration(), duration),
-                String.format("\uD83D\uDC64 **%s**:  %s", Messages.build_message_executor(), executorName),
+                        NoticeI18n.buildMessageStatus(locale),
+                        tagName, statusType.getColor(), statusType.getLabel(locale), tagName),
+                String.format("\uD83D\uDD50 **%s**:  %s", NoticeI18n.buildMessageDuration(locale), duration),
+                String.format("\uD83D\uDC64 **%s**:  %s", NoticeI18n.buildMessageExecutor(locale), executorName),
                 content == null ? "" : content
         );
         return String.join(hasDingTask ? "  " + LF : LF, lines);
@@ -121,8 +134,18 @@ public class BuildJobModel {
      * @return A {@link MessageModel.MessageModelBuilder} instance with pre-populated fields.
      */
     public MessageModel.MessageModelBuilder messageModelBuilder() {
+        return messageModelBuilder(Locale.getDefault());
+    }
+
+    /**
+     * Prepares a message builder using the provided locale for default button labels.
+     *
+     * @param locale locale to render default button labels with
+     * @return pre-populated message builder
+     */
+    public MessageModel.MessageModelBuilder messageModelBuilder(Locale locale) {
         return MessageModel.builder().type(CARD).statusType(statusType)
-                .buttons(Utils.createDefaultButtons(jobUrl)).title(title);
+                .buttons(Utils.createDefaultButtons(jobUrl, locale)).title(title);
     }
 
 }

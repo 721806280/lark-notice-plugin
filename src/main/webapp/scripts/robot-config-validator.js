@@ -82,6 +82,9 @@ function initRobotEndpointConfig(container) {
     container.dataset.endpointConfigBound = 'true';
 
     seedRobotEndpointUiState(container);
+    ensureRobotLocaleGroupName(container);
+    seedRobotLocaleUiState(container);
+    bindRobotLocaleFormSync(container);
 
     var providerSelect = container.querySelector('.robot-provider-select');
     if (providerSelect) {
@@ -105,6 +108,79 @@ function initRobotEndpointConfig(container) {
     }
 
     applyRobotEndpointConfig(container);
+    syncRobotLocaleValue(container);
+}
+
+function bindRobotLocaleFormSync(robot) {
+    if (!robot) {
+        return;
+    }
+    var form = robot.closest('form');
+    if (!form || form.dataset.robotLocaleFormSyncBound === 'true') {
+        return;
+    }
+    form.dataset.robotLocaleFormSyncBound = 'true';
+
+    var syncAllRobotLocales = function () {
+        Array.from(form.querySelectorAll('.robot-config-container')).forEach(syncRobotLocaleValue);
+    };
+
+    form.addEventListener('submit', syncAllRobotLocales);
+    form.addEventListener('click', function (event) {
+        var trigger = event.target.closest('button, input');
+        if (!trigger) {
+            return;
+        }
+        var type = (trigger.getAttribute('type') || '').toLowerCase();
+        if (type === 'submit') {
+            syncAllRobotLocales();
+        }
+    });
+}
+
+function ensureRobotLocaleGroupName(robot) {
+    if (!robot || robot.dataset.localeGroupAssigned === 'true') {
+        return;
+    }
+    robot.dataset.localeGroupAssigned = 'true';
+
+    var robotIdInput = robot.querySelector('input[name="id"]');
+    var robotKey = robotIdInput && robotIdInput.value ? robotIdInput.value : 'draft-' + nextRobotLocaleGroupId();
+    var radioName = 'uiRobotLocale-' + robotKey;
+    Array.from(robot.querySelectorAll('.robot-locale-input')).forEach(function (input) {
+        input.name = radioName;
+    });
+}
+
+function seedRobotLocaleUiState(robot) {
+    if (!robot || robot.dataset.localeUiSeeded === 'true') {
+        return;
+    }
+    robot.dataset.localeUiSeeded = 'true';
+
+    var localeValueField = robot.querySelector('.robot-message-locale-value');
+    var localeValue = localeValueField ? localeValueField.value : '';
+    var resolvedValue = localeValue === 'ZH_CN' || localeValue === 'EN_US' ? localeValue : 'ZH_CN';
+    var localeInput = robot.querySelector('.robot-locale-input[value="' + resolvedValue + '"]');
+    if (localeInput) {
+        localeInput.checked = true;
+    }
+}
+
+function nextRobotLocaleGroupId() {
+    window.LarkNoticeRobotLocaleGroupCounter = (window.LarkNoticeRobotLocaleGroupCounter || 0) + 1;
+    return window.LarkNoticeRobotLocaleGroupCounter;
+}
+
+function syncRobotLocaleValue(robot) {
+    if (!robot) {
+        return;
+    }
+    var localeValueField = robot.querySelector('.robot-message-locale-value');
+    var checkedLocale = robot.querySelector('.robot-locale-input:checked');
+    if (localeValueField) {
+        localeValueField.value = checkedLocale ? checkedLocale.value : 'SYSTEM_DEFAULT';
+    }
 }
 
 function copyRobotId(button) {
@@ -172,6 +248,8 @@ function writeTextToClipboard(text) {
  * @returns {URLSearchParams} Request parameters for the validation endpoint.
  */
 function getParams(robot) {
+    syncRobotLocaleValue(robot);
+
     // Read the shared proxy settings from the global proxy section.
     var proxy = document.getElementById('proxyConfigContainer');
     var proxyConfig = {
@@ -213,6 +291,7 @@ function getParams(robot) {
     params.append('webhook', getRobotConfigValue(robot, '.robot-webhook-input'));
     params.append('baseUrl', getRobotConfigValue(robot, '.robot-base-url-input'));
     params.append('webhookToken', getRobotConfigValue(robot, '.robot-webhook-token-input'));
+    params.append('messageLocaleStrategy', getRobotConfigValue(robot, '.robot-message-locale-value'));
     params.append('proxy', JSON.stringify(proxyConfig));                // Serialized proxy configuration.
     params.append('securityConfigs', JSON.stringify(securityConfigs));  // Serialized security policy configuration.
 
