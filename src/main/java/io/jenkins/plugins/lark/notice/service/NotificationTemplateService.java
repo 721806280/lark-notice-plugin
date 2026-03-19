@@ -4,6 +4,7 @@ import io.jenkins.plugins.lark.notice.config.LarkGlobalConfig;
 import io.jenkins.plugins.lark.notice.config.LarkNotifierConfig;
 import io.jenkins.plugins.lark.notice.config.LarkRobotConfig;
 import io.jenkins.plugins.lark.notice.config.MessageLocaleResolver;
+import io.jenkins.plugins.lark.notice.context.NoticeEnvVars;
 import io.jenkins.plugins.lark.notice.enums.BuildStatusEnum;
 import io.jenkins.plugins.lark.notice.enums.RobotType;
 import io.jenkins.plugins.lark.notice.i18n.NoticeI18n;
@@ -52,13 +53,21 @@ public final class NotificationTemplateService {
             lines.add("---");
         }
 
+        String projectName = NoticeEnvVars.placeholder(NoticeEnvVars.PROJECT_NAME);
+        String projectUrl = NoticeEnvVars.placeholder(NoticeEnvVars.PROJECT_URL);
+        String jobName = NoticeEnvVars.placeholder(NoticeEnvVars.JOB_NAME);
+        String jobUrl = NoticeEnvVars.placeholder(NoticeEnvVars.JOB_URL);
+        String jobStatus = NoticeEnvVars.placeholder(NoticeEnvVars.JOB_STATUS);
+        String jobDuration = NoticeEnvVars.placeholder(NoticeEnvVars.JOB_DURATION);
+        String executorName = NoticeEnvVars.placeholder(NoticeEnvVars.EXECUTOR_NAME);
+
         Collections.addAll(lines,
-                String.format("\uD83D\uDCCB **%s**: [${PROJECT_NAME}](${PROJECT_URL})", NoticeI18n.buildMessageProjectName(locale)),
-                String.format("\uD83D\uDD22 **%s**: [${JOB_NAME}](${JOB_URL})", NoticeI18n.buildMessageJobName(locale)),
-                String.format("\uD83C\uDF1F **%s**:  <%s color='%s'>${JOB_STATUS}</%s>",
-                        NoticeI18n.buildMessageStatus(locale), tagName, BuildStatusEnum.SUCCESS.getColor(), tagName),
-                String.format("\uD83D\uDD50 **%s**:  ${JOB_DURATION}", NoticeI18n.buildMessageDuration(locale)),
-                String.format("\uD83D\uDC64 **%s**:  ${EXECUTOR_NAME}", NoticeI18n.buildMessageExecutor(locale))
+                String.format("\uD83D\uDCCB **%s**: [%s](%s)", NoticeI18n.buildMessageProjectName(locale), projectName, projectUrl),
+                String.format("\uD83D\uDD22 **%s**: [%s](%s)", NoticeI18n.buildMessageJobName(locale), jobName, jobUrl),
+                String.format("\uD83C\uDF1F **%s**:  <%s color='%s'>%s</%s>",
+                        NoticeI18n.buildMessageStatus(locale), tagName, BuildStatusEnum.SUCCESS.getColor(), jobStatus, tagName),
+                String.format("\uD83D\uDD50 **%s**:  %s", NoticeI18n.buildMessageDuration(locale), jobDuration),
+                String.format("\uD83D\uDC64 **%s**:  %s", NoticeI18n.buildMessageExecutor(locale), executorName)
         );
         if (StringUtils.isNotBlank(contentTemplate)) {
             lines.add(contentTemplate);

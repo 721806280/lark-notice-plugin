@@ -3,6 +3,7 @@ package io.jenkins.plugins.lark.notice;
 import hudson.EnvVars;
 import hudson.model.Run;
 import hudson.model.TaskListener;
+import io.jenkins.plugins.lark.notice.context.NoticeEnvVars;
 import io.jenkins.plugins.lark.notice.context.PipelineEnvContext;
 import io.jenkins.plugins.lark.notice.logging.NoticeLog;
 import io.jenkins.plugins.lark.notice.logging.NoticeLogKey;
@@ -80,14 +81,14 @@ public final class EnvVarsResolver {
      * @param model   the build job model containing metadata
      */
     private static void injectBuildInfoToEnvVars(EnvVars envVars, BuildJobModel model) {
-        envVars.put("EXECUTOR_NAME", StringUtils.defaultIfBlank(model.getExecutorName(), ""));
-        envVars.put("EXECUTOR_MOBILE", StringUtils.defaultIfBlank(model.getExecutorMobile(), ""));
-        envVars.put("EXECUTOR_OPENID", StringUtils.defaultIfBlank(model.getExecutorOpenId(), ""));
-        envVars.put("PROJECT_NAME", model.getProjectName());
-        envVars.put("PROJECT_URL", model.getProjectUrl());
-        envVars.put("JOB_NAME", model.getJobName());
-        envVars.put("JOB_URL", model.getJobUrl());
-        envVars.put("JOB_DURATION", model.getDuration());
-        envVars.put("JOB_STATUS", model.getStatusType().getLabel());
+        envVars.put(NoticeEnvVars.EXECUTOR_NAME, StringUtils.defaultIfBlank(model.getExecutorName(), ""));
+        envVars.put(NoticeEnvVars.EXECUTOR_MOBILE, StringUtils.defaultIfBlank(model.getExecutorMobile(), ""));
+        envVars.put(NoticeEnvVars.EXECUTOR_OPENID, StringUtils.defaultIfBlank(model.getExecutorOpenId(), ""));
+        envVars.put(NoticeEnvVars.PROJECT_NAME, model.getProjectName());
+        envVars.put(NoticeEnvVars.PROJECT_URL, model.getProjectUrl());
+        envVars.put(NoticeEnvVars.JOB_NAME, model.getJobName());
+        envVars.put(NoticeEnvVars.JOB_URL, model.getJobUrl());
+        envVars.put(NoticeEnvVars.JOB_DURATION, model.getDuration());
+        envVars.put(NoticeEnvVars.JOB_STATUS, model.getStatusType().getLabel());
     }
 }
