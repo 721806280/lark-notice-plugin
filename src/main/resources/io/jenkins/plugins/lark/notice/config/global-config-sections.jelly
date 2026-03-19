@@ -2,7 +2,12 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
          xmlns:f="/lib/form">
     <div class="lark-config-page">
+        <div class="lark-config-page__intro">
+            <div class="lark-config-page__title">${%global.page.title}</div>
+            <div class="jenkins-description lark-config-page__description">${%global.page.description}</div>
+        </div>
         <f:section title="${%global.section.notice.occasions}">
+            <div class="jenkins-description lark-config-section__hint">${%global.section.notice.occasions.hint}</div>
             <f:entry>
                 <j:scope>
                     <j:set var="occasionOptions" value="${descriptor.getAllNoticeOccasions()}"/>
@@ -13,16 +18,19 @@
         </f:section>
 
         <f:section title="${%global.section.logging}">
+            <div class="jenkins-description lark-config-section__hint">${%global.section.logging.hint}</div>
             <f:entry field="verbose">
                 <f:checkbox title="${%global.logging.verbose}"/>
             </f:entry>
         </f:section>
         <f:section title="${%global.section.proxy}">
+            <div class="jenkins-description lark-config-section__hint">${%global.section.proxy.hint}</div>
             <f:property field="proxyConfig"
                         propertyDescriptor="${descriptor.getLarkProxyConfigDescriptor()}"/>
         </f:section>
 
         <f:section title="${%global.section.robots}">
+            <div class="jenkins-description lark-config-section__hint">${%global.section.robots.hint}</div>
             <j:scope>
                 <j:set var="robotConfigs" value="${descriptor.robotConfigs}"/>
                 <j:set var="robotConfigDescriptor"

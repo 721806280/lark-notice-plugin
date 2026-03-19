@@ -13,6 +13,22 @@
     gap: 16px;
 }
 
+.lark-config-page__intro {
+    display: grid;
+    gap: 6px;
+    padding: 2px 4px 4px;
+}
+
+.lark-config-page__title {
+    color: #0f172a;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.lark-config-page__description {
+    max-width: 720px;
+}
+
 .lark-config-page > .jenkins-section {
     margin: 0;
     padding: 18px 20px 10px;
@@ -51,6 +67,14 @@
     border-radius: 10px;
 }
 
+.lark-config-section__hint {
+    margin: -6px 0 12px;
+}
+
+.lark-config-field-hint {
+    margin-top: 6px;
+}
+
 .lark-config-page__actions {
     margin-top: 2px;
     padding-top: 4px;
@@ -80,6 +104,11 @@
     box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
 }
 
+.lark-notifier-config__hint {
+    margin-bottom: 10px;
+    max-width: 720px;
+}
+
 .lark-notifier-config .hetero-list-container.one-each {
     margin: 0;
 }
@@ -91,6 +120,10 @@
 .lark-notifier-editor {
     display: grid;
     gap: 14px;
+}
+
+.lark-notifier-config .lark-notifier-header {
+    padding-right: 26px;
 }
 
 .lark-notifier-header {
@@ -198,7 +231,7 @@
 
 .lark-notifier-editor textarea.jenkins-input,
 .lark-notifier-editor textarea.setting-input {
-    min-height: 104px;
+    min-height: 140px;
 }
 
 .lark-notifier-mode-switch {
@@ -273,6 +306,50 @@
     display: none;
     align-items: center;
     gap: 8px;
+    justify-content: flex-end;
+    margin-bottom: 0;
+}
+
+.lark-notifier-message-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+}
+
+.lark-notifier-message-item .jenkins-form-label,
+.lark-notifier-message-item .setting-main {
+    grid-column: 1;
+}
+
+.lark-notifier-message-item .jenkins-form-label {
+    margin-bottom: 0;
+}
+
+.lark-notifier-message-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: nowrap;
+}
+
+.lark-notifier-message-label__main {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+.lark-notifier-message-label label {
+    margin: 0;
+}
+
+.lark-notifier-load-default-btn {
+    min-height: 24px;
+    padding: 0 8px;
+    font-size: 11px;
+    line-height: 1;
+    border-radius: 8px;
 }
 
 .lark-notifier-template-status {

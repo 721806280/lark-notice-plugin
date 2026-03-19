@@ -87,6 +87,7 @@
                         <span title="${%robot.message.language.en_us}">${%robot.message.language.short.en_us}</span>
                     </label>
                 </div>
+                <div class="jenkins-description lark-config-field-hint">${%robot.message.language.hint}</div>
             </f:entry>
         </f:section>
 

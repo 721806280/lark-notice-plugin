@@ -76,7 +76,6 @@
 
                     <div class="lark-notifier-default-fields lark-notifier-compose-section"
                          data-content-placeholder="${%notifier.content.placeholder}">
-                        <div class="lark-notifier-compose-section__title">${%notifier.compose.default}</div>
                         <f:entry field="content" title="${%notifier.content}">
                             <f:textarea field="content"/>
                         </f:entry>
@@ -84,14 +83,26 @@
 
                     <div class="lark-notifier-message-fields lark-notice-raw-content lark-notifier-compose-section"
                          data-message-placeholder="${%notifier.message.placeholder}">
-                        <div class="lark-notifier-compose-section__title">${%notifier.compose.custom}</div>
-                        <f:entry field="message" title="${%notifier.message}">
-                            <f:textarea/>
-                        </f:entry>
-                        <div class="lark-notifier-custom-actions">
-                            <button type="button" class="jenkins-button lark-notifier-load-default-btn">
-                                ${%notifier.preview.load.default}
-                            </button>
+                        <div class="jenkins-form-item lark-notifier-message-item">
+                            <j:set var="messageHelpUrl" value="${descriptor.getHelpFile('message')}"/>
+                            <div class="jenkins-form-label help-sibling lark-notifier-message-label">
+                                <div class="lark-notifier-message-label__main">
+                                    <label for="lark-notifier-message-${instance.getRobotId()}">${%notifier.message}</label>
+                                    <f:helpLink url="${messageHelpUrl}" featureName="${%notifier.message}"/>
+                                </div>
+                                <div class="lark-notifier-custom-actions lark-notifier-message-toolbar">
+                                    <button type="button" class="jenkins-button lark-notifier-load-default-btn">
+                                        ${%notifier.preview.load.default}
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="setting-main">
+                                <f:textarea field="message" id="lark-notifier-message-${instance.getRobotId()}"/>
+                            </div>
+                            <div class="validation-error-area"><!-- Used to display the form validation status --></div>
+                            <j:if test="${messageHelpUrl != null}">
+                                <f:helpArea/>
+                            </j:if>
                         </div>
                         <div class="lark-notifier-template-status"><!-- template status --></div>
                         <div class="lark-notifier-mode-note lark-notifier-message-help lark-notifier-message-help-custom">
