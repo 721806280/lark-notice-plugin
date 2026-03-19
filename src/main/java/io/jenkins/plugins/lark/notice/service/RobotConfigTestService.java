@@ -49,13 +49,16 @@ public final class RobotConfigTestService {
                                               String messageLocaleStrategy) {
         try {
             List<LarkSecurityPolicyConfig> securityPolicyConfigs = parseSecurityPolicyConfigs(securityConfigs);
-            RobotProtocolType resolvedProtocolType = RobotWebhookResolver.resolveProtocolType(
-                    RobotProtocolType.fromValue(protocolType), webhook, baseUrl, webhookToken);
-            WebhookEndpointMode resolvedEndpointMode = RobotWebhookResolver.resolveEndpointMode(
-                    resolvedProtocolType, WebhookEndpointMode.fromValue(endpointMode), baseUrl, webhookToken);
-            String resolvedWebhook = RobotWebhookResolver.resolveWebhook(
-                    resolvedProtocolType, resolvedEndpointMode, webhook, baseUrl, webhookToken);
-            LarkRobotConfig robotConfig = new LarkRobotConfig(id, name, resolvedWebhook, securityPolicyConfigs);
+            RobotWebhookResolver.ResolvedWebhook resolvedWebhook = RobotWebhookResolver.resolveSettings(
+                    RobotProtocolType.fromValue(protocolType),
+                    WebhookEndpointMode.fromValue(endpointMode),
+                    webhook,
+                    baseUrl,
+                    webhookToken);
+            RobotProtocolType resolvedProtocolType = resolvedWebhook.protocolType();
+            WebhookEndpointMode resolvedEndpointMode = resolvedWebhook.endpointMode();
+            String resolvedWebhookUrl = resolvedWebhook.webhook();
+            LarkRobotConfig robotConfig = new LarkRobotConfig(id, name, resolvedWebhookUrl, securityPolicyConfigs);
             robotConfig.setProtocolType(resolvedProtocolType);
             robotConfig.setEndpointMode(resolvedEndpointMode);
             robotConfig.setBaseUrl(baseUrl);

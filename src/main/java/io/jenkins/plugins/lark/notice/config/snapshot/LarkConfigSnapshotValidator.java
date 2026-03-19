@@ -9,7 +9,6 @@ import io.jenkins.plugins.lark.notice.enums.MessageLocaleStrategy;
 import io.jenkins.plugins.lark.notice.enums.RobotProtocolType;
 import io.jenkins.plugins.lark.notice.enums.RobotType;
 import io.jenkins.plugins.lark.notice.enums.SecurityPolicyEnum;
-import io.jenkins.plugins.lark.notice.enums.WebhookEndpointMode;
 import org.apache.commons.lang3.StringUtils;
 
 import java.net.Proxy;
@@ -135,28 +134,18 @@ public final class LarkConfigSnapshotValidator {
         if (StringUtils.isBlank(robotConfig.getName())) {
             throw new FormException(Messages.form_validation_name_required(), IMPORT_FIELD);
         }
-        RobotProtocolType protocolType = RobotWebhookResolver.resolveProtocolType(
+        RobotWebhookResolver.ResolvedWebhook resolvedWebhook = RobotWebhookResolver.resolveSettings(
                 robotConfig.getProtocolType(),
-                robotConfig.getWebhook(),
-                null,
-                null
-        );
-        WebhookEndpointMode endpointMode = RobotWebhookResolver.resolveEndpointMode(
-                protocolType,
                 robotConfig.getEndpointMode(),
-                null,
-                null
-        );
-        String resolvedWebhook = RobotWebhookResolver.resolveWebhook(
-                protocolType,
-                endpointMode,
                 robotConfig.getWebhook(),
                 null,
                 null
         );
-        if (StringUtils.isBlank(resolvedWebhook)
-                || !RobotType.isSupportedWebhook(resolvedWebhook)
-                || !RobotWebhookResolver.isSupportedWebhook(protocolType, resolvedWebhook)) {
+        RobotProtocolType protocolType = resolvedWebhook.protocolType();
+        String resolvedWebhookUrl = resolvedWebhook.webhook();
+        if (StringUtils.isBlank(resolvedWebhookUrl)
+                || !RobotType.isSupportedWebhook(resolvedWebhookUrl)
+                || !RobotWebhookResolver.isSupportedWebhook(protocolType, resolvedWebhookUrl)) {
             throw new FormException(Messages.form_validation_webhook_invalid(), IMPORT_FIELD);
         }
         validateMessageLocaleStrategy(robotConfig.getMessageLocaleStrategy());

@@ -39,20 +39,21 @@ final class GlobalConfigFormDataSanitizer {
         String baseUrl = stringValue(jsonObject, "baseUrl");
         String webhookToken = stringValue(jsonObject, "webhookToken");
 
-        RobotProtocolType protocolType = RobotWebhookResolver.resolveProtocolType(
-                RobotProtocolType.fromValue(protocolValue), webhook, baseUrl, webhookToken);
-        WebhookEndpointMode endpointMode = RobotWebhookResolver.resolveEndpointMode(
-                protocolType, WebhookEndpointMode.fromValue(endpointModeValue), baseUrl, webhookToken);
-        String resolvedWebhook = RobotWebhookResolver.resolveWebhook(
+        RobotProtocolType protocolType = RobotProtocolType.fromValue(protocolValue);
+        WebhookEndpointMode endpointMode = WebhookEndpointMode.fromValue(endpointModeValue);
+        RobotWebhookResolver.ResolvedWebhook resolved = RobotWebhookResolver.resolveSettings(
                 protocolType, endpointMode, webhook, baseUrl, webhookToken);
+        RobotProtocolType resolvedProtocolType = resolved.protocolType();
+        WebhookEndpointMode resolvedEndpointMode = resolved.endpointMode();
+        String resolvedWebhook = resolved.webhook();
 
-        if (!isSupportedWebhook(protocolType, resolvedWebhook)) {
-            throw new FormException(Messages.form_validation_webhook_invalid(), resolveValidationField(endpointMode, index));
+        if (!isSupportedWebhook(resolvedProtocolType, resolvedWebhook)) {
+            throw new FormException(Messages.form_validation_webhook_invalid(), resolveValidationField(resolvedEndpointMode, index));
         }
 
         jsonObject.put("webhook", resolvedWebhook);
-        jsonObject.put("protocolType", protocolType.name());
-        jsonObject.put("endpointMode", endpointMode.name());
+        jsonObject.put("protocolType", resolvedProtocolType.name());
+        jsonObject.put("endpointMode", resolvedEndpointMode.name());
     }
 
     private static boolean isSupportedWebhook(RobotProtocolType protocolType, String webhook) {

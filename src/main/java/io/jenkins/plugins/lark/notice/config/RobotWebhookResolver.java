@@ -50,6 +50,24 @@ public final class RobotWebhookResolver {
     }
 
     /**
+     * Resolves protocol, endpoint mode, and canonical webhook URL in one step.
+     *
+     * @param protocolType declared protocol family (may be null)
+     * @param endpointMode selected endpoint input mode (may be null)
+     * @param webhook      full webhook URL input
+     * @param baseUrl      base URL input used by token mode
+     * @param webhookToken token input used by token mode
+     * @return resolved webhook settings bundle
+     */
+    public static ResolvedWebhook resolveSettings(RobotProtocolType protocolType, WebhookEndpointMode endpointMode,
+                                                  String webhook, String baseUrl, String webhookToken) {
+        RobotProtocolType resolvedProtocol = resolveProtocolType(protocolType, webhook, baseUrl, webhookToken);
+        WebhookEndpointMode resolvedMode = resolveEndpointMode(resolvedProtocol, endpointMode, baseUrl, webhookToken);
+        String resolvedWebhook = resolveWebhook(resolvedProtocol, resolvedMode, webhook, baseUrl, webhookToken);
+        return new ResolvedWebhook(resolvedProtocol, resolvedMode, resolvedWebhook);
+    }
+
+    /**
      * Resolves the protocol family from explicit input or by inferring from the webhook.
      *
      * @param protocolType explicit protocol type (may be null)
@@ -211,5 +229,15 @@ public final class RobotWebhookResolver {
                 return null;
             }
         }
+    }
+
+    /**
+     * Bundle of resolved webhook settings.
+     *
+     * @param protocolType resolved protocol family
+     * @param endpointMode resolved endpoint mode
+     * @param webhook      resolved canonical webhook URL
+     */
+    public record ResolvedWebhook(RobotProtocolType protocolType, WebhookEndpointMode endpointMode, String webhook) {
     }
 }
