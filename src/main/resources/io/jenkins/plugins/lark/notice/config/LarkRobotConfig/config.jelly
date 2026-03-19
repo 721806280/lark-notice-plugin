@@ -69,7 +69,8 @@
                     </div>
                 </div>
             </f:entry>
-            <f:entry field="messageLocaleStrategy" title="${%robot.message.language}">
+            <f:entry field="messageLocaleStrategy" title="${%robot.message.language}"
+                     help="/descriptor/io.jenkins.plugins.lark.notice.config.LarkRobotConfig/help/messageLocaleStrategy">
                 <input type="hidden" name="messageLocaleStrategy"
                        value="${messageLocaleStrategyValue}"
                        class="robot-message-locale-value"/>
@@ -87,7 +88,6 @@
                         <span title="${%robot.message.language.en_us}">${%robot.message.language.short.en_us}</span>
                     </label>
                 </div>
-                <div class="jenkins-description lark-config-field-hint">${%robot.message.language.hint}</div>
             </f:entry>
         </f:section>
 
