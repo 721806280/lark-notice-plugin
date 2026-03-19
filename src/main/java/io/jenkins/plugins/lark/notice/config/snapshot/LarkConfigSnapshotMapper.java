@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Maps between live configuration objects and import/export snapshots.
@@ -41,11 +42,7 @@ public final class LarkConfigSnapshotMapper {
         snapshot.setVerbose(globalConfig.isVerbose());
         snapshot.setNoticeOccasions(new LinkedHashSet<>(globalConfig.getNoticeOccasions()));
         snapshot.setProxyConfig(toProxySnapshot(globalConfig.getProxyConfig()));
-
-        List<RobotSnapshot> robots = globalConfig.getRobotConfigs().stream()
-                .map(LarkConfigSnapshotMapper::toRobotSnapshot)
-                .toList();
-        snapshot.setRobotConfigs(new ArrayList<>(robots));
+        snapshot.setRobotConfigs(mapRobotSnapshots(globalConfig.getRobotConfigs()));
         return snapshot;
     }
 
@@ -62,14 +59,7 @@ public final class LarkConfigSnapshotMapper {
                 ? new LinkedHashSet<>()
                 : new LinkedHashSet<>(snapshot.getNoticeOccasions()));
         imported.setProxyConfig(toProxyConfig(snapshot.getProxyConfig()));
-
-        ArrayList<LarkRobotConfig> robotConfigs = new ArrayList<>();
-        if (snapshot.getRobotConfigs() != null) {
-            for (RobotSnapshot robotSnapshot : snapshot.getRobotConfigs()) {
-                robotConfigs.add(toRobotConfig(robotSnapshot));
-            }
-        }
-        imported.setRobotConfigs(robotConfigs);
+        imported.setRobotConfigs(mapRobotConfigs(snapshot.getRobotConfigs()));
         return imported;
     }
 
@@ -160,6 +150,21 @@ public final class LarkConfigSnapshotMapper {
         robotConfig.setMessageLocaleStrategy(snapshot.getMessageLocaleStrategy());
         robotConfig.setRetryConfig(toRetryConfig(snapshot.getRetryConfig()));
         return robotConfig;
+    }
+
+    private static ArrayList<RobotSnapshot> mapRobotSnapshots(List<LarkRobotConfig> robotConfigs) {
+        return robotConfigs.stream()
+                .map(LarkConfigSnapshotMapper::toRobotSnapshot)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    private static ArrayList<LarkRobotConfig> mapRobotConfigs(List<RobotSnapshot> snapshots) {
+        if (snapshots == null) {
+            return new ArrayList<>();
+        }
+        return snapshots.stream()
+                .map(LarkConfigSnapshotMapper::toRobotConfig)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     private static List<LarkSecurityPolicyConfig> toSecurityPolicyConfigs(List<SecurityPolicySnapshot> snapshots) {
