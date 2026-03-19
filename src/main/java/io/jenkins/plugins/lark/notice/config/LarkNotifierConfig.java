@@ -7,14 +7,13 @@ import hudson.model.Describable;
 import hudson.model.Descriptor;
 import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.enums.NoticeOccasionEnum;
-import io.jenkins.plugins.lark.notice.service.NotificationTemplateService;
+import io.jenkins.plugins.lark.notice.service.NotifierTemplatePreviewService;
 import io.jenkins.plugins.lark.notice.tools.ApiResponse;
 import io.jenkins.plugins.lark.notice.tools.HttpResponses;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import net.sf.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.HttpResponse;
@@ -264,29 +263,8 @@ public class LarkNotifierConfig implements Describable<LarkNotifierConfig> {
                                                   @QueryParameter String content) {
             Jenkins.get().checkPermission(Jenkins.READ);
 
-            try {
-                LarkNotifierConfig config = new LarkNotifierConfig(
-                        false,
-                        false,
-                        true,
-                        robotId,
-                        "",
-                        false,
-                        "",
-                        title,
-                        content,
-                        "",
-                        null
-                );
-
-                ApiResponse payload = ApiResponse.ok()
-                        .data(new JSONObject().element("defaultTemplate",
-                                NotificationTemplateService.buildEditableDefaultTemplate(config)));
-                return HttpResponses.json(payload);
-            } catch (Exception ex) {
-                return HttpResponses.json(ApiResponse.fail(Messages.config_import_payload_invalid(
-                        StringUtils.defaultIfBlank(ex.getMessage(), ex.getClass().getSimpleName()))));
-            }
+            ApiResponse response = NotifierTemplatePreviewService.loadDefaultTemplate(robotId, title, content);
+            return HttpResponses.json(response);
         }
     }
 
