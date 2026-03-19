@@ -52,7 +52,8 @@ public final class NotificationOrchestrator {
                 return;
             }
 
-            BuildNotificationContext context = BuildNotificationContextFactory.create(run, listener, occasion);
+            NotificationDispatchPlan plan = NotificationDispatchPlanner.plan(run, listener, occasion, configs);
+            BuildNotificationContext context = plan.getContext();
             String executorName = context.executor().getName();
             NoticeLog.trace(listener, NoticeTrace.NOTIFICATION_EXECUTOR,
                     NoticeLog.field(NoticeLogKey.SOURCE, source),
@@ -60,7 +61,7 @@ public final class NotificationOrchestrator {
                     NoticeLog.field(NoticeLogKey.HAS_MOBILE, StringUtils.isNotBlank(context.executor().getMobile())),
                     NoticeLog.field(NoticeLogKey.HAS_OPEN_ID, StringUtils.isNotBlank(context.executor().getOpenId())));
 
-            List<LarkNotifierConfig> matchedConfigs = NotifierOccasionFilter.filterByOccasion(configs, occasion);
+            List<LarkNotifierConfig> matchedConfigs = plan.getMatchedConfigs();
 
             NoticeLog.trace(listener, NoticeTrace.NOTIFICATION_MATCH,
                     NoticeLog.field(NoticeLogKey.SOURCE, source),
