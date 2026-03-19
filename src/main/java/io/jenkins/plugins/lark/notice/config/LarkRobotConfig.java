@@ -3,28 +3,18 @@ package io.jenkins.plugins.lark.notice.config;
 import hudson.Extension;
 import hudson.model.Describable;
 import hudson.model.Descriptor;
-import hudson.model.User;
 import hudson.util.FormValidation;
 import hudson.util.Secret;
 import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.config.security.LarkPermissions;
-import io.jenkins.plugins.lark.notice.enums.BuildStatusEnum;
 import io.jenkins.plugins.lark.notice.enums.MessageLocaleStrategy;
-import io.jenkins.plugins.lark.notice.enums.MsgTypeEnum;
 import io.jenkins.plugins.lark.notice.enums.RobotProtocolType;
 import io.jenkins.plugins.lark.notice.enums.RobotType;
 import io.jenkins.plugins.lark.notice.enums.SecurityPolicyEnum;
 import io.jenkins.plugins.lark.notice.enums.WebhookEndpointMode;
-import io.jenkins.plugins.lark.notice.i18n.NoticeI18n;
-import io.jenkins.plugins.lark.notice.model.BuildJobModel;
-import io.jenkins.plugins.lark.notice.model.MessageModel;
-import io.jenkins.plugins.lark.notice.model.RobotConfigModel;
-import io.jenkins.plugins.lark.notice.sdk.MessageDispatcher;
-import io.jenkins.plugins.lark.notice.sdk.MessageSender;
-import io.jenkins.plugins.lark.notice.sdk.model.SendResult;
+import io.jenkins.plugins.lark.notice.service.RobotConfigTestService;
 import io.jenkins.plugins.lark.notice.tools.ApiResponse;
 import io.jenkins.plugins.lark.notice.tools.HttpResponses;
-import io.jenkins.plugins.lark.notice.tools.JsonUtils;
 import jenkins.model.Jenkins;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,12 +27,8 @@ import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 
-import java.net.ProxySelector;
 import java.util.*;
-import java.util.Locale;
 import java.util.stream.Collectors;
-
-import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.NOTICE_ICON;
 
 /**
  * Configuration class for Lark robot, including robot ID, name, Webhook key, and a list of security policy configurations
@@ -441,80 +427,11 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
                                    @QueryParameter String securityConfigs,
                                    @QueryParameter String messageLocaleStrategy) {
             Jenkins.get().checkPermission(LarkPermissions.CONFIGURE);
-
-            try {
-                List<LarkSecurityPolicyConfig> securityPolicyConfigs = parseSecurityPolicyConfigs(securityConfigs);
-                RobotProtocolType resolvedProtocolType = RobotWebhookResolver.resolveProtocolType(
-                        RobotProtocolType.fromValue(protocolType), webhook, baseUrl, webhookToken);
-                WebhookEndpointMode resolvedEndpointMode = RobotWebhookResolver.resolveEndpointMode(
-                        resolvedProtocolType, WebhookEndpointMode.fromValue(endpointMode), baseUrl, webhookToken);
-                String resolvedWebhook = RobotWebhookResolver.resolveWebhook(
-                        resolvedProtocolType, resolvedEndpointMode, webhook, baseUrl, webhookToken);
-                LarkRobotConfig robotConfig = new LarkRobotConfig(id, name, resolvedWebhook, securityPolicyConfigs);
-                robotConfig.setProtocolType(resolvedProtocolType);
-                robotConfig.setEndpointMode(resolvedEndpointMode);
-                robotConfig.setBaseUrl(baseUrl);
-                robotConfig.setWebhookToken(webhookToken);
-                robotConfig.setMessageLocaleStrategy(MessageLocaleStrategy.parse(messageLocaleStrategy));
-                ProxySelector proxySelector = parseProxySelector(proxy);
-
-                RobotType robotType = robotConfig.obtainRobotType();
-                if (Objects.isNull(robotType)) {
-                    return HttpResponses.json(ApiResponse.fail(Messages.form_validation_webhook_invalid()));
-                }
-
-                MessageSender sender = robotType.obtainInstance(RobotConfigModel.of(robotConfig, proxySelector));
-                SendResult sendResult = Objects.requireNonNull(MessageDispatcher.getInstance()
-                        .send(null, robotConfig.getId(), buildTestMessage(robotType, robotConfig.getMessageLocaleStrategy().toLocale()), sender), "sendResult");
-                boolean ok = sendResult.isOk();
-                String detail = sendResult.getMsg();
-                String message = ok
-                        ? Messages.form_validation_test_success()
-                        : StringUtils.isNotBlank(detail)
-                        ? Messages.form_validation_test_failure_with_detail(detail)
-                        : Messages.form_validation_test_failure();
-                return HttpResponses.json(ok ? ApiResponse.ok(message) : ApiResponse.fail(message));
-            } catch (Exception e) {
-                String detail = StringUtils.defaultIfBlank(e.getMessage(), null);
-                String message = StringUtils.isNotBlank(detail)
-                        ? Messages.form_validation_test_failure_with_detail(detail)
-                        : Messages.form_validation_test_failure();
-                return HttpResponses.json(ApiResponse.fail(message));
-            }
-        }
-
-        private List<LarkSecurityPolicyConfig> parseSecurityPolicyConfigs(String securityConfigs) {
-            return JsonUtils.readList(securityConfigs, LarkSecurityPolicyConfig.class)
-                    .stream()
-                    .filter(config -> StringUtils.isNotBlank(config.getValue()))
-                    .toList();
-        }
-
-        private ProxySelector parseProxySelector(String proxy) {
-            return Optional.ofNullable(JsonUtils.readValue(proxy, LarkProxyConfig.class))
-                    .orElseGet(LarkProxyConfig::new)
-                    .obtainProxySelector();
-        }
-
-        /**
-         * Builds a message model for testing the robot configuration.
-         *
-         * @return The test message model.
-         */
-        private MessageModel buildTestMessage(RobotType robotType, Locale locale) {
-            String rootUrl = Jenkins.get().getRootUrl();
-            User user = Optional.ofNullable(User.current()).orElse(User.getUnknown());
-
-            BuildJobModel buildJobModel = BuildJobModel.builder()
-                    .projectName(NoticeI18n.robotTestProjectName(locale)).title(NoticeI18n.defaultTitle(locale))
-                    .projectUrl(rootUrl).jobName(NoticeI18n.robotTestJobName(locale)).jobUrl(rootUrl + "/configure")
-                    .statusType(BuildStatusEnum.SUCCESS).duration("-")
-                    .executorName(user.getDisplayName()).build();
-
-            return MessageModel.builder().type(MsgTypeEnum.CARD)
-                    .title(NOTICE_ICON + " " + NoticeI18n.robotTestSuccessTitle(locale))
-                    .text(buildJobModel.toMarkdown(robotType, locale))
-                    .atAll(false).build();
+            ApiResponse response = RobotConfigTestService.testRobotConfig(
+                    id, name, protocolType, endpointMode,
+                    webhook, baseUrl, webhookToken,
+                    proxy, securityConfigs, messageLocaleStrategy);
+            return HttpResponses.json(response);
         }
     }
 }
