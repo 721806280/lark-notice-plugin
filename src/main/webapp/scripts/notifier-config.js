@@ -234,7 +234,8 @@
                 if (!messageField) {
                     return;
                 }
-                messageField.value = payload.defaultTemplate || '';
+                var template = payload && payload.data && payload.data.defaultTemplate ? payload.data.defaultTemplate : payload.defaultTemplate;
+                messageField.value = template || '';
                 var modeInput = root.querySelector(NOTIFIER_MODE_SELECTOR + ':checked');
                 var mode = modeInput ? modeInput.value : inferMode(root);
                 updateDisplay(root, mode);

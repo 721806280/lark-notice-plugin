@@ -34,6 +34,16 @@ public final class HttpResponses {
     }
 
     /**
+     * Creates one JSON response from an {@link ApiResponse}.
+     *
+     * @param response payload wrapper
+     * @return stapler response writing the provided payload
+     */
+    public static HttpResponse json(ApiResponse response) {
+        return json(response.toJson());
+    }
+
+    /**
      * Creates one downloadable response body with JSON content type.
      *
      * @param body response body to write

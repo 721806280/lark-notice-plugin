@@ -22,6 +22,7 @@ import io.jenkins.plugins.lark.notice.model.RobotConfigModel;
 import io.jenkins.plugins.lark.notice.sdk.MessageDispatcher;
 import io.jenkins.plugins.lark.notice.sdk.MessageSender;
 import io.jenkins.plugins.lark.notice.sdk.model.SendResult;
+import io.jenkins.plugins.lark.notice.tools.ApiResponse;
 import io.jenkins.plugins.lark.notice.tools.HttpResponses;
 import io.jenkins.plugins.lark.notice.tools.JsonUtils;
 import jenkins.model.Jenkins;
@@ -29,7 +30,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import net.sf.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
@@ -442,7 +442,6 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
                                    @QueryParameter String messageLocaleStrategy) {
             Jenkins.get().checkPermission(LarkPermissions.CONFIGURE);
 
-            JSONObject response = new JSONObject();
             try {
                 List<LarkSecurityPolicyConfig> securityPolicyConfigs = parseSecurityPolicyConfigs(securityConfigs);
                 RobotProtocolType resolvedProtocolType = RobotWebhookResolver.resolveProtocolType(
@@ -461,9 +460,7 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
 
                 RobotType robotType = robotConfig.obtainRobotType();
                 if (Objects.isNull(robotType)) {
-                    response.put("ok", false);
-                    response.put("message", Messages.form_validation_webhook_invalid());
-                    return HttpResponses.json(response);
+                    return HttpResponses.json(ApiResponse.fail(Messages.form_validation_webhook_invalid()));
                 }
 
                 MessageSender sender = robotType.obtainInstance(RobotConfigModel.of(robotConfig, proxySelector));
@@ -471,20 +468,18 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
                         .send(null, robotConfig.getId(), buildTestMessage(robotType, robotConfig.getMessageLocaleStrategy().toLocale()), sender), "sendResult");
                 boolean ok = sendResult.isOk();
                 String detail = sendResult.getMsg();
-                response.put("ok", ok);
-                response.put("message", ok
+                String message = ok
                         ? Messages.form_validation_test_success()
                         : StringUtils.isNotBlank(detail)
                         ? Messages.form_validation_test_failure_with_detail(detail)
-                        : Messages.form_validation_test_failure());
-                return HttpResponses.json(response);
+                        : Messages.form_validation_test_failure();
+                return HttpResponses.json(ok ? ApiResponse.ok(message) : ApiResponse.fail(message));
             } catch (Exception e) {
                 String detail = StringUtils.defaultIfBlank(e.getMessage(), null);
-                response.put("ok", false);
-                response.put("message", StringUtils.isNotBlank(detail)
+                String message = StringUtils.isNotBlank(detail)
                         ? Messages.form_validation_test_failure_with_detail(detail)
-                        : Messages.form_validation_test_failure());
-                return HttpResponses.json(response);
+                        : Messages.form_validation_test_failure();
+                return HttpResponses.json(ApiResponse.fail(message));
             }
         }
 

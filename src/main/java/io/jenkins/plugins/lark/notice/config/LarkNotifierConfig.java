@@ -8,6 +8,7 @@ import hudson.model.Descriptor;
 import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.enums.NoticeOccasionEnum;
 import io.jenkins.plugins.lark.notice.service.NotificationTemplateService;
+import io.jenkins.plugins.lark.notice.tools.ApiResponse;
 import io.jenkins.plugins.lark.notice.tools.HttpResponses;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -263,7 +264,6 @@ public class LarkNotifierConfig implements Describable<LarkNotifierConfig> {
                                                   @QueryParameter String content) {
             Jenkins.get().checkPermission(Jenkins.READ);
 
-            JSONObject response = new JSONObject();
             try {
                 LarkNotifierConfig config = new LarkNotifierConfig(
                         false,
@@ -279,14 +279,13 @@ public class LarkNotifierConfig implements Describable<LarkNotifierConfig> {
                         null
                 );
 
-                response.put("ok", true);
-                response.put("defaultTemplate", NotificationTemplateService.buildEditableDefaultTemplate(config));
-                return HttpResponses.json(response);
+                ApiResponse payload = ApiResponse.ok()
+                        .data(new JSONObject().element("defaultTemplate",
+                                NotificationTemplateService.buildEditableDefaultTemplate(config)));
+                return HttpResponses.json(payload);
             } catch (Exception ex) {
-                response.put("ok", false);
-                response.put("message", Messages.config_import_payload_invalid(
-                        StringUtils.defaultIfBlank(ex.getMessage(), ex.getClass().getSimpleName())));
-                return HttpResponses.json(response);
+                return HttpResponses.json(ApiResponse.fail(Messages.config_import_payload_invalid(
+                        StringUtils.defaultIfBlank(ex.getMessage(), ex.getClass().getSimpleName()))));
             }
         }
     }

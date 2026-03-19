@@ -13,6 +13,7 @@ import io.jenkins.plugins.lark.notice.config.snapshot.LarkConfigImportPlanner;
 import io.jenkins.plugins.lark.notice.config.snapshot.LarkConfigImportPreview;
 import io.jenkins.plugins.lark.notice.config.snapshot.LarkConfigSnapshotMapper;
 import io.jenkins.plugins.lark.notice.config.snapshot.LarkConfigSnapshotValidator;
+import io.jenkins.plugins.lark.notice.tools.ApiResponse;
 import io.jenkins.plugins.lark.notice.tools.HttpResponses;
 import io.jenkins.plugins.lark.notice.tools.JsonUtils;
 import io.jenkins.plugins.lark.notice.Messages;
@@ -183,7 +184,6 @@ public class LarkManagementLink extends ManagementLink {
     public HttpResponse doPreviewImport(@QueryParameter String payload, @QueryParameter String mode) {
         Jenkins.get().checkPermission(LarkPermissions.CONFIGURE);
 
-        JSONObject response = new JSONObject();
         try {
             ParsedImportRequest importRequest = parseImportRequest(payload, mode);
             LarkConfigImportPreview preview = LarkConfigImportPlanner.preview(
@@ -192,18 +192,13 @@ public class LarkManagementLink extends ManagementLink {
                     importRequest.getMode()
             );
 
-            response.put("ok", true);
-            response.put("message", Messages.config_import_preview_success());
-            response.put("data", JSONObject.fromObject(preview));
+            ApiResponse response = ApiResponse.ok(Messages.config_import_preview_success(), JSONObject.fromObject(preview));
             return HttpResponses.json(response);
         } catch (FormException ex) {
-            response.put("ok", false);
-            response.put("message", ex.getMessage());
-            return HttpResponses.json(response);
+            return HttpResponses.json(ApiResponse.fail(ex.getMessage()));
         } catch (Exception ex) {
-            response.put("ok", false);
-            response.put("message", Messages.config_import_payload_invalid(StringUtils.defaultIfBlank(ex.getMessage(), ex.getClass().getSimpleName())));
-            return HttpResponses.json(response);
+            return HttpResponses.json(ApiResponse.fail(Messages.config_import_payload_invalid(
+                    StringUtils.defaultIfBlank(ex.getMessage(), ex.getClass().getSimpleName()))));
         }
     }
 
@@ -218,7 +213,6 @@ public class LarkManagementLink extends ManagementLink {
     public HttpResponse doImport(@QueryParameter String payload, @QueryParameter String mode) {
         Jenkins.get().checkPermission(LarkPermissions.CONFIGURE);
 
-        JSONObject response = new JSONObject();
         try {
             ParsedImportRequest importRequest = parseImportRequest(payload, mode);
             LarkGlobalConfig globalConfig = getGlobalConfig();
@@ -233,17 +227,12 @@ public class LarkManagementLink extends ManagementLink {
             globalConfig.setRobotConfigs(planned.getRobotConfigs());
             globalConfig.save();
 
-            response.put("ok", true);
-            response.put("message", Messages.config_import_success(planned.getRobotConfigs().size()));
-            return HttpResponses.json(response);
+            return HttpResponses.json(ApiResponse.ok(Messages.config_import_success(planned.getRobotConfigs().size())));
         } catch (FormException ex) {
-            response.put("ok", false);
-            response.put("message", ex.getMessage());
-            return HttpResponses.json(response);
+            return HttpResponses.json(ApiResponse.fail(ex.getMessage()));
         } catch (Exception ex) {
-            response.put("ok", false);
-            response.put("message", Messages.config_import_payload_invalid(StringUtils.defaultIfBlank(ex.getMessage(), ex.getClass().getSimpleName())));
-            return HttpResponses.json(response);
+            return HttpResponses.json(ApiResponse.fail(Messages.config_import_payload_invalid(
+                    StringUtils.defaultIfBlank(ex.getMessage(), ex.getClass().getSimpleName()))));
         }
     }
 
