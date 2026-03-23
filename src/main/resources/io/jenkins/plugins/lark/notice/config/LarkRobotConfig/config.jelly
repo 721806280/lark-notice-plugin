@@ -97,18 +97,16 @@
             <j:set var="securityPolicyConfigs"
                    value="${instance != null ? instance.getSecurityPolicyConfigs() : descriptor.getDefaultSecurityPolicyConfigs()}"/>
             <f:section title="${%robot.security.settings}">
-                <f:entry>
-                    <div class="robot-security-repeatable">
-                        <f:repeatable
-                                header=""
-                                name="securityPolicyConfigs"
-                                noAddButton="true"
-                                var="instance"
-                                items="${securityPolicyConfigs}">
-                            <st:include page="config.jelly" class="${securityPolicyConfigDescriptor.clazz}"/>
-                        </f:repeatable>
-                    </div>
-                </f:entry>
+                <div class="robot-security-repeatable">
+                    <f:repeatable
+                            header=""
+                            name="securityPolicyConfigs"
+                            noAddButton="true"
+                            var="instance"
+                            items="${securityPolicyConfigs}">
+                        <st:include page="config.jelly" class="${securityPolicyConfigDescriptor.clazz}"/>
+                    </f:repeatable>
+                </div>
             </f:section>
         </j:scope>
 

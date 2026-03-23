@@ -1,10 +1,11 @@
+:root,
 .lark-bots-repeatable {
-    --lark-surface: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
-    --lark-surface-soft: linear-gradient(180deg, #f9fbff 0%, #f4f8fd 100%);
-    --lark-border: rgba(203, 213, 225, 0.95);
-    --lark-border-strong: rgba(148, 163, 184, 0.55);
-    --lark-shadow: 0 14px 36px rgba(15, 23, 42, 0.06);
-    --lark-accent: #1f6feb;
+    --lark-surface: var(--card-background, var(--jenkins-card-background, #fff));
+    --lark-surface-soft: var(--very-light-grey, #f8f8f8);
+    --lark-border: var(--jenkins-border-color, rgba(203, 213, 225, 0.95));
+    --lark-border-strong: var(--jenkins-border-color--subtle, rgba(148, 163, 184, 0.55));
+    --lark-shadow: var(--jenkins-border--subtle-shadow, 0 1px 2px rgba(15, 23, 42, 0.06));
+    --lark-accent: var(--accent-color, #1f6feb);
     --lark-accent-soft: rgba(31, 111, 235, 0.12);
 }
 
@@ -31,40 +32,6 @@
 
 .lark-config-page > .jenkins-section {
     margin: 0;
-    padding: 18px 20px 10px;
-    border: 1px solid var(--lark-border);
-    border-radius: 16px;
-    background: var(--lark-surface);
-    box-shadow: 0 8px 26px rgba(15, 23, 42, 0.04);
-}
-
-.lark-config-page > .jenkins-section > .jenkins-section__title {
-    margin: 0 0 14px;
-    color: #475569;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-}
-
-.lark-config-page .jenkins-form-item {
-    margin-bottom: 12px;
-}
-
-.lark-config-page .jenkins-form-item:last-child {
-    margin-bottom: 0;
-}
-
-.lark-config-page .jenkins-form-label {
-    font-weight: 600;
-    color: #1f2937;
-}
-
-.lark-config-page .setting-main > .setting-input,
-.lark-config-page .setting-main .jenkins-input,
-.lark-config-page .setting-main select,
-.lark-config-page .setting-main textarea {
-    border-radius: 10px;
 }
 
 .lark-config-section__hint {
@@ -80,15 +47,10 @@
     padding-top: 4px;
 }
 
-.lark-config-page__actions .jenkins-button-bar,
-.lark-config-page__actions .bottom-sticker-inner,
-.lark-config-page__actions .bottom-sticker {
+.lark-config-page__actions .jenkins-button-bar {
     background: transparent !important;
     box-shadow: none !important;
     border: 0 !important;
-}
-
-.lark-config-page__actions .jenkins-button-bar {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
@@ -98,10 +60,10 @@
 
 .lark-notifier-config {
     padding: 14px;
-    border: 1px solid rgba(212, 220, 229, 0.96);
+    border: 1px solid var(--lark-border);
     border-radius: 14px;
-    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+    background: var(--lark-surface);
+    box-shadow: var(--lark-shadow);
 }
 
 .lark-notifier-config__hint {
@@ -160,10 +122,10 @@
     gap: 8px;
     min-height: 36px;
     padding: 0 12px;
-    border: 1px solid rgba(203, 213, 225, 0.96);
+    border: 1px solid var(--lark-border);
     border-radius: 999px;
-    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+    background: var(--lark-surface-soft);
+    box-shadow: none;
     color: #334155;
     font-size: 12px;
     font-weight: 600;
@@ -180,10 +142,10 @@
 
 .lark-notifier-panel {
     padding: 14px;
-    border: 1px solid rgba(212, 220, 229, 0.96);
+    border: 1px solid var(--lark-border);
     border-radius: 14px;
-    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+    background: var(--lark-surface);
+    box-shadow: var(--lark-shadow);
 }
 
 .lark-notifier-panel__title {
@@ -211,7 +173,7 @@
 .lark-notifier-editor .setting-main .jenkins-input,
 .lark-notifier-editor .setting-main select,
 .lark-notifier-editor .setting-main textarea {
-    border-radius: 10px;
+    border-radius: var(--form-input-border-radius, 10px);
 }
 
 .lark-notifier-editor .setting-main > .setting-input,
@@ -250,9 +212,9 @@
     align-items: center;
     gap: 6px;
     padding: 7px 11px;
-    border: 1px solid rgba(203, 213, 225, 0.96);
+    border: 1px solid var(--lark-border);
     border-radius: 999px;
-    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    background: var(--lark-surface-soft);
     color: #0f172a;
     font-weight: 600;
     font-size: 12px;
@@ -362,9 +324,9 @@
     gap: 8px;
     min-height: 34px;
     padding: 0 12px;
-    border: 1px solid rgba(203, 213, 225, 0.96);
+    border: 1px solid var(--lark-border);
     border-radius: 999px;
-    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    background: var(--lark-surface-soft);
     color: #334155;
     font-size: 12px;
     font-weight: 600;
@@ -395,9 +357,9 @@
     align-items: center;
     margin: 0 6px 6px 0;
     padding: 6px 10px;
-    border: 1px solid rgba(203, 213, 225, 0.85);
+    border: 1px solid var(--lark-border);
     border-radius: 999px;
-    background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+    background: var(--lark-surface-soft);
     font-size: 12px;
 }
 
@@ -426,21 +388,17 @@
 
 .lark-bots-repeatable .repeated-container > .repeated-chunk {
     position: relative;
-    padding: 20px 20px 16px;
-    border: 1px solid var(--lark-border);
-    border-radius: 18px;
-    background: var(--lark-surface);
-    box-shadow: var(--lark-shadow);
-    overflow: clip;
+    padding: 10px 20px 16px;
+    border: 1px dashed var(--jenkins-border-color, #dbe0e6);
+    border-radius: 12px;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible;
 }
 
 .lark-bots-repeatable .repeated-container > .repeated-chunk::after {
-    content: "";
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: 4px;
-    background: linear-gradient(180deg, #1f6feb 0%, #65a4ff 100%);
-    opacity: 0.9;
+    content: none !important;
+    display: none !important;
 }
 
 .lark-bots-repeatable .repeated-container > .repeated-chunk > .repeated-chunk__header {
@@ -454,13 +412,8 @@
     z-index: 1;
 }
 
-/* Jenkins renders a top divider on the first nested section inside each robot block; suppress it locally. */
-.robot-config-container .jenkins-section:first-of-type,
-.robot-config-container .jenkins-section:first-of-type .jenkins-section__title {
+.robot-config-container .jenkins-section:first-of-type {
     border-top: 0 !important;
-    margin-top: 0 !important;
-    padding-top: 0 !important;
-    box-shadow: none !important;
 }
 
 .robot-config-container .jenkins-section:first-of-type::before,
@@ -478,20 +431,6 @@
 
 .robot-config-container .jenkins-section {
     margin: 0;
-    padding: 16px 18px 8px;
-    border: 1px solid rgba(219, 226, 236, 0.96);
-    border-radius: 14px;
-    background: var(--lark-surface-soft);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
-}
-
-.robot-config-container .jenkins-section__title {
-    margin: 0 0 14px;
-    color: var(--text-color-secondary, #526173);
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
 }
 
 .robot-config-container .jenkins-form-item {
@@ -510,7 +449,7 @@
 .robot-config-container .setting-main > .setting-input,
 .robot-config-container .setting-main .jenkins-input,
 .robot-config-container .setting-main select {
-    border-radius: 10px;
+    border-radius: var(--form-input-border-radius, 10px);
 }
 
 .robot-protocol-type-select,
@@ -522,10 +461,10 @@
     display: grid;
     gap: 7px;
     padding: 10px;
-    border: 1px solid rgba(212, 220, 229, 0.96);
+    border: 1px solid var(--lark-border);
     border-radius: 12px;
-    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+    background: var(--lark-surface);
+    box-shadow: var(--lark-shadow);
 }
 
 .robot-choice-group,
@@ -570,9 +509,9 @@
     grid-auto-flow: column;
     gap: 6px;
     padding: 4px;
-    border: 1px solid rgba(212, 220, 229, 0.96);
+    border: 1px solid var(--lark-border);
     border-radius: 12px;
-    background: #f8fafc;
+    background: var(--lark-surface-soft);
 }
 
 .lark-segmented-control__option,
@@ -739,9 +678,9 @@
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
     gap: 0;
-    border: 1px solid rgba(212, 220, 229, 0.96);
+    border: 1px solid var(--lark-border);
     border-radius: 12px;
-    background: #fff;
+    background: var(--lark-surface);
     overflow: hidden;
 }
 
@@ -754,8 +693,8 @@
     display: inline-flex;
     align-items: stretch;
     min-width: 0;
-    background: #f8fafc;
-    border-right: 1px solid rgba(226, 232, 240, 0.96);
+    background: var(--lark-surface-soft);
+    border-right: 1px solid var(--lark-border);
 }
 
 .robot-endpoint-composer__provider {
@@ -775,7 +714,7 @@
 }
 
 .robot-endpoint-composer__controls .robot-custom-toggle {
-    border-left: 1px solid rgba(226, 232, 240, 0.96);
+    border-left: 1px solid var(--lark-border);
     margin-left: 0;
 }
 
@@ -810,9 +749,9 @@
     justify-content: center;
     min-height: 38px;
     padding: 0 12px;
-    border: 1px solid rgba(212, 220, 229, 0.96);
+    border: 1px solid var(--lark-border);
     border-radius: 10px;
-    background: #f8fafc;
+    background: var(--lark-surface-soft);
     color: #334155;
     font-family: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
     font-size: 12px;
@@ -838,7 +777,7 @@
     min-height: 30px;
     padding: 0 10px;
     border-radius: 999px;
-    background: #fff;
+    background: var(--lark-surface);
 }
 
 .robot-base-url-preset-btn.is-active {
@@ -854,9 +793,9 @@
     gap: 5px 8px;
     align-items: start;
     padding: 6px 8px;
-    border: 1px solid rgba(226, 232, 240, 0.96);
+    border: 1px solid var(--lark-border);
     border-radius: 10px;
-    background: #f8fafc;
+    background: var(--lark-surface-soft);
     margin: 0;
 }
 
@@ -910,7 +849,7 @@
     box-shadow: none !important;
     background: transparent !important;
     outline: 0 !important;
-    display: contents;
+    display: block;
 }
 
 .robot-security-repeatable .repeated-chunk__header {
@@ -923,6 +862,17 @@
     display: none !important;
 }
 
+.robot-security-repeatable .repeated-container {
+    display: grid;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+}
+
+.robot-security-repeatable .jenkins-form-item {
+    margin-bottom: 0;
+}
+
 .robot-config-actions {
     display: flex;
     align-items: center;
@@ -931,12 +881,12 @@
     gap: 8px;
     margin-top: 2px;
     padding-top: 12px;
-    border-top: 1px solid rgba(219, 226, 236, 0.96);
+    border-top: 1px solid var(--lark-border);
 }
 
 .robot-config-copy-id-btn {
     min-width: auto;
-    background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+    background: var(--lark-surface-soft);
 }
 
 .robot-config-validate-msg {
@@ -972,12 +922,12 @@
 
     .robot-endpoint-composer__controls {
         border-right: 0;
-        border-bottom: 1px solid rgba(226, 232, 240, 0.96);
+        border-bottom: 1px solid var(--lark-border);
         flex-wrap: wrap;
     }
 
     .robot-endpoint-composer__controls .robot-custom-toggle {
-        border-left: 1px solid rgba(226, 232, 240, 0.96);
+        border-left: 1px solid var(--lark-border);
     }
 
     .robot-preview-inline {
@@ -1025,17 +975,17 @@
     border: 1px solid var(--jenkins-border-color, #dbe0e6);
     border-radius: 10px;
     padding: 20px;
-    background: var(--jenkins-card-background, #fff);
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    background: var(--card-background, var(--jenkins-card-background, #fff));
+    box-shadow: var(--lark-shadow);
 }
 
 .lark-management-card--export {
-    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    background: var(--card-background, var(--jenkins-card-background, #fff));
 }
 
 .lark-management-card--import {
-    background: linear-gradient(180deg, #ffffff 0%, #f6faff 100%);
-    border-color: #d4e3f7;
+    background: var(--card-background, var(--jenkins-card-background, #fff));
+    border-color: var(--jenkins-border-color, #dbe0e6);
 }
 
 .lark-management-card--import .lark-management-card__title {
@@ -1087,7 +1037,7 @@
 .lark-management-step + .lark-management-step {
     margin-top: 16px;
     padding-top: 16px;
-    border-top: 1px solid rgba(219, 224, 230, 0.8);
+    border-top: 1px solid var(--jenkins-border-color, #dbe0e6);
 }
 
 .lark-management-step__index {
@@ -1097,10 +1047,10 @@
     width: 32px;
     height: 32px;
     border-radius: 999px;
-    background: linear-gradient(180deg, #edf4ff 0%, #e3eeff 100%);
-    color: #1a5fb4;
+    background: var(--button-background, #edf4ff);
+    color: var(--link-color, #1a5fb4);
     font-weight: 700;
-    box-shadow: inset 0 0 0 1px rgba(26, 115, 232, 0.12);
+    box-shadow: var(--jenkins-border--subtle-shadow, inset 0 0 0 1px rgba(26, 115, 232, 0.12));
 }
 
 .lark-management-step__body {
@@ -1123,7 +1073,7 @@
     padding: 14px 16px;
     border: 1px solid var(--jenkins-border-color, #dbe0e6);
     border-radius: 8px;
-    background: linear-gradient(180deg, #fff 0%, #fbfcfd 100%);
+    background: var(--card-background, var(--jenkins-card-background, #fff));
     cursor: pointer;
     transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease, transform 140ms ease;
 }
@@ -1142,13 +1092,13 @@
 
 .lark-management-mode-option:hover {
     border-color: #b8c7da;
-    background: linear-gradient(180deg, #fff 0%, #f6f9fc 100%);
+    background: var(--item-background--hover, #f6f9fc);
     transform: translateY(-1px);
 }
 
 .lark-management-mode-option.is-selected {
     border-color: #1a73e8;
-    background: linear-gradient(180deg, #eef5ff 0%, #e7f0ff 100%);
+    background: color-mix(in sRGB, var(--accent-color, #1a73e8) 12%, var(--card-background, #fff));
     box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.16);
 }
 
@@ -1217,7 +1167,7 @@
     border: 1px dashed var(--jenkins-border-color, #dbe0e6);
     border-radius: 8px;
     padding: 14px 16px;
-    background: linear-gradient(180deg, #fcfdff 0%, #f8fbfe 100%);
+    background: var(--lark-surface-soft);
 }
 
 .lark-management-import-preview__empty {
@@ -1236,8 +1186,8 @@
     padding: 4px 10px;
     margin-bottom: 10px;
     border-radius: 999px;
-    background: #eaf2ff;
-    color: #1b5fc6;
+    background: color-mix(in sRGB, var(--accent-color, #1a73e8) 12%, var(--card-background, #fff));
+    color: var(--link-color, #1b5fc6);
     font-size: 12px;
     font-weight: 600;
 }
@@ -1251,8 +1201,8 @@
 .lark-management-import-preview__metric {
     padding: 10px 12px;
     border-radius: 8px;
-    background: #fff;
-    border: 1px solid rgba(212, 227, 247, 0.8);
+    background: var(--card-background, var(--jenkins-card-background, #fff));
+    border: 1px solid var(--jenkins-border-color, #dbe0e6);
 }
 
 .lark-management-import-preview__metric-label {
