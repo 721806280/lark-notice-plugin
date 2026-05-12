@@ -1,3 +1,72 @@
+Behaviour.specify('.lark-config-export-btn', 'export-lark-config', 0, function (button) {
+    if (button.dataset.exportBound === 'true') {
+        return;
+    }
+    button.dataset.exportBound = 'true';
+
+    button.addEventListener('click', function () {
+        var url = button.getAttribute('data-export-url');
+        var failedMessage = button.getAttribute('data-export-failed-message') || 'Export failed.';
+        var textarea = document.getElementById('lark-config-import-payload');
+
+        button.disabled = true;
+        LarkNoticeRequest.postForm(url, new URLSearchParams()).then(function (payload) {
+            if (payload.ok && payload.text) {
+                try {
+                    var obj = JSON.parse(payload.text);
+                    if (textarea) {
+                        textarea.value = JSON.stringify(obj, null, 2);
+                        textarea.dispatchEvent(new Event('input', {bubbles: true}));
+                        triggerAutoPreview(textarea);
+                    }
+                } catch (e) {
+                    if (textarea) {
+                        textarea.value = payload.text;
+                        textarea.dispatchEvent(new Event('input', {bubbles: true}));
+                        triggerAutoPreview(textarea);
+                    }
+                }
+            } else {
+                alert(failedMessage);
+            }
+        }).catch(function () {
+            alert(failedMessage);
+        }).then(function () {
+            button.disabled = false;
+        });
+    });
+});
+
+Behaviour.specify('.lark-config-file-input', 'file-import-lark-config', 0, function (input) {
+    if (input.dataset.fileBound === 'true') {
+        return;
+    }
+    input.dataset.fileBound = 'true';
+
+    input.addEventListener('change', function () {
+        var file = input.files && input.files[0];
+        if (!file) {
+            return;
+        }
+        var textarea = document.getElementById('lark-config-import-payload');
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            if (textarea) {
+                try {
+                    var obj = JSON.parse(e.target.result);
+                    textarea.value = JSON.stringify(obj, null, 2);
+                } catch (err) {
+                    textarea.value = e.target.result;
+                }
+                textarea.dispatchEvent(new Event('input', {bubbles: true}));
+                triggerAutoPreview(textarea);
+            }
+        };
+        reader.readAsText(file);
+        input.value = '';
+    });
+});
+
 Behaviour.specify('.lark-management-import-form', 'import-lark-config', 0, function (form) {
     if (form.dataset.importBound === 'true') {
         return;
@@ -230,4 +299,15 @@ function appendPreviewMetric(summary, label, value) {
 
 function renderImportResult(container, message, isSuccess) {
     LarkNoticeUi.renderAlertMessage(container, 'lark-management-import-result', message, isSuccess);
+}
+
+function triggerAutoPreview(textarea) {
+    var form = textarea.closest('.lark-management-import-form');
+    if (!form) {
+        return;
+    }
+    var previewBtn = form.querySelector('.lark-config-preview-btn');
+    if (previewBtn && !previewBtn.disabled) {
+        previewBtn.click();
+    }
 }

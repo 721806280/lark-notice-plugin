@@ -18,6 +18,7 @@ import io.jenkins.plugins.lark.notice.config.LarkGlobalConfig;
 import io.jenkins.plugins.lark.notice.config.security.LarkPermissions;
 import jakarta.servlet.ServletException;
 import jenkins.model.Jenkins;
+import net.sf.json.JSONObject;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest2;
@@ -140,6 +141,18 @@ public class LarkManagementLink extends ManagementLink {
         Jenkins.get().checkPermission(LarkPermissions.CONFIGURE);
         LarkConfigSnapshot snapshot = LarkConfigSnapshotMapper.toSnapshot(getGlobalConfig());
         return HttpResponses.downloadJson(JsonUtils.toPrettyJson(snapshot), buildExportFileName());
+    }
+
+    /**
+     * Exports the current configuration as a JSON response for AJAX loading.
+     *
+     * @return JSON text response
+     */
+    @POST
+    public HttpResponse doExportJson() {
+        Jenkins.get().checkPermission(LarkPermissions.CONFIGURE);
+        LarkConfigSnapshot snapshot = LarkConfigSnapshotMapper.toSnapshot(getGlobalConfig());
+        return HttpResponses.json(JSONObject.fromObject(snapshot));
     }
 
     /**
