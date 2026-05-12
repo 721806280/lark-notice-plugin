@@ -216,10 +216,15 @@ public class LarkGlobalConfig extends GlobalConfiguration {
         return SharedConfigViews.class;
     }
 
+    /**
+     * Returns the default system configuration category so that this config
+     * appears on the standard "Configure System" page instead of creating
+     * a separate card on the Manage Jenkins page.
+     */
     @NonNull
     @Override
     public GlobalConfigurationCategory getCategory() {
-        return GlobalConfigurationCategory.get(LarkGlobalConfigurationCategory.class);
+        return GlobalConfigurationCategory.get(GlobalConfigurationCategory.class);
     }
 
     private Map<String, LarkRobotConfig> robotIndex() {
