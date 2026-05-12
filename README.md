@@ -6,7 +6,7 @@
    </p>
    <p align="center">
       <img src="https://img.shields.io/badge/JDK-17-success" alt="JDK">
-      <img src="https://img.shields.io/badge/Jenkins-2.528.3-blue.svg" alt="License">
+      <img src="https://img.shields.io/badge/Jenkins-2.541.3-blue.svg" alt="Jenkins">
       <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License">
       <img src="https://img.shields.io/badge/Author-xm.z-success" alt="Author">
    </p>
@@ -23,33 +23,15 @@
 `lark-notice-plugin` is a `build notification robot` notification plug-in for `Jenkins`, which can push the `Jenkins`
 build process and result notifications to the `Lark`、`Feishu` and `DingTalk` collaboration platforms.
 Multiple notification timings can be configured,
-including `when the build starts`, `build interruption`, `build failure`, `when the build succeeds`,
-`build instability`,
-etc.
+including `build start`, `build interruption`, `build failure`, `build success`, `build instability`, etc.
 Supports many different types of messages,
-including `text messages`, `picture messages`, `group business card messages`, `rich text messages`, `card messages`;
-At the same time, the plug-in also provides the functions of `custom template` and `variables', allowing you to
+including `text messages`, `picture messages`, `group business card messages`, `rich text messages`, `card messages`.
+The plug-in also provides the functions of `custom template` and `variables`, allowing you to
 customize the content and format of notification messages according to your own needs.
 
 ## 📝 Using documentation
 
 > Please refer to [official document](https://721806280.github.io/lark-notice-plugin-doc)
-
-## 🔁 Retry Configuration
-
-The plugin can retry failed webhook sends. Retries are disabled by default.
-
-- `enabled`: whether to enable retry
-- `maxAttempts`: total attempts including the first one
-- `initialDelayMs`: initial delay before the first retry
-- `maxDelayMs`: maximum delay between retries
-- `backoffMultiplier`: exponential backoff multiplier
-- `jitterRatio`: random jitter ratio applied to delays
-
-Default values: `enabled=false`, `maxAttempts=1`, `initialDelayMs=500`, `maxDelayMs=5000`,
-`backoffMultiplier=2.0`, `jitterRatio=0.2`.
-
-Retry settings are configured per robot under robot settings.
 
 ## 🧑‍💻 Development Services
 

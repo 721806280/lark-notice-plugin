@@ -6,7 +6,7 @@
    </p>
    <p align="center">
       <img src="https://img.shields.io/badge/JDK-17-success" alt="JDK">
-      <img src="https://img.shields.io/badge/Jenkins-2.528.3-blue.svg" alt="License">
+      <img src="https://img.shields.io/badge/Jenkins-2.541.3-blue.svg" alt="Jenkins">
       <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License">
       <img src="https://img.shields.io/badge/Author-xm.z-success" alt="Author">
    </p>
@@ -29,22 +29,6 @@
 ## 📝 使用文档
 
 > 请参考 [官方文档](https://721806280.github.io/lark-notice-plugin-doc)
-
-## 🔁 重试配置
-
-插件支持对发送失败的 Webhook 进行重试，默认不开启。
-
-- `enabled`：是否启用重试
-- `maxAttempts`：最大尝试次数（包含第一次）
-- `initialDelayMs`：首次重试前的等待时间
-- `maxDelayMs`：重试等待时间上限
-- `backoffMultiplier`：退避倍数
-- `jitterRatio`：等待时间抖动比例
-
-默认值：`enabled=false`、`maxAttempts=1`、`initialDelayMs=500`、`maxDelayMs=5000`、
-`backoffMultiplier=2.0`、`jitterRatio=0.2`。
-
-重试设置在每个机器人配置中单独设置。
 
 ## 🧑‍💻 开发服务
 
