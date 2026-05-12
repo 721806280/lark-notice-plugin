@@ -447,6 +447,10 @@
     margin: 0;
 }
 
+.robot-config-container .jenkins-section .jenkins-section__title {
+    display: none;
+}
+
 .robot-config-container .jenkins-form-item {
     margin-bottom: 12px;
 }
@@ -455,7 +459,9 @@
     margin-bottom: 0;
 }
 
-.robot-config-container .jenkins-form-label {
+.robot-config-container .jenkins-form-label,
+.robot-config-container .jenkins-checkbox label {
+    font-size: 13px;
     font-weight: 600;
     color: #1f2937;
 }
@@ -878,9 +884,19 @@
 
 .robot-security-repeatable .repeated-container {
     display: grid;
-    gap: 6px;
-    margin: 0;
-    padding: 0;
+    gap: 12px;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.robot-security-repeatable .repeated-chunk {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.robot-security-repeatable .jenkins-repeated-chunk__content {
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
 .robot-security-repeatable .jenkins-form-item {
@@ -895,7 +911,7 @@
     gap: 8px;
     margin-top: 2px;
     padding-top: 12px;
-    border-top: 1px solid var(--lark-border);
+    border-top: var(--jenkins-border);
 }
 
 .robot-config-copy-id-btn {
