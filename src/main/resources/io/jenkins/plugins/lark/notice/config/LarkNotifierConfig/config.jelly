@@ -7,7 +7,6 @@
         <div class="lark-notifier-header">
             <div class="lark-notifier-header__copy">
                 <div class="lark-notifier-editor__title">${instance.getRobotDisplayName()}</div>
-                <div class="lark-notifier-header__meta">${%notifier.header.meta}</div>
             </div>
             <label class="lark-notifier-status-pill">
                 <f:checkbox field="disabled" checked="${instance.getDisabled()}"/>
@@ -18,7 +17,6 @@
         <div class="lark-notifier-layout">
             <div class="lark-notifier-main">
                 <div class="lark-notifier-panel">
-                    <div class="lark-notifier-panel__title">${%notifier.section.delivery}</div>
                     <f:entry title="${%notifier.occasions}" field="noticeOccasions">
                         <j:set var="occasionOptions" value="${descriptor.getNoticeOccasionTypes()}"/>
                         <j:set var="checkedOccasionNames" value="${instance.noticeOccasions}"/>
@@ -52,8 +50,6 @@
                 </div>
 
                 <div class="lark-notifier-panel lark-notifier-compose-panel">
-                    <div class="lark-notifier-panel__title">${%notifier.section.compose}</div>
-
                     <div class="lark-notifier-common-fields"
                          data-title-placeholder="${%notifier.title.placeholder}"
                          data-mentions-placeholder="${%notifier.mentions.placeholder}">
