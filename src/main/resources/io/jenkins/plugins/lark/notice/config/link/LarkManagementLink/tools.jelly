@@ -15,21 +15,15 @@
                       href="${rootURL}/plugin/lark-notice/styles/configuration.css"/>
             </st:once>
 
-            <div class="lark-management-page-header lark-management-page-header--tools">
-                <div class="lark-management-page-header__copy">
-                    <h1>${%management.tools.page.header}</h1>
-                    <div class="lark-management-page-header__description">${%management.tools.description}</div>
-                </div>
+            <div class="lark-management-page-header">
+                <h1>${%management.tools.page.header}</h1>
                 <a class="jenkins-button" href=".">${%management.tools.back.button}</a>
             </div>
 
-            <section class="jenkins-section lark-management-tools lark-management-tools--standalone">
-                <div class="jenkins-section__title">${%management.tools.title}</div>
+            <section class="lark-management-tools">
                 <div class="lark-management-tools__grid">
                     <section class="lark-management-card lark-management-card--export">
-                        <div class="lark-management-card__eyebrow">${%management.export.eyebrow}</div>
                         <h2 class="lark-management-card__title">${%management.export.title}</h2>
-                        <p class="lark-management-card__description">${%management.export.description}</p>
                         <div class="lark-management-tools__exports">
                             <f:form action="export" method="POST" name="larkManagementExportForm">
                                 <button type="submit" class="jenkins-button">${%management.export.with.secrets}</button>
@@ -38,9 +32,7 @@
                     </section>
 
                     <section class="lark-management-card lark-management-card--import">
-                        <div class="lark-management-card__eyebrow">${%management.import.eyebrow}</div>
                         <h2 class="lark-management-card__title">${%management.import.title}</h2>
-                        <p class="lark-management-card__description">${%management.import.description}</p>
 
                         <f:form action="import"
                                 method="POST"
