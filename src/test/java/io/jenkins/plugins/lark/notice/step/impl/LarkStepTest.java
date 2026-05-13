@@ -54,4 +54,14 @@ public class LarkStepTest {
         assertEquals("lark", descriptor.getFunctionName());
         assertEquals("lark notice", descriptor.getDisplayName());
     }
+
+    @Test
+    public void wechatWorkDescriptorShouldExposeStableMetadata() {
+        WechatWorkStep.WechatWorkStepDescriptor descriptor =
+                jenkins.jenkins.getDescriptorByType(WechatWorkStep.WechatWorkStepDescriptor.class);
+
+        assertNotNull(descriptor);
+        assertEquals("wechatWork", descriptor.getFunctionName());
+        assertEquals("WeCom Notice", descriptor.getDisplayName());
+    }
 }
