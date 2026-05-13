@@ -4,6 +4,7 @@ import io.jenkins.plugins.lark.notice.model.RobotConfigModel;
 import io.jenkins.plugins.lark.notice.sdk.MessageSender;
 import io.jenkins.plugins.lark.notice.sdk.impl.DingMessageSender;
 import io.jenkins.plugins.lark.notice.sdk.impl.LarkMessageSender;
+import io.jenkins.plugins.lark.notice.sdk.impl.WechatWorkMessageSender;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
@@ -38,6 +39,16 @@ public enum RobotType {
         public MessageSender obtainInstance(RobotConfigModel robotConfig) {
             return new DingMessageSender(robotConfig);
         }
+    },
+
+    WECHAT_WORK("企业微信", "font", "/cgi-bin/webhook/send") {
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public MessageSender obtainInstance(RobotConfigModel robotConfig) {
+            return new WechatWorkMessageSender(robotConfig);
+        }
     };
 
     private final String name;
@@ -68,6 +79,9 @@ public enum RobotType {
         if (DING_TAlK.matches(webhook)) {
             return DING_TAlK;
         }
+        if (WECHAT_WORK.matches(webhook)) {
+            return WECHAT_WORK;
+        }
         if (LARK.matches(webhook)) {
             return LARK;
         }
@@ -91,6 +105,23 @@ public enum RobotType {
      * @return message sender bound to the target platform
      */
     public abstract MessageSender obtainInstance(RobotConfigModel robotConfig);
+
+    /**
+     * Maps a build status color to the markdown color names supported by this platform.
+     *
+     * @param color shared build status color
+     * @return platform-specific markdown color
+     */
+    public String normalizeStatusColor(String color) {
+        if (!WECHAT_WORK.equals(this)) {
+            return color;
+        }
+        return switch (StringUtils.defaultString(color).toLowerCase()) {
+            case "green" -> "info";
+            case "red", "yellow" -> "warning";
+            default -> "comment";
+        };
+    }
 
     private boolean matches(ParsedWebhook webhook) {
         return webhook != null

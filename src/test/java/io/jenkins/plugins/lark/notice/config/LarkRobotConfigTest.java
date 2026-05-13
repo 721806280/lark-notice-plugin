@@ -52,4 +52,17 @@ public class LarkRobotConfigTest {
 
         assertNull(robotConfig.obtainRobotType());
     }
+
+    @Test
+    public void shouldInferWechatWorkProtocolFromWebhook() {
+        LarkRobotConfig robotConfig = new LarkRobotConfig(
+                "robot-a",
+                "Robot A",
+                "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=robot-a",
+                List.of()
+        );
+
+        assertEquals(RobotProtocolType.WECHAT_WORK, robotConfig.getProtocolType());
+        assertEquals(WebhookEndpointMode.FULL_WEBHOOK, robotConfig.getEndpointMode());
+    }
 }

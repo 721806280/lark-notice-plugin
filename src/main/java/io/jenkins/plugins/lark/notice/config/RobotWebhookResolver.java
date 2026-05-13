@@ -98,7 +98,7 @@ public final class RobotWebhookResolver {
      */
     public static WebhookEndpointMode resolveEndpointMode(RobotProtocolType protocolType, WebhookEndpointMode endpointMode,
                                                           String baseUrl, String webhookToken) {
-        if (RobotProtocolType.DING_TALK.equals(protocolType)) {
+        if (RobotProtocolType.DING_TALK.equals(protocolType) || RobotProtocolType.WECHAT_WORK.equals(protocolType)) {
             return WebhookEndpointMode.FULL_WEBHOOK;
         }
         if (endpointMode != null) {

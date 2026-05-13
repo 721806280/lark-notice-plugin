@@ -9,7 +9,6 @@ import io.jenkins.plugins.lark.notice.config.MessageLocaleResolver;
 import io.jenkins.plugins.lark.notice.config.RobotWebhookResolver;
 import io.jenkins.plugins.lark.notice.enums.BuildStatusEnum;
 import io.jenkins.plugins.lark.notice.enums.MessageLocaleStrategy;
-import io.jenkins.plugins.lark.notice.enums.MsgTypeEnum;
 import io.jenkins.plugins.lark.notice.enums.RobotProtocolType;
 import io.jenkins.plugins.lark.notice.enums.RobotType;
 import io.jenkins.plugins.lark.notice.enums.WebhookEndpointMode;
@@ -106,16 +105,17 @@ public final class RobotConfigTestService {
 
     private static MessageModel buildTestMessage(RobotType robotType, Locale locale) {
         String rootUrl = Jenkins.get().getRootUrl();
+        String configureUrl = StringUtils.appendIfMissing(rootUrl, "/") + "configure";
         User user = Optional.ofNullable(User.current()).orElse(User.getUnknown());
 
         BuildJobModel buildJobModel = BuildJobModel.builder()
-                .projectName(NoticeI18n.robotTestProjectName(locale)).title(NoticeI18n.defaultTitle(locale))
-                .projectUrl(rootUrl).jobName(NoticeI18n.robotTestJobName(locale)).jobUrl(rootUrl + "/configure")
+                .projectName(NoticeI18n.robotTestProjectName(locale))
+                .title(NOTICE_ICON + " " + NoticeI18n.robotTestSuccessTitle(locale))
+                .projectUrl(rootUrl).jobName(NoticeI18n.robotTestJobName(locale)).jobUrl(configureUrl)
                 .statusType(BuildStatusEnum.SUCCESS).duration("-")
                 .executorName(user.getDisplayName()).build();
 
-        return MessageModel.builder().type(MsgTypeEnum.CARD)
-                .title(NOTICE_ICON + " " + NoticeI18n.robotTestSuccessTitle(locale))
+        return buildJobModel.messageModelBuilder(locale)
                 .text(buildJobModel.toMarkdown(robotType, locale))
                 .atAll(false).build();
     }

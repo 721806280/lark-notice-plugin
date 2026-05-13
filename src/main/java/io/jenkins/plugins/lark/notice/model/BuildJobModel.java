@@ -146,7 +146,15 @@ public class BuildJobModel {
      */
     public MessageModel.MessageModelBuilder messageModelBuilder(Locale locale) {
         return MessageModel.builder().type(CARD).statusType(statusType)
-                .buttons(Utils.createDefaultButtons(jobUrl, locale)).title(title);
+                .buttons(Utils.createDefaultButtons(jobUrl, locale)).title(title)
+                .locale(locale)
+                .projectName(projectName)
+                .projectUrl(projectUrl)
+                .jobName(jobName)
+                .jobUrl(jobUrl)
+                .duration(duration)
+                .executorName(executorName)
+                .additionalContent(content);
     }
 
 }

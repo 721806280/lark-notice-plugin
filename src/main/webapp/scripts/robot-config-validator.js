@@ -72,6 +72,11 @@ var ROBOT_PROVIDER_DEFAULTS = {
         protocolType: 'DING_TALK',
         endpointMode: 'FULL_WEBHOOK',
         webhookPrefix: 'https://oapi.dingtalk.com/robot/send?access_token='
+    },
+    WECHAT_WORK: {
+        protocolType: 'WECHAT_WORK',
+        endpointMode: 'FULL_WEBHOOK',
+        webhookPrefix: 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key='
     }
 };
 
@@ -368,6 +373,14 @@ function inferRobotEndpointState(robot) {
             value: dingTalkToken || webhook
         };
     }
+    if (protocolType === 'WECHAT_WORK') {
+        var wechatWorkKey = extractWechatWorkKey(webhook);
+        return {
+            provider: 'WECHAT_WORK',
+            custom: !wechatWorkKey,
+            value: wechatWorkKey || webhook
+        };
+    }
 
     var extractedBaseUrl = baseUrl || extractLarkCompatibleBaseUrl(webhook);
     var extractedToken = webhookToken || extractLarkCompatibleToken(webhook);
@@ -416,6 +429,14 @@ function syncHiddenEndpointFields(robot, workspace, state) {
     if (state.provider === 'DING_TALK') {
         protocolInput.value = ROBOT_PROVIDER_DEFAULTS.DING_TALK.protocolType;
         endpointModeInput.value = ROBOT_PROVIDER_DEFAULTS.DING_TALK.endpointMode;
+        webhookInput.value = state.resolvedWebhook;
+        baseUrlInput.value = '';
+        webhookTokenInput.value = '';
+        return;
+    }
+    if (state.provider === 'WECHAT_WORK') {
+        protocolInput.value = ROBOT_PROVIDER_DEFAULTS.WECHAT_WORK.protocolType;
+        endpointModeInput.value = ROBOT_PROVIDER_DEFAULTS.WECHAT_WORK.endpointMode;
         webhookInput.value = state.resolvedWebhook;
         baseUrlInput.value = '';
         webhookTokenInput.value = '';
@@ -471,6 +492,9 @@ function resolveEndpointHint(workspace, state) {
     if (state.provider === 'DING_TALK') {
         return workspace.dataset.tokenHintDingTalk || '';
     }
+    if (state.provider === 'WECHAT_WORK') {
+        return workspace.dataset.tokenHintWechatWork || '';
+    }
     return workspace.dataset.tokenHintFeishu || '';
 }
 
@@ -483,6 +507,9 @@ function buildResolvedWebhook(provider, custom, value, workspace) {
     }
     if (provider === 'DING_TALK') {
         return (workspace.dataset.dingTalkWebhookPrefix || ROBOT_PROVIDER_DEFAULTS.DING_TALK.webhookPrefix) + value;
+    }
+    if (provider === 'WECHAT_WORK') {
+        return (workspace.dataset.wechatWorkWebhookPrefix || ROBOT_PROVIDER_DEFAULTS.WECHAT_WORK.webhookPrefix) + value;
     }
     return getProviderBaseUrl(provider, workspace) + ROBOT_PROVIDER_DEFAULTS.FEISHU.prefixPath + value;
 }
@@ -503,6 +530,9 @@ function setRobotProvider(robot, provider) {
 
 function resolveWebhookFromFields(protocolType, endpointMode, webhook, baseUrl, webhookToken) {
     if (protocolType === 'DING_TALK') {
+        return webhook;
+    }
+    if (protocolType === 'WECHAT_WORK') {
         return webhook;
     }
     if (endpointMode === 'BASE_URL_AND_TOKEN') {
@@ -533,6 +563,14 @@ function extractDingTalkToken(webhook) {
         return '';
     }
     return parsed.searchParams.get('access_token') || '';
+}
+
+function extractWechatWorkKey(webhook) {
+    var parsed = parseUrl(webhook);
+    if (!parsed || parsed.pathname !== '/cgi-bin/webhook/send' || !containsText(parsed.hostname, 'qyapi.weixin.qq.com')) {
+        return '';
+    }
+    return parsed.searchParams.get('key') || '';
 }
 
 function parseUrl(value) {

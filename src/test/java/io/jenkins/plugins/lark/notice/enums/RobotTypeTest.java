@@ -31,6 +31,11 @@ public class RobotTypeTest {
     }
 
     @Test
+    public void fromUrlShouldResolveWechatWorkWebhook() {
+        assertEquals(RobotType.WECHAT_WORK, RobotType.fromUrl("https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=token"));
+    }
+
+    @Test
     public void fromUrlShouldRejectUnsupportedWebhookPath() {
         assertNull(RobotType.fromUrl("https://example.com/webhook/robot-a"));
     }

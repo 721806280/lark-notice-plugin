@@ -34,28 +34,51 @@ public final class BuildMessageLineFormatter {
         String tagName = robotType.getStatusTagName();
         List<String> lines = new ArrayList<>();
 
-        Collections.addAll(lines,
-                String.format("\uD83D\uDCCB **%s**: [%s](%s)",
-                        NoticeI18n.buildMessageProjectName(locale),
-                        values.projectName(),
-                        values.projectUrl()),
-                String.format("\uD83D\uDD22 **%s**: [%s](%s)",
-                        NoticeI18n.buildMessageJobName(locale),
-                        values.jobName(),
-                        values.jobUrl()),
-                String.format("\uD83C\uDF1F **%s**:  <%s color='%s'>%s</%s>",
-                        NoticeI18n.buildMessageStatus(locale),
-                        tagName,
-                        values.statusColor(),
-                        values.statusLabel(),
-                        tagName),
-                String.format("\uD83D\uDD50 **%s**:  %s",
-                        NoticeI18n.buildMessageDuration(locale),
-                        values.duration()),
-                String.format("\uD83D\uDC64 **%s**:  %s",
-                        NoticeI18n.buildMessageExecutor(locale),
-                        values.executorName())
-        );
+        if (RobotType.WECHAT_WORK.equals(robotType)) {
+            Collections.addAll(lines,
+                    String.format(">**%s**: [%s](%s)",
+                            NoticeI18n.buildMessageProjectName(locale),
+                            values.projectName(),
+                            values.projectUrl()),
+                    String.format(">**%s**: [%s](%s)",
+                            NoticeI18n.buildMessageJobName(locale),
+                            values.jobName(),
+                            values.jobUrl()),
+                    String.format(">**%s**: <font color=\"%s\">%s</font>",
+                            NoticeI18n.buildMessageStatus(locale),
+                            robotType.normalizeStatusColor(values.statusColor()),
+                            values.statusLabel()),
+                    String.format(">**%s**: %s",
+                            NoticeI18n.buildMessageDuration(locale),
+                            values.duration()),
+                    String.format(">**%s**: %s",
+                            NoticeI18n.buildMessageExecutor(locale),
+                            values.executorName())
+            );
+        } else {
+            Collections.addAll(lines,
+                    String.format("\uD83D\uDCCB **%s**: [%s](%s)",
+                            NoticeI18n.buildMessageProjectName(locale),
+                            values.projectName(),
+                            values.projectUrl()),
+                    String.format("\uD83D\uDD22 **%s**: [%s](%s)",
+                            NoticeI18n.buildMessageJobName(locale),
+                            values.jobName(),
+                            values.jobUrl()),
+                    String.format("\uD83C\uDF1F **%s**:  <%s color='%s'>%s</%s>",
+                            NoticeI18n.buildMessageStatus(locale),
+                            tagName,
+                            robotType.normalizeStatusColor(values.statusColor()),
+                            values.statusLabel(),
+                            tagName),
+                    String.format("\uD83D\uDD50 **%s**:  %s",
+                            NoticeI18n.buildMessageDuration(locale),
+                            values.duration()),
+                    String.format("\uD83D\uDC64 **%s**:  %s",
+                            NoticeI18n.buildMessageExecutor(locale),
+                            values.executorName())
+            );
+        }
 
         if (includeBlankContent) {
             lines.add(values.content() == null ? "" : values.content());

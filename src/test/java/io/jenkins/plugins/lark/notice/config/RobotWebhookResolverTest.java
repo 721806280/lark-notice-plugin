@@ -41,6 +41,25 @@ public class RobotWebhookResolverTest {
     }
 
     @Test
+    public void shouldUseFullWebhookModeForWechatWork() {
+        String webhook = "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=token";
+
+        assertEquals(WebhookEndpointMode.FULL_WEBHOOK, RobotWebhookResolver.resolveEndpointMode(
+                RobotProtocolType.WECHAT_WORK,
+                WebhookEndpointMode.BASE_URL_AND_TOKEN,
+                "https://qyapi.weixin.qq.com",
+                "token"
+        ));
+        assertEquals(webhook, RobotWebhookResolver.resolveWebhook(
+                RobotProtocolType.WECHAT_WORK,
+                WebhookEndpointMode.FULL_WEBHOOK,
+                webhook,
+                "",
+                ""
+        ));
+    }
+
+    @Test
     public void shouldExtractBaseUrlAndTokenFromLarkCompatibleWebhook() {
         String webhook = "https://open.feishu.cn/open-apis/bot/v2/hook/robot-a";
 
@@ -73,6 +92,12 @@ public class RobotWebhookResolverTest {
         assertEquals(RobotProtocolType.LARK_COMPATIBLE, RobotWebhookResolver.resolveProtocolType(
                 null,
                 "https://open.feishu.cn/open-apis/bot/v2/hook/robot-a",
+                "",
+                ""
+        ));
+        assertEquals(RobotProtocolType.WECHAT_WORK, RobotWebhookResolver.resolveProtocolType(
+                null,
+                "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=token",
                 "",
                 ""
         ));

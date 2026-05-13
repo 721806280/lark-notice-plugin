@@ -13,6 +13,7 @@ import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -76,6 +77,28 @@ public class MessageModel {
      * A list of buttons that can be included in the message, providing interactive elements for the recipient.
      */
     private List<Button> buttons;
+
+    /**
+     * Locale used when rendering platform-specific structured card labels.
+     */
+    private Locale locale;
+
+    /**
+     * Structured build fields used by platforms that render cards instead of Markdown.
+     */
+    private String projectName;
+
+    private String projectUrl;
+
+    private String jobName;
+
+    private String jobUrl;
+
+    private String duration;
+
+    private String executorName;
+
+    private String additionalContent;
 
 
     //==================================================================================================================

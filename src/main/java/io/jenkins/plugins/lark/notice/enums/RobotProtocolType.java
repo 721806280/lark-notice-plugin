@@ -10,7 +10,8 @@ import org.apache.commons.lang3.StringUtils;
 public enum RobotProtocolType {
 
     LARK_COMPATIBLE,
-    DING_TALK;
+    DING_TALK,
+    WECHAT_WORK;
 
     /**
      * Resolves one protocol from a persisted or submitted string value.
@@ -40,7 +41,13 @@ public enum RobotProtocolType {
         if (robotType == null) {
             return null;
         }
-        return RobotType.DING_TAlK.equals(robotType) ? DING_TALK : LARK_COMPATIBLE;
+        if (RobotType.DING_TAlK.equals(robotType)) {
+            return DING_TALK;
+        }
+        if (RobotType.WECHAT_WORK.equals(robotType)) {
+            return WECHAT_WORK;
+        }
+        return LARK_COMPATIBLE;
     }
 
     /**
@@ -49,6 +56,10 @@ public enum RobotProtocolType {
      * @return runtime sender type
      */
     public RobotType toRobotType() {
-        return DING_TALK.equals(this) ? RobotType.DING_TAlK : RobotType.LARK;
+        return switch (this) {
+            case DING_TALK -> RobotType.DING_TAlK;
+            case WECHAT_WORK -> RobotType.WECHAT_WORK;
+            case LARK_COMPATIBLE -> RobotType.LARK;
+        };
     }
 }

@@ -194,6 +194,9 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
         if (RobotProtocolType.DING_TALK.equals(getProtocolType())) {
             return Messages.notifier_robot_provider_ding_talk();
         }
+        if (RobotProtocolType.WECHAT_WORK.equals(getProtocolType())) {
+            return Messages.notifier_robot_provider_wechat_work();
+        }
 
         String normalizedBaseUrl = RobotWebhookResolver.normalizeBaseUrl(getBaseUrl());
         if ("https://open.larksuite.com".equalsIgnoreCase(normalizedBaseUrl)

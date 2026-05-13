@@ -62,6 +62,18 @@ public class BuildJobModelI18nTest {
         assertEquals("https://example.com/job/demo/42/console", buttons.get(1).getUrl());
     }
 
+    @Test
+    public void shouldUseWechatWorkSupportedMarkdownColors() {
+        BuildJobModel successModel = createModel();
+        String successMarkdown = successModel.toMarkdown(RobotType.WECHAT_WORK, Locale.US);
+        assertTrue(successMarkdown.contains("<font color=\"info\">Success</font>"));
+
+        BuildJobModel failureModel = createModel();
+        failureModel.setStatusType(BuildStatusEnum.FAILURE);
+        String failureMarkdown = failureModel.toMarkdown(RobotType.WECHAT_WORK, Locale.US);
+        assertTrue(failureMarkdown.contains("<font color=\"warning\">Failure</font>"));
+    }
+
     private static BuildJobModel createModel() {
         return BuildJobModel.builder()
                 .title("title")
