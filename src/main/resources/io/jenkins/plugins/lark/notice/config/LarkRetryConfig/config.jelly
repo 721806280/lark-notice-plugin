@@ -5,10 +5,10 @@
             <f:checkbox/>
         </f:entry>
         <div class="lark-retry-details">
-            <f:entry field="maxAttempts" title="${%retry.maxAttempts}">
-                <f:number min="1" clazz="number"/>
-            </f:entry>
             <f:advanced>
+                <f:entry field="maxAttempts" title="${%retry.maxAttempts}">
+                    <f:number min="1" clazz="number"/>
+                </f:entry>
                 <f:entry field="initialDelayMs" title="${%retry.initialDelayMs}">
                     <f:number min="0" clazz="number"/>
                 </f:entry>

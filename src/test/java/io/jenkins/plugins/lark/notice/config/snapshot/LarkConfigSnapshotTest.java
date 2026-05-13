@@ -93,6 +93,45 @@ public class LarkConfigSnapshotTest {
     }
 
     @Test
+    public void importShouldDefaultMissingRetryDetailFields() {
+        LarkConfigSnapshot snapshot = new LarkConfigSnapshot();
+        snapshot.setRobotConfigs(List.of(createRobotSnapshotWithEnabledRetryOnly("robot-a")));
+
+        LarkRobotConfig importedRobot = LarkConfigSnapshotMapper.fromSnapshot(snapshot).getRobotConfigs().get(0);
+
+        assertTrue(importedRobot.getRetryConfig().isEnabled());
+        assertEquals(LarkRetryConfig.DEFAULT_MAX_ATTEMPTS, importedRobot.getRetryConfig().getMaxAttempts());
+        assertEquals(LarkRetryConfig.DEFAULT_INITIAL_DELAY_MS, importedRobot.getRetryConfig().getInitialDelayMs());
+        assertEquals(LarkRetryConfig.DEFAULT_MAX_DELAY_MS, importedRobot.getRetryConfig().getMaxDelayMs());
+        assertEquals(LarkRetryConfig.DEFAULT_BACKOFF_MULTIPLIER,
+                importedRobot.getRetryConfig().getBackoffMultiplier(), 0.001d);
+        assertEquals(LarkRetryConfig.DEFAULT_JITTER_RATIO, importedRobot.getRetryConfig().getJitterRatio(), 0.001d);
+    }
+
+    @Test
+    public void exportShouldNormalizeLegacyZeroRetryDetails() {
+        LarkRobotConfig robot = createRobot("robot-a");
+        robot.setRetryConfig(new LarkRetryConfig(false, 0, 0, 0, 0.0d, 0.0d));
+        LarkGlobalConfig globalConfig = new LarkGlobalConfig(
+                null,
+                false,
+                Set.of("SUCCESS"),
+                new ArrayList<>(List.of(robot))
+        );
+
+        RetrySnapshot retrySnapshot = LarkConfigSnapshotMapper.toSnapshot(globalConfig)
+                .getRobotConfigs()
+                .get(0)
+                .getRetryConfig();
+
+        assertEquals(LarkRetryConfig.DEFAULT_MAX_ATTEMPTS, retrySnapshot.getMaxAttempts().intValue());
+        assertEquals(LarkRetryConfig.DEFAULT_INITIAL_DELAY_MS, retrySnapshot.getInitialDelayMs().longValue());
+        assertEquals(LarkRetryConfig.DEFAULT_MAX_DELAY_MS, retrySnapshot.getMaxDelayMs().longValue());
+        assertEquals(LarkRetryConfig.DEFAULT_BACKOFF_MULTIPLIER, retrySnapshot.getBackoffMultiplier(), 0.001d);
+        assertEquals(LarkRetryConfig.DEFAULT_JITTER_RATIO, retrySnapshot.getJitterRatio(), 0.001d);
+    }
+
+    @Test
     public void mergeImportShouldRetainExistingRobotsAndReplaceMatchingIds() {
         LarkRobotConfig existingRobot = createRobot("robot-a");
         existingRobot.setName("Existing robot-a");
@@ -152,5 +191,16 @@ public class LarkConfigSnapshotTest {
         robotConfig.setMessageLocaleStrategy(MessageLocaleStrategy.EN_US);
         robotConfig.setRetryConfig(new LarkRetryConfig(true, 3, 500, 5000, 2.0d, 0.2d));
         return robotConfig;
+    }
+
+    private static RobotSnapshot createRobotSnapshotWithEnabledRetryOnly(String id) {
+        RobotSnapshot robotSnapshot = new RobotSnapshot();
+        robotSnapshot.setId(id);
+        robotSnapshot.setName("Robot " + id);
+        robotSnapshot.setWebhook("https://open.feishu.cn/open-apis/bot/v2/hook/" + id);
+        RetrySnapshot retrySnapshot = new RetrySnapshot();
+        retrySnapshot.setEnabled(true);
+        robotSnapshot.setRetryConfig(retrySnapshot);
+        return robotSnapshot;
     }
 }

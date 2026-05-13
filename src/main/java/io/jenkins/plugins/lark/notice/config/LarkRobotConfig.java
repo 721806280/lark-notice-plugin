@@ -227,7 +227,7 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
      * @return retry config
      */
     public LarkRetryConfig getRetryConfig() {
-        return retryConfig == null ? LarkRetryConfig.defaultConfig() : retryConfig;
+        return LarkRetryConfig.normalize(retryConfig);
     }
 
     /**

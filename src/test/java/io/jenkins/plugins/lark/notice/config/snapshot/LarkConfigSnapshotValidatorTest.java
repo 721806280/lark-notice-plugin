@@ -126,8 +126,8 @@ public class LarkConfigSnapshotValidatorTest {
         RetrySnapshot retrySnapshot = new RetrySnapshot();
         retrySnapshot.setEnabled(true);
         retrySnapshot.setMaxAttempts(0);
-        retrySnapshot.setInitialDelayMs(100);
-        retrySnapshot.setMaxDelayMs(200);
+        retrySnapshot.setInitialDelayMs(100L);
+        retrySnapshot.setMaxDelayMs(200L);
         retrySnapshot.setBackoffMultiplier(1.0d);
         retrySnapshot.setJitterRatio(0.1d);
         snapshot.getRobotConfigs().get(0).setRetryConfig(retrySnapshot);
@@ -138,6 +138,46 @@ public class LarkConfigSnapshotValidatorTest {
         } catch (FormException e) {
             assertEquals("payload", e.getFormField());
         }
+    }
+
+    @Test
+    public void validateForImportShouldAcceptRetryConfigWithMissingDefaultedFields() throws Exception {
+        LarkConfigSnapshot snapshot = createValidSnapshot();
+        RetrySnapshot retrySnapshot = new RetrySnapshot();
+        retrySnapshot.setEnabled(false);
+        snapshot.getRobotConfigs().get(0).setRetryConfig(retrySnapshot);
+
+        LarkConfigSnapshotValidator.validateForImport(snapshot);
+    }
+
+    @Test
+    public void validateForImportShouldAcceptDisabledLegacyRetryConfigWithZeroDetails() throws Exception {
+        LarkConfigSnapshot snapshot = createValidSnapshot();
+        RetrySnapshot retrySnapshot = new RetrySnapshot();
+        retrySnapshot.setEnabled(false);
+        retrySnapshot.setMaxAttempts(0);
+        retrySnapshot.setInitialDelayMs(0L);
+        retrySnapshot.setMaxDelayMs(0L);
+        retrySnapshot.setBackoffMultiplier(0.0d);
+        retrySnapshot.setJitterRatio(0.0d);
+        snapshot.getRobotConfigs().get(0).setRetryConfig(retrySnapshot);
+
+        LarkConfigSnapshotValidator.validateForImport(snapshot);
+    }
+
+    @Test
+    public void validateForImportShouldAcceptEnabledLegacyRetryConfigWithZeroDetails() throws Exception {
+        LarkConfigSnapshot snapshot = createValidSnapshot();
+        RetrySnapshot retrySnapshot = new RetrySnapshot();
+        retrySnapshot.setEnabled(true);
+        retrySnapshot.setMaxAttempts(0);
+        retrySnapshot.setInitialDelayMs(0L);
+        retrySnapshot.setMaxDelayMs(0L);
+        retrySnapshot.setBackoffMultiplier(0.0d);
+        retrySnapshot.setJitterRatio(0.0d);
+        snapshot.getRobotConfigs().get(0).setRetryConfig(retrySnapshot);
+
+        LarkConfigSnapshotValidator.validateForImport(snapshot);
     }
 
     @Test

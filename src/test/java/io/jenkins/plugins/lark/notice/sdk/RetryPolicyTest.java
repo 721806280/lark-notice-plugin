@@ -27,4 +27,24 @@ public class RetryPolicyTest {
         assertEquals(1000L, policy.nextDelayMs(2));
         assertEquals(2000L, policy.nextDelayMs(3));
     }
+
+    @Test
+    public void normalizeShouldDefaultInvalidHiddenDetailValues() {
+        LarkRetryConfig normalized = LarkRetryConfig.normalize(new LarkRetryConfig(false, 0, 0, 0, 0.0, 0.0));
+
+        assertFalse(normalized.isEnabled());
+        assertEquals(LarkRetryConfig.DEFAULT_MAX_ATTEMPTS, normalized.getMaxAttempts());
+        assertEquals(LarkRetryConfig.DEFAULT_INITIAL_DELAY_MS, normalized.getInitialDelayMs());
+        assertEquals(LarkRetryConfig.DEFAULT_MAX_DELAY_MS, normalized.getMaxDelayMs());
+        assertEquals(LarkRetryConfig.DEFAULT_BACKOFF_MULTIPLIER, normalized.getBackoffMultiplier(), 0.001d);
+        assertEquals(LarkRetryConfig.DEFAULT_JITTER_RATIO, normalized.getJitterRatio(), 0.001d);
+    }
+
+    @Test
+    public void normalizeShouldKeepMaxDelayAtLeastInitialDelay() {
+        LarkRetryConfig normalized = LarkRetryConfig.normalize(new LarkRetryConfig(true, 3, 10_000, 1_000, 2.0, 0.0));
+
+        assertEquals(10_000L, normalized.getInitialDelayMs());
+        assertEquals(10_000L, normalized.getMaxDelayMs());
+    }
 }

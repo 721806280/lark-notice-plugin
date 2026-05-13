@@ -180,14 +180,7 @@ public final class LarkConfigSnapshotMapper {
         if (snapshot == null) {
             return null;
         }
-        return new LarkRetryConfig(
-                snapshot.isEnabled(),
-                snapshot.getMaxAttempts(),
-                snapshot.getInitialDelayMs(),
-                snapshot.getMaxDelayMs(),
-                snapshot.getBackoffMultiplier(),
-                snapshot.getJitterRatio()
-        );
+        return snapshot.toRetryConfig();
     }
 
     static String resolvePluginVersion() {

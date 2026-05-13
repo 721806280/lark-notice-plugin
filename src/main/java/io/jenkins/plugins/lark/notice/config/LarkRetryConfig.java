@@ -121,6 +121,47 @@ public class LarkRetryConfig extends Descriptor<LarkRetryConfig> implements Desc
     }
 
     /**
+     * Returns a copy with missing or invalid detail values replaced by defaults.
+     * This keeps saved form submissions usable when retry details were hidden.
+     *
+     * @param retryConfig retry config to normalize, may be null
+     * @return normalized retry config
+     */
+    public static LarkRetryConfig normalize(LarkRetryConfig retryConfig) {
+        LarkRetryConfig source = retryConfig == null ? defaultConfig() : retryConfig;
+        LarkRetryConfig defaults = defaultConfig();
+        if (hasHiddenFormDefaultValues(source)) {
+            return new LarkRetryConfig(source.isEnabled(), defaults.getMaxAttempts(), defaults.getInitialDelayMs(),
+                    defaults.getMaxDelayMs(), defaults.getBackoffMultiplier(), defaults.getJitterRatio());
+        }
+        int maxAttempts = source.getMaxAttempts() < 1 ? defaults.getMaxAttempts() : source.getMaxAttempts();
+        long initialDelayMs = source.getInitialDelayMs() < 0
+                ? defaults.getInitialDelayMs()
+                : source.getInitialDelayMs();
+        long maxDelayMs = source.getMaxDelayMs() < initialDelayMs
+                ? Math.max(defaults.getMaxDelayMs(), initialDelayMs)
+                : source.getMaxDelayMs();
+        return new LarkRetryConfig(
+                source.isEnabled(),
+                maxAttempts,
+                initialDelayMs,
+                maxDelayMs,
+                source.getBackoffMultiplier() < 1.0d ? defaults.getBackoffMultiplier() : source.getBackoffMultiplier(),
+                source.getJitterRatio() < 0.0d || source.getJitterRatio() > 1.0d
+                        ? defaults.getJitterRatio()
+                        : source.getJitterRatio()
+        );
+    }
+
+    private static boolean hasHiddenFormDefaultValues(LarkRetryConfig retryConfig) {
+        return retryConfig.getMaxAttempts() == 0
+                && retryConfig.getInitialDelayMs() == 0L
+                && retryConfig.getMaxDelayMs() == 0L
+                && retryConfig.getBackoffMultiplier() == 0.0d
+                && retryConfig.getJitterRatio() == 0.0d;
+    }
+
+    /**
      * Applies default values to this config instance.
      */
     private void applyDefaults() {

@@ -3,6 +3,7 @@ package io.jenkins.plugins.lark.notice.config.snapshot;
 import hudson.model.Descriptor.FormException;
 import hudson.util.VersionNumber;
 import io.jenkins.plugins.lark.notice.Messages;
+import io.jenkins.plugins.lark.notice.config.LarkRetryConfig;
 import io.jenkins.plugins.lark.notice.config.RobotWebhookResolver;
 import io.jenkins.plugins.lark.notice.enums.NoticeOccasionEnum;
 import io.jenkins.plugins.lark.notice.enums.MessageLocaleStrategy;
@@ -157,14 +158,30 @@ public final class LarkConfigSnapshotValidator {
         if (retryConfig == null) {
             return;
         }
-        if (retryConfig.getMaxAttempts() < 1
-                || retryConfig.getInitialDelayMs() < 0
-                || retryConfig.getMaxDelayMs() < retryConfig.getInitialDelayMs()
-                || retryConfig.getBackoffMultiplier() < 1.0d
-                || retryConfig.getJitterRatio() < 0.0d
-                || retryConfig.getJitterRatio() > 1.0d) {
+        if (!retryConfig.isEnabled()) {
+            return;
+        }
+        if (retryConfig.hasHiddenFormDefaultValues()) {
+            return;
+        }
+        if (isInvalidRetryValue(retryConfig)) {
             throw new FormException(Messages.config_import_retry_invalid(), IMPORT_FIELD);
         }
+    }
+
+    private static boolean isInvalidRetryValue(RetrySnapshot retryConfig) {
+        long initialDelayMs = retryConfig.getInitialDelayMs() == null
+                ? LarkRetryConfig.DEFAULT_INITIAL_DELAY_MS
+                : retryConfig.getInitialDelayMs();
+        long maxDelayMs = retryConfig.getMaxDelayMs() == null
+                ? LarkRetryConfig.DEFAULT_MAX_DELAY_MS
+                : retryConfig.getMaxDelayMs();
+        return (retryConfig.getMaxAttempts() != null && retryConfig.getMaxAttempts() < 1)
+                || initialDelayMs < 0
+                || maxDelayMs < initialDelayMs
+                || (retryConfig.getBackoffMultiplier() != null && retryConfig.getBackoffMultiplier() < 1.0d)
+                || (retryConfig.getJitterRatio() != null
+                && (retryConfig.getJitterRatio() < 0.0d || retryConfig.getJitterRatio() > 1.0d));
     }
 
     private static void validateSecurityPolicies(List<SecurityPolicySnapshot> securityPolicies) throws FormException {
