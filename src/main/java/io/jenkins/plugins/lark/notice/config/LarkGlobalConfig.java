@@ -224,7 +224,7 @@ public class LarkGlobalConfig extends GlobalConfiguration {
     @NonNull
     @Override
     public GlobalConfigurationCategory getCategory() {
-        return GlobalConfigurationCategory.get(GlobalConfigurationCategory.class);
+        return GlobalConfigurationCategory.get(GlobalConfigurationCategory.Unclassified.class);
     }
 
     private Map<String, LarkRobotConfig> robotIndex() {
