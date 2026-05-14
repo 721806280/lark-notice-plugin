@@ -21,11 +21,11 @@
 ## 🌐 Plugin Introduction
 
 `lark-notice-plugin` is a `build notification robot` notification plug-in for `Jenkins`, which can push the `Jenkins`
-build process and result notifications to the `Lark`、`Feishu` and `DingTalk` collaboration platforms.
+build process and result notifications to `Lark`, `Feishu`, `DingTalk`, and `WeCom` collaboration platforms.
 Multiple notification timings can be configured,
 including `build start`, `build interruption`, `build failure`, `build success`, `build instability`, etc.
 Supports many different types of messages,
-including `text messages`, `picture messages`, `group business card messages`, `rich text messages`, `card messages`.
+including `text messages`, `image messages`, `link messages`, `markdown messages`, `rich text messages`, and `card messages`.
 The plug-in also provides the functions of `custom template` and `variables`, allowing you to
 customize the content and format of notification messages according to your own needs.
 
