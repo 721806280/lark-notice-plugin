@@ -906,17 +906,63 @@
 .robot-config-actions {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
     margin-top: 2px;
     padding-top: 12px;
     border-top: var(--jenkins-border);
 }
 
-.robot-config-copy-id-btn {
-    min-width: auto;
-    background: var(--lark-surface-soft);
+.robot-config-action-btn.jenkins-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    min-width: 0;
+    padding: 0 12px;
+    border-radius: 8px;
+    border-color: rgba(148, 163, 184, 0.42);
+    background: var(--lark-surface);
+    color: #334155;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.robot-config-action-btn.jenkins-button:hover:not(:disabled) {
+    border-color: rgba(31, 111, 235, 0.42);
+    background: #f8fbff;
+    color: var(--lark-accent);
+}
+
+.robot-config-action-btn--copy.jenkins-button {
+    color: #64748b;
+    font-weight: 600;
+}
+
+.robot-config-action-btn--test.jenkins-button {
+    border-color: rgba(16, 185, 129, 0.32);
+    background: rgba(16, 185, 129, 0.07);
+    color: #047857;
+}
+
+.robot-config-action-btn--test.jenkins-button:hover:not(:disabled) {
+    border-color: rgba(16, 185, 129, 0.5);
+    background: rgba(16, 185, 129, 0.11);
+    color: #065f46;
+}
+
+.robot-config-action-btn--jobs.jenkins-button {
+    border-color: rgba(31, 111, 235, 0.28);
+    background: rgba(31, 111, 235, 0.08);
+    color: var(--lark-accent);
+}
+
+.robot-config-action-btn--jobs.jenkins-button:hover {
+    border-color: rgba(31, 111, 235, 0.48);
+    background: rgba(31, 111, 235, 0.12);
 }
 
 .robot-config-validate-msg {
@@ -1231,6 +1277,767 @@
     margin-top: 8px;
 }
 
+.lark-management-page-header--jobs {
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: var(--jenkins-border);
+}
+
+.lark-management-page-header--jobs h1 {
+    font-size: 20px;
+}
+
+.lark-robot-job-page {
+    --job-panel-solid: var(--card-background, var(--jenkins-card-background, #fff));
+    --job-line: var(--jenkins-border-color, #dbe0e6);
+    --job-shadow-soft: 0 1px 2px rgba(15, 23, 42, 0.05);
+    display: grid;
+    gap: 16px;
+    overflow: visible;
+    background: transparent;
+}
+
+.lark-management-card.lark-robot-job-page {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+}
+
+.lark-robot-job-page__hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 0.72fr);
+    justify-content: space-between;
+    gap: 16px;
+    align-items: stretch;
+    padding: 16px;
+    border: 1px solid var(--job-line);
+    border-radius: 10px;
+    background: var(--job-panel-solid);
+    box-shadow: var(--job-shadow-soft);
+    overflow: hidden;
+}
+
+.lark-robot-job-page__hero::before {
+    content: none;
+}
+
+.lark-robot-job-page__hero-main {
+    display: grid;
+    align-content: center;
+    gap: 8px;
+    min-width: 0;
+    padding-left: 4px;
+}
+
+.lark-robot-job-page__eyebrow {
+    color: var(--text-color-secondary, #5f6b7a);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.lark-robot-job-page__title {
+    margin: 0;
+    color: #111827;
+    font-size: 24px;
+    font-weight: 800;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+
+.lark-robot-job-page__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.lark-robot-job-page__chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 26px;
+    padding: 0 10px;
+    border: 1px solid rgba(31, 111, 235, 0.2);
+    border-radius: 999px;
+    background: rgba(31, 111, 235, 0.09);
+    color: var(--link-color, #1b5fc6);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.lark-robot-job-page__hero-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    min-width: 0;
+}
+
+.lark-robot-job-page__stat {
+    position: relative;
+    display: grid;
+    align-content: center;
+    gap: 7px;
+    min-height: 72px;
+    padding: 12px 14px;
+    border: 1px solid var(--job-line);
+    border-radius: 8px;
+    background: var(--lark-surface-soft);
+    box-shadow: none;
+    overflow: hidden;
+}
+
+.lark-robot-job-page__stat::after {
+    content: "";
+    position: absolute;
+    inset: auto 12px 10px 12px;
+    height: 3px;
+    border-radius: 999px;
+    background: rgba(100, 116, 139, 0.18);
+}
+
+.lark-robot-job-page__stat--bound::after {
+    background: rgba(16, 185, 129, 0.5);
+}
+
+.lark-robot-job-page__stat--disabled::after {
+    background: rgba(245, 158, 11, 0.55);
+}
+
+.lark-robot-job-page__stat--actionable::after {
+    background: rgba(31, 111, 235, 0.55);
+}
+
+.lark-robot-job-page__stat-label {
+    color: var(--text-color-secondary, #5f6b7a);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.lark-robot-job-page__stat-value {
+    color: #111827;
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.lark-robot-job-page__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 14px;
+    align-items: flex-start;
+}
+
+.lark-robot-job-page__main {
+    display: grid;
+    min-width: 0;
+}
+
+.lark-robot-job-page__sidebar {
+    display: grid;
+    gap: 12px;
+    position: sticky;
+    top: 20px;
+    align-self: start;
+    width: auto;
+    padding: 16px;
+    border: 1px solid var(--job-line);
+    border-radius: 10px;
+    background: var(--job-panel-solid);
+    box-shadow: var(--job-shadow-soft);
+}
+
+.lark-robot-job-workspace {
+    display: grid;
+    align-self: start;
+    gap: 12px;
+    padding: 16px;
+    border: 1px solid var(--job-line);
+    border-radius: 10px;
+    background: var(--job-panel-solid);
+    box-shadow: var(--job-shadow-soft);
+}
+
+.lark-robot-job-workspace__header {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+    padding-bottom: 10px;
+    border-bottom: var(--jenkins-border);
+}
+
+.lark-robot-job-workspace__title-wrap {
+    min-width: 0;
+}
+
+.lark-robot-job-workspace__title {
+    margin: 0;
+    color: #111827;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.lark-robot-job-list__count {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 0 10px;
+    border: 1px solid var(--job-line);
+    border-radius: 999px;
+    background: #f8fafc;
+    color: var(--text-color-secondary, #5f6b7a);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.lark-robot-job-toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: end;
+    padding: 8px;
+    border: 1px solid var(--job-line);
+    border-radius: 8px;
+    background: #f8fafc;
+}
+
+.lark-robot-job-toolbar__filters {
+    display: flex;
+    gap: 8px;
+    align-items: end;
+    min-width: 0;
+}
+
+.lark-robot-job-search {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.lark-robot-job-search::before {
+    content: "";
+    position: absolute;
+    left: 13px;
+    top: 50%;
+    width: 11px;
+    height: 11px;
+    border: 2px solid #64748b;
+    border-radius: 999px;
+    transform: translateY(-58%);
+    pointer-events: none;
+}
+
+.lark-robot-job-search::after {
+    content: "";
+    position: absolute;
+    left: 24px;
+    top: 50%;
+    width: 7px;
+    height: 2px;
+    border-radius: 999px;
+    background: #64748b;
+    transform: translateY(4px) rotate(45deg);
+    pointer-events: none;
+}
+
+.lark-robot-job-search__input.setting-input {
+    width: 100%;
+    min-height: 44px;
+    padding-left: 40px;
+    border-color: transparent;
+    border-radius: 8px;
+    background: var(--lark-surface);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    font-size: 14px;
+}
+
+.lark-robot-job-search__input.setting-input:focus {
+    border-color: var(--lark-accent);
+    box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.12);
+    outline: none;
+}
+
+.lark-robot-job-filters__field {
+    position: relative;
+    display: grid;
+    flex: 0 0 152px;
+    gap: 0;
+    min-width: 0;
+}
+
+.lark-robot-job-filters__field span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+}
+
+.lark-robot-job-filters__field .jenkins-select {
+    min-height: 44px;
+    border-color: transparent;
+    border-radius: 8px;
+    background-color: var(--lark-surface);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.lark-robot-job-toolbar__actions {
+    display: flex;
+    gap: 6px;
+    align-items: end;
+}
+
+.lark-robot-job-toolbar__actions .jenkins-button {
+    min-height: 44px;
+    padding-inline: 16px;
+    border-radius: 8px;
+    font-weight: 700;
+}
+
+.lark-robot-job-toolbar__actions .lark-robot-job-bulk-button {
+    min-width: 0;
+    padding-inline: 12px;
+    border-color: rgba(148, 163, 184, 0.38);
+    background: var(--lark-surface);
+    color: #334155;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.lark-robot-job-toolbar__actions .lark-robot-job-bulk-button:hover:not(:disabled) {
+    border-color: rgba(31, 111, 235, 0.4);
+    color: var(--lark-accent);
+}
+
+.lark-robot-job-toolbar__hint {
+    display: none;
+}
+
+.lark-robot-job-list {
+    display: grid;
+    gap: 10px;
+}
+
+.lark-robot-job-list__empty {
+    padding: 18px;
+    border: 1px dashed var(--lark-border);
+    border-radius: 8px;
+    background: var(--lark-surface-soft);
+    color: var(--text-color-secondary, #5f6b7a);
+    line-height: 1.45;
+}
+
+.lark-job-card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 14px;
+    align-items: center;
+    min-height: 64px;
+    padding: 11px 14px;
+    border: 1px solid var(--job-line);
+    border-radius: 8px;
+    background: var(--lark-surface);
+    cursor: pointer;
+    transition: border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease, background-color 140ms ease;
+    box-shadow: none;
+}
+
+.lark-job-card:hover {
+    border-color: rgba(31, 111, 235, 0.42);
+    background: #fcfdff;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+    transform: translateX(2px);
+}
+
+.lark-job-card.is-readonly {
+    cursor: not-allowed;
+    filter: grayscale(0.35);
+    opacity: 0.72;
+    background: #f8fafc;
+}
+
+.lark-job-card.is-readonly:hover {
+    border-color: var(--lark-border);
+    box-shadow: none;
+    transform: none;
+}
+
+.lark-job-card.is-readonly:hover::after {
+    content: "!";
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 999px;
+    background: rgba(100, 116, 139, 0.12);
+    color: #475569;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.lark-job-card.is-pending-bind {
+    border-style: dashed;
+    border-color: rgba(31, 111, 235, 0.58);
+    background: rgba(31, 111, 235, 0.055);
+}
+
+.lark-job-card.is-pending-unbind {
+    border-style: dashed;
+    border-color: rgba(180, 83, 9, 0.48);
+    background: rgba(255, 251, 235, 0.92);
+}
+
+.lark-job-card__content,
+.lark-job-card__identity {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+}
+
+.lark-job-card__title {
+    color: #111827;
+    font-size: 14.5px;
+    font-weight: 700;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.lark-job-card__path {
+    color: var(--text-color-secondary, #5f6b7a);
+    font-size: 12px;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.lark-job-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.lark-job-card__status,
+.lark-job-card__type {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 0 9px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.lark-job-card__status.is-bound {
+    background: rgba(16, 185, 129, 0.13);
+    color: #047857;
+}
+
+.lark-job-card__status.is-unbound {
+    background: rgba(31, 111, 235, 0.11);
+    color: #1d4ed8;
+}
+
+.lark-job-card__status.is-disabled {
+    background: rgba(245, 158, 11, 0.14);
+    color: #92400e;
+}
+
+.lark-job-card__status.is-conflict,
+.lark-job-card__status.is-unsupported,
+.lark-job-card__status.is-forbidden {
+    background: rgba(239, 68, 68, 0.13);
+    color: #b91c1c;
+}
+
+.lark-job-card__type {
+    border: 1px solid var(--job-line);
+    background: var(--lark-surface-soft);
+    color: var(--text-color-secondary, #5f6b7a);
+    font-weight: 600;
+}
+
+.lark-job-card__reason {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border: 1px solid var(--job-line);
+    border-radius: 999px;
+    background: var(--lark-surface-soft);
+    color: #475569;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: help;
+}
+
+.lark-robot-job-row__toggle input {
+    margin: 0;
+}
+
+.lark-robot-job-row__toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lark-job-card__checkbox {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    border: 1px solid rgba(100, 116, 139, 0.5);
+    border-radius: 5px;
+    background: var(--job-panel-solid);
+    cursor: pointer;
+    accent-color: var(--lark-accent);
+}
+
+.lark-job-card__checkbox:focus-visible {
+    outline: 3px solid rgba(31, 111, 235, 0.16);
+    outline-offset: 2px;
+}
+
+.lark-job-card__checkbox:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+.lark-robot-job-console {
+    display: grid;
+    gap: 14px;
+}
+
+.lark-robot-job-selection__header {
+    display: grid;
+    gap: 4px;
+    padding-bottom: 10px;
+    border-bottom: var(--jenkins-border);
+}
+
+.lark-robot-job-selection__header .lark-management-card__title {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: 0;
+    color: #1f2937;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.lark-robot-job-selection__description {
+    display: none;
+}
+
+.lark-robot-job-selection__summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    padding: 8px;
+    border: 1px solid var(--job-line);
+    border-radius: 8px;
+    background: var(--lark-surface-soft);
+}
+
+.lark-robot-job-selection__metric {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+    padding: 7px 8px;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 7px;
+    background: var(--job-panel-solid);
+}
+
+.lark-robot-job-selection__metric-label {
+    color: var(--text-color-secondary, #5f6b7a);
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.lark-robot-job-selection__metric-value {
+    color: #111827;
+    font-size: 18px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.lark-robot-job-selection__lists {
+    display: grid;
+    gap: 12px;
+    padding-top: 2px;
+}
+
+.lark-robot-job-selection__group {
+    display: grid;
+    gap: 6px;
+}
+
+.lark-robot-job-selection__group-title {
+    color: #475569;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.lark-robot-job-selection__items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.lark-robot-job-selection__item,
+.lark-robot-job-selection__empty {
+    padding: 4px 6px;
+    border: 1px dashed var(--job-line);
+    border-radius: 2px;
+    background: var(--lark-surface);
+    overflow-wrap: anywhere;
+}
+
+.lark-robot-job-selection__group:first-child .lark-robot-job-selection__item {
+    border-color: rgba(31, 111, 235, 0.22);
+    background: rgba(31, 111, 235, 0.07);
+}
+
+.lark-robot-job-selection__group:nth-child(2) .lark-robot-job-selection__item {
+    border-color: rgba(180, 83, 9, 0.22);
+    background: rgba(255, 251, 235, 0.92);
+}
+
+.lark-robot-job-selection__empty {
+    width: 100%;
+    border-style: dashed;
+    border-radius: 2px;
+    background: var(--lark-surface-soft);
+    color: var(--text-color-secondary, #5f6b7a);
+    font-size: 11px;
+}
+
+.lark-robot-job-selection__job {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.lark-robot-job-selection__job-name {
+    color: #111827;
+    font-size: 10.5px;
+    font-weight: 700;
+    line-height: 1.2;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.lark-robot-job-selection__job-path {
+    display: none;
+}
+
+.lark-robot-job-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding: 2px 0 0;
+    border: 0;
+    background: transparent;
+}
+
+.lark-robot-job-actions .jenkins-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    justify-content: center;
+    width: 100%;
+    min-height: 36px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--lark-surface-soft);
+    box-shadow: none;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.lark-robot-job-action-button--apply {
+    background: rgba(31, 111, 235, 0.1);
+    color: #1d4ed8;
+}
+
+.lark-robot-job-action-button--apply:hover:not(:disabled) {
+    background: rgba(31, 111, 235, 0.1);
+    color: #1e40af;
+}
+
+.lark-robot-job-action-button--reset {
+    background: rgba(100, 116, 139, 0.1);
+    color: #64748b;
+}
+
+.lark-robot-job-action-button--reset:hover:not(:disabled) {
+    background: rgba(100, 116, 139, 0.1);
+    color: #0f172a;
+}
+
+.lark-robot-job-action-button__icon {
+    position: relative;
+    display: inline-flex;
+    width: 12px;
+    height: 12px;
+    flex: 0 0 auto;
+}
+
+.lark-robot-job-action-button--apply .lark-robot-job-action-button__icon::before {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 0;
+    width: 5px;
+    height: 9px;
+    border: solid currentColor;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.lark-robot-job-action-button--reset .lark-robot-job-action-button__icon::before,
+.lark-robot-job-action-button--reset .lark-robot-job-action-button__icon::after {
+    content: "";
+    position: absolute;
+    left: 1px;
+    top: 5px;
+    width: 10px;
+    height: 2px;
+    border-radius: 999px;
+    background: currentColor;
+}
+
+.lark-robot-job-action-button--reset .lark-robot-job-action-button__icon::before {
+    transform: rotate(45deg);
+}
+
+.lark-robot-job-action-button--reset .lark-robot-job-action-button__icon::after {
+    transform: rotate(-45deg);
+}
+
+.lark-robot-job-feedback {
+    display: grid;
+    gap: 8px;
+}
+
 @media (max-width: 900px) {
     .lark-bots-repeatable .repeated-container > .repeated-chunk {
         padding: 18px 16px 16px;
@@ -1242,7 +2049,17 @@
     }
 
     .robot-config-actions {
-        justify-content: flex-end;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        justify-content: stretch;
+    }
+
+    .robot-config-action-btn.jenkins-button {
+        width: 100%;
+    }
+
+    .robot-config-action-btn--copy.jenkins-button:last-child {
+        grid-column: 1 / -1;
     }
 
     .lark-segmented-control,
@@ -1270,6 +2087,64 @@
     }
 
     .lark-management-tools__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .lark-robot-job-page__hero,
+    .lark-robot-job-page__layout {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .lark-robot-job-page__hero-stats {
+        grid-template-columns: 1fr;
+        min-width: 0;
+    }
+
+    .lark-robot-job-page__sidebar {
+        position: static;
+        width: auto;
+        flex-basis: auto;
+    }
+
+    .lark-robot-job-workspace__header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .lark-robot-job-toolbar {
+        grid-template-columns: 1fr;
+    }
+
+    .lark-robot-job-toolbar__filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .lark-robot-job-filters__field {
+        flex-basis: auto;
+    }
+
+    .lark-robot-job-toolbar__actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        align-items: stretch;
+    }
+
+    .lark-job-card {
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .lark-job-card__meta {
+        grid-column: 2;
+        justify-content: flex-start;
+    }
+
+    .lark-robot-job-selection__summary {
+        grid-template-columns: 1fr;
+    }
+
+    .lark-robot-job-actions {
         grid-template-columns: 1fr;
     }
 

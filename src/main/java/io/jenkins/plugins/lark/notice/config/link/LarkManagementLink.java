@@ -10,6 +10,7 @@ import hudson.util.FormApply;
 import io.jenkins.plugins.lark.notice.config.snapshot.LarkConfigSnapshot;
 import io.jenkins.plugins.lark.notice.config.snapshot.LarkConfigSnapshotMapper;
 import io.jenkins.plugins.lark.notice.service.ConfigSnapshotImportService;
+import io.jenkins.plugins.lark.notice.service.RobotJobBindingService;
 import io.jenkins.plugins.lark.notice.tools.ApiResponse;
 import io.jenkins.plugins.lark.notice.tools.HttpResponses;
 import io.jenkins.plugins.lark.notice.tools.JsonUtils;
@@ -21,6 +22,7 @@ import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest2;
 import org.kohsuke.stapler.StaplerResponse2;
 import org.kohsuke.stapler.verb.POST;
@@ -29,6 +31,8 @@ import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * LarkManagementLink provides a management link in Jenkins' system configuration page
@@ -114,6 +118,34 @@ public class LarkManagementLink extends ManagementLink {
     }
 
     /**
+     * Exposes saved robots for management pages.
+     *
+     * @return configured robot list
+     */
+    public List<io.jenkins.plugins.lark.notice.config.LarkRobotConfig> getAvailableRobots() {
+        return getGlobalConfig().getRobotConfigs();
+    }
+
+    /**
+     * Returns the robot ID requested by the current management page route.
+     *
+     * @return requested robot ID, or {@code null}
+     */
+    public String getRequestedRobotId() {
+        StaplerRequest2 request = Stapler.getCurrentRequest2();
+        return request == null ? null : request.getParameter("robotId");
+    }
+
+    /**
+     * Resolves the requested robot when the management page is opened for one robot.
+     *
+     * @return optional requested robot
+     */
+    public Optional<io.jenkins.plugins.lark.notice.config.LarkRobotConfig> getRequestedRobot() {
+        return io.jenkins.plugins.lark.notice.config.LarkGlobalConfig.getRobot(getRequestedRobotId());
+    }
+
+    /**
      * Processes the configuration submission for the Lark plugin. If the user has administrative
      * permissions, this method updates the plugin's global configuration based on the submitted form data.
      *
@@ -180,6 +212,40 @@ public class LarkManagementLink extends ManagementLink {
     public HttpResponse doImport(@QueryParameter String payload, @QueryParameter String mode) {
         Jenkins.get().checkPermission(LarkPermissions.CONFIGURE);
         ApiResponse response = ConfigSnapshotImportService.apply(getGlobalConfig(), payload, mode);
+        return HttpResponses.json(response);
+    }
+
+    /**
+     * Loads robot-centric job binding data for the standalone management page.
+     *
+     * @param robotId selected robot ID
+     * @param keyword optional full name keyword
+     * @param state optional filter state
+     * @return JSON response containing filtered jobs and summary data
+     */
+    @POST
+    public HttpResponse doLoadJobBindings(@QueryParameter String robotId,
+                                          @QueryParameter String keyword,
+                                          @QueryParameter String state) {
+        Jenkins.get().checkPermission(LarkPermissions.CONFIGURE);
+        ApiResponse response = RobotJobBindingService.load(robotId, keyword, state);
+        return HttpResponses.json(response);
+    }
+
+    /**
+     * Applies selected bind and unbind changes from the standalone job binding page.
+     *
+     * @param robotId selected robot ID
+     * @param bindJobFullNames newline-delimited jobs to bind
+     * @param unbindJobFullNames newline-delimited jobs to unbind
+     * @return JSON response describing the apply outcome
+     */
+    @POST
+    public HttpResponse doApplyJobBindings(@QueryParameter String robotId,
+                                           @QueryParameter String bindJobFullNames,
+                                           @QueryParameter String unbindJobFullNames) {
+        Jenkins.get().checkPermission(LarkPermissions.CONFIGURE);
+        ApiResponse response = RobotJobBindingService.applySelection(robotId, bindJobFullNames, unbindJobFullNames);
         return HttpResponses.json(response);
     }
 

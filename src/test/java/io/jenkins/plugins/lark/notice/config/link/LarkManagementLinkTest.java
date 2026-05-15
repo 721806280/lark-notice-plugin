@@ -1,8 +1,10 @@
 package io.jenkins.plugins.lark.notice.config.link;
 
+import io.jenkins.plugins.lark.notice.config.LarkGlobalConfig;
 import io.jenkins.plugins.lark.notice.config.LarkRetryConfig;
 import io.jenkins.plugins.lark.notice.config.LarkRobotConfig;
 import io.jenkins.plugins.lark.notice.config.LarkSecurityPolicyConfig;
+import io.jenkins.plugins.lark.notice.config.security.LarkPermissions;
 import io.jenkins.plugins.lark.notice.config.snapshot.LarkConfigSnapshotMapper;
 import io.jenkins.plugins.lark.notice.enums.MessageLocaleStrategy;
 import io.jenkins.plugins.lark.notice.tools.JsonUtils;
@@ -11,8 +13,6 @@ import org.htmlunit.HttpMethod;
 import org.htmlunit.Page;
 import org.htmlunit.WebRequest;
 import org.htmlunit.util.NameValuePair;
-import io.jenkins.plugins.lark.notice.config.LarkGlobalConfig;
-import io.jenkins.plugins.lark.notice.config.security.LarkPermissions;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
@@ -37,13 +37,35 @@ public class LarkManagementLinkTest {
     @Rule
     public JenkinsRule jenkins = new JenkinsRule();
 
+    private static io.jenkins.plugins.lark.notice.config.snapshot.LarkConfigSnapshot createImportPayload() {
+        LarkGlobalConfig source = new LarkGlobalConfig(
+                null,
+                true,
+                Set.of("SUCCESS"),
+                new ArrayList<>(List.of(createRobot("import-robot")))
+        );
+        source.getRobotConfigs().get(0).setMessageLocaleStrategy(MessageLocaleStrategy.EN_US);
+        return io.jenkins.plugins.lark.notice.config.snapshot.LarkConfigSnapshotMapper.toSnapshot(source);
+    }
+
+    private static LarkRobotConfig createRobot(String id) {
+        LarkRobotConfig robotConfig = new LarkRobotConfig(
+                id,
+                "Robot " + id,
+                "https://open.feishu.cn/open-apis/bot/v2/hook/" + id,
+                List.of(new LarkSecurityPolicyConfig("KEY", "keyword-" + id, "Keyword"))
+        );
+        robotConfig.setRetryConfig(new LarkRetryConfig(true, 3, 500, 5000, 2.0d, 0.2d));
+        return robotConfig;
+    }
+
     @Test
     public void managementLinkShouldExposeStableMetadata() {
         LarkManagementLink link = new LarkManagementLink();
 
         assertEquals("/plugin/lark-notice/images/logo.png", link.getIconFileName());
         assertEquals("lark", link.getUrlName());
-        assertEquals(LarkManagementLink.Category.UNCATEGORIZED, link.getCategory());
+        assertEquals(LarkManagementLink.Category.CONFIGURATION, link.getCategory());
         assertSame(LarkPermissions.CONFIGURE, link.getRequiredPermission());
     }
 
@@ -66,8 +88,9 @@ public class LarkManagementLinkTest {
             Page page = webClient.getPage(request);
 
             String content = page.getWebResponse().getContentAsString();
+            JSONObject response = JSONObject.fromObject(content);
             assertTrue(content.contains("\"schemaVersion\""));
-            assertTrue(content.contains("\"messageLocaleStrategy\":\"ZH_CN\""));
+            assertEquals("ZH_CN", response.getJSONArray("robotConfigs").getJSONObject(0).getString("messageLocaleStrategy"));
             assertTrue(content.contains("\"webhook\""));
             assertTrue(content.contains("export-robot"));
             assertTrue(page.getWebResponse().getResponseHeaderValue("Content-Disposition").contains("lark-notice-config-"));
@@ -191,25 +214,4 @@ public class LarkManagementLinkTest {
         }
     }
 
-    private static io.jenkins.plugins.lark.notice.config.snapshot.LarkConfigSnapshot createImportPayload() {
-        LarkGlobalConfig source = new LarkGlobalConfig(
-                null,
-                true,
-                Set.of("SUCCESS"),
-                new ArrayList<>(List.of(createRobot("import-robot")))
-        );
-        source.getRobotConfigs().get(0).setMessageLocaleStrategy(MessageLocaleStrategy.EN_US);
-        return io.jenkins.plugins.lark.notice.config.snapshot.LarkConfigSnapshotMapper.toSnapshot(source);
-    }
-
-    private static LarkRobotConfig createRobot(String id) {
-        LarkRobotConfig robotConfig = new LarkRobotConfig(
-                id,
-                "Robot " + id,
-                "https://open.feishu.cn/open-apis/bot/v2/hook/" + id,
-                List.of(new LarkSecurityPolicyConfig("KEY", "keyword-" + id, "Keyword"))
-        );
-        robotConfig.setRetryConfig(new LarkRetryConfig(true, 3, 500, 5000, 2.0d, 0.2d));
-        return robotConfig;
-    }
 }

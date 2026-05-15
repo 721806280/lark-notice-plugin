@@ -1,0 +1,204 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
+         xmlns:l="/lib/layout" xmlns:f="/lib/form">
+    <l:layout permission="${it.requiredPermission}" norefresh="true" title="${%management.jobs.page.title}">
+        <st:include it="${app}" page="sidepanel.jelly"/>
+        <l:main-panel>
+            <st:once>
+                <script type="text/javascript"
+                        src="${rootURL}/plugin/lark-notice/scripts/request-utils.js"/>
+                <script type="text/javascript"
+                        src="${rootURL}/plugin/lark-notice/scripts/ui-utils.js"/>
+                <script type="text/javascript"
+                        src="${rootURL}/plugin/lark-notice/scripts/management-job-binding.js"/>
+                <link rel="stylesheet" type="text/css"
+                      href="${rootURL}/plugin/lark-notice/styles/configuration.css"/>
+            </st:once>
+
+            <div class="lark-management-page-header lark-management-page-header--jobs">
+                <div class="lark-management-page-header__copy">
+                    <h1>${%management.jobs.page.header}</h1>
+                </div>
+                <div class="lark-management-page-header__actions">
+                    <a class="jenkins-button" href=".">${%management.jobs.page.back.configuration}</a>
+                </div>
+            </div>
+
+            <j:choose>
+                <j:when test="${it.requestedRobot.present}">
+                    <j:set var="robot" value="${it.requestedRobot.get()}"/>
+
+                    <div class="lark-management-card lark-robot-job-page"
+                         data-robot-id="${robot.id}"
+                         data-load-url="${rootURL}/manage/lark/loadJobBindings"
+                         data-apply-url="${rootURL}/manage/lark/applyJobBindings"
+                         data-load-request-failed-message="${%management.jobs.load.request.failure}"
+                         data-apply-request-failed-message="${%management.jobs.apply.request.failure}"
+                         data-job-status-bound-label="${%management.jobs.state.bound}"
+                         data-job-status-unbound-label="${%management.jobs.state.unbound}"
+                         data-job-status-disabled-label="${%management.jobs.state.disabled}"
+                         data-job-status-conflict-label="${%management.jobs.state.conflict}"
+                         data-job-status-unsupported-label="${%management.jobs.state.unsupported}"
+                         data-job-status-forbidden-label="${%management.jobs.state.forbidden}"
+                         data-job-status-not-applicable-label="${%management.jobs.state.not.applicable}"
+                         data-list-loading-label="${%management.jobs.list.loading}"
+                         data-list-none-label="${%management.jobs.list.none}"
+                         data-list-count-label="${%management.jobs.list.count}"
+                         data-selection-empty-label="${%management.jobs.selection.empty}"
+                         data-selection-page-empty-label="${%management.jobs.selection.page.empty}"
+                         data-result-changed-label="${%management.jobs.result.changed}"
+                         data-result-skipped-label="${%management.jobs.result.skipped}"
+                        data-result-failed-label="${%management.jobs.result.failed}"
+                    >
+                        <div class="lark-robot-job-page__hero">
+                            <div class="lark-robot-job-page__hero-main">
+                                <div class="lark-robot-job-page__eyebrow">${%management.jobs.page.context}</div>
+                                <h2 class="lark-robot-job-page__title">${robot.name}</h2>
+                                <div class="lark-robot-job-page__meta">
+                                    <span class="lark-robot-job-page__chip">${robot.providerDisplayName}</span>
+                                </div>
+                            </div>
+                            <div class="lark-robot-job-page__hero-stats">
+                                <div class="lark-robot-job-page__stat lark-robot-job-page__stat--bound">
+                                    <div class="lark-robot-job-page__stat-label">${%management.jobs.summary.bound}</div>
+                                    <div class="lark-robot-job-page__stat-value" data-summary-bound="true">--</div>
+                                </div>
+                                <div class="lark-robot-job-page__stat lark-robot-job-page__stat--disabled">
+                                    <div class="lark-robot-job-page__stat-label">${%management.jobs.summary.disabled}</div>
+                                    <div class="lark-robot-job-page__stat-value" data-summary-disabled="true">--</div>
+                                </div>
+                                <div class="lark-robot-job-page__stat lark-robot-job-page__stat--actionable">
+                                    <div class="lark-robot-job-page__stat-label">${%management.jobs.summary.actionable}</div>
+                                    <div class="lark-robot-job-page__stat-value" data-summary-actionable="true">--</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="lark-robot-job-page__layout">
+                            <div class="lark-robot-job-page__main">
+                                <section class="lark-robot-job-workspace">
+                                    <div class="lark-robot-job-workspace__header">
+                                        <div class="lark-robot-job-workspace__title-wrap">
+                                            <h3 class="lark-robot-job-workspace__title">${%management.jobs.list.title}</h3>
+                                        </div>
+                                        <div class="lark-robot-job-list__count" data-list-count="true">${%management.jobs.list.empty}</div>
+                                    </div>
+                                    <div class="lark-robot-job-toolbar">
+                                        <div class="lark-robot-job-toolbar__filters">
+                                            <div class="lark-robot-job-search">
+                                                <input type="text"
+                                                       name="keyword"
+                                                       class="setting-input lark-robot-job-search__input"
+                                                       aria-label="${%management.jobs.filters.keyword}"
+                                                       placeholder="${%management.jobs.filters.keyword.placeholder}"/>
+                                            </div>
+                                            <label class="lark-robot-job-filters__field">
+                                                <span>${%management.jobs.filters.state}</span>
+                                                <select name="state" class="jenkins-select">
+                                                    <option value="all" selected="selected">${%management.jobs.filters.state.all}</option>
+                                                    <option value="bound">${%management.jobs.filters.state.bound}</option>
+                                                    <option value="unbound">${%management.jobs.filters.state.unbound}</option>
+                                                    <option value="disabled">${%management.jobs.filters.state.disabled}</option>
+                                                </select>
+                                            </label>
+                                        </div>
+                                        <div class="lark-robot-job-toolbar__actions">
+                                            <button type="button" class="jenkins-button lark-robot-job-bulk-button" data-select-visible-jobs="true" disabled="disabled">
+                                                ${%management.jobs.selection.visible.select}
+                                            </button>
+                                            <button type="button" class="jenkins-button lark-robot-job-bulk-button" data-clear-visible-jobs="true" disabled="disabled">
+                                                ${%management.jobs.selection.visible.clear}
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="lark-robot-job-list" data-job-list="true">
+                                        <div class="lark-robot-job-list__empty">${%management.jobs.list.initial}</div>
+                                    </div>
+                                </section>
+                            </div>
+
+                            <aside class="lark-robot-job-page__sidebar">
+                                <div class="lark-robot-job-console">
+                                    <div class="lark-robot-job-selection__header">
+                                        <h3 class="lark-management-card__title">${%management.jobs.selection.title}</h3>
+                                    </div>
+                                    <div class="lark-robot-job-selection__summary">
+                                        <div class="lark-robot-job-selection__metric">
+                                            <div class="lark-robot-job-selection__metric-label">${%management.jobs.selection.selected}</div>
+                                            <div class="lark-robot-job-selection__metric-value" data-selection-total="true">0</div>
+                                        </div>
+                                        <div class="lark-robot-job-selection__metric">
+                                            <div class="lark-robot-job-selection__metric-label">${%management.jobs.selection.pending.bind}</div>
+                                            <div class="lark-robot-job-selection__metric-value" data-selection-bind="true">0</div>
+                                        </div>
+                                        <div class="lark-robot-job-selection__metric">
+                                            <div class="lark-robot-job-selection__metric-label">${%management.jobs.selection.pending.unbind}</div>
+                                            <div class="lark-robot-job-selection__metric-value" data-selection-unbind="true">0</div>
+                                        </div>
+                                    </div>
+                                    <div class="lark-robot-job-selection__lists">
+                                        <div class="lark-robot-job-selection__group">
+                                            <div class="lark-robot-job-selection__group-title">${%management.jobs.selection.pending.bind}</div>
+                                            <div class="lark-robot-job-selection__items" data-selection-bind-list="true">
+                                                <div class="lark-robot-job-selection__empty">${%management.jobs.selection.empty}</div>
+                                            </div>
+                                        </div>
+                                        <div class="lark-robot-job-selection__group">
+                                            <div class="lark-robot-job-selection__group-title">${%management.jobs.selection.pending.unbind}</div>
+                                            <div class="lark-robot-job-selection__items" data-selection-unbind-list="true">
+                                                <div class="lark-robot-job-selection__empty">${%management.jobs.selection.empty}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="lark-robot-job-actions">
+                                        <button type="button"
+                                                class="jenkins-button jenkins-button--primary lark-robot-job-action-button lark-robot-job-action-button--apply"
+                                                data-apply-bindings="true"
+                                                disabled="disabled">
+                                            <span class="lark-robot-job-action-button__icon" aria-hidden="true"></span>
+                                            <span class="lark-robot-job-action-button__label">${%management.jobs.apply.button}</span>
+                                        </button>
+                                        <button type="button"
+                                                class="jenkins-button lark-robot-job-action-button lark-robot-job-action-button--reset"
+                                                data-reset-selection="true"
+                                                disabled="disabled">
+                                            <span class="lark-robot-job-action-button__icon" aria-hidden="true"></span>
+                                            <span class="lark-robot-job-action-button__label">${%management.jobs.selection.reset}</span>
+                                        </button>
+                                    </div>
+                                    <div class="lark-robot-job-feedback" data-binding-result="true"><!-- async result --></div>
+                                </div>
+                            </aside>
+                        </div>
+                    </div>
+                </j:when>
+                <j:otherwise>
+                    <div class="lark-management-card lark-robot-job-picker">
+                        <h2 class="lark-management-card__title">${%management.jobs.page.missing.title}</h2>
+                        <div class="jenkins-description">${%management.jobs.page.missing.description}</div>
+                        <j:choose>
+                            <j:when test="${!empty(it.availableRobots)}">
+                                <div class="lark-robot-job-picker__list">
+                                    <j:forEach var="robot" items="${it.availableRobots}">
+                                        <a class="lark-robot-job-picker__item" href="${rootURL}/manage/lark/jobs?robotId=${robot.id}">
+                                            <div class="lark-robot-job-picker__name">${robot.name}</div>
+                                            <div class="lark-robot-job-picker__meta">
+                                                <span>${robot.providerDisplayName}</span>
+                                            </div>
+                                        </a>
+                                    </j:forEach>
+                                </div>
+                            </j:when>
+                            <j:otherwise>
+                                <div class="lark-robot-job-picker__empty">${%management.jobs.page.missing.empty}</div>
+                            </j:otherwise>
+                        </j:choose>
+                        <div class="lark-robot-job-actions">
+                            <a class="jenkins-button" href=".">${%management.jobs.page.back.configuration}</a>
+                        </div>
+                    </div>
+                </j:otherwise>
+            </j:choose>
+        </l:main-panel>
+    </l:layout>
+</j:jelly>

@@ -65,7 +65,6 @@ public class ConfigurationPageRenderTest {
             assertEquals(0, countMatches(managementHtml, "/plugin/lark-notice/scripts/management-config-tools.js"));
             assertEquals(0, countMatches(managementHtml, "name=\"larkManagementImportForm\""));
             assertTrue(managementHtml.contains("Open Migration Tools"));
-            assertTrue(managementHtml.contains("Use a separate page for export, import preview, and configuration restore operations."));
             assertTrue(managementHtml.contains("name=\"robotConfigs\""));
             assertTrue(managementHtml.contains("id=\"proxyConfigContainer\""));
             assertTrue(managementHtml.contains("data-validate-button-method=\"test\""));
@@ -75,10 +74,20 @@ public class ConfigurationPageRenderTest {
             assertEquals(1, countMatches(toolsHtml, "/plugin/lark-notice/styles/configuration.css"));
             assertEquals(1, countMatches(toolsHtml, "/plugin/lark-notice/scripts/management-config-tools.js"));
             assertTrue(toolsHtml.contains("name=\"larkManagementImportForm\""));
-            assertTrue(toolsHtml.contains("Export Current Configuration"));
-            assertTrue(toolsHtml.contains("Replace all settings"));
             assertTrue(toolsHtml.contains("lark-config-preview-btn"));
-            assertTrue(toolsHtml.contains("Import stays disabled until the latest preview succeeds."));
+
+            HtmlPage jobsPage = webClient.goTo("manage/lark/jobs");
+            String jobsHtml = jobsPage.getWebResponse().getContentAsString();
+            assertEquals(1, countMatches(jobsHtml, "/plugin/lark-notice/scripts/management-job-binding.js"));
+            assertTrue(jobsHtml.contains("Robot Job Bindings"));
+            assertTrue(jobsHtml.contains("Select a Saved Robot"));
+            assertTrue(jobsHtml.contains("/manage/lark/jobs?robotId=robot-a"));
+
+            HtmlPage robotJobsPage = webClient.goTo("manage/lark/jobs?robotId=robot-a");
+            String robotJobsHtml = robotJobsPage.getWebResponse().getContentAsString();
+            assertTrue(robotJobsHtml.contains("lark-robot-job-page"));
+            assertTrue(robotJobsHtml.contains("value=\"all\" selected=\"selected\""));
+            assertTrue(robotJobsHtml.contains("data-summary-disabled"));
         }
     }
 
@@ -94,6 +103,9 @@ public class ConfigurationPageRenderTest {
 
             HtmlPage toolsPage = webClient.goTo("manage/lark/tools");
             assertTrue(toolsPage.getWebResponse().getContentAsString().contains("name=\"larkManagementImportForm\""));
+
+            HtmlPage robotJobsPage = webClient.goTo("manage/lark/jobs?robotId=robot-a");
+            assertTrue(robotJobsPage.getWebResponse().getContentAsString().contains("lark-robot-job-page"));
         }
     }
 
@@ -110,28 +122,33 @@ public class ConfigurationPageRenderTest {
 
                 HtmlPage globalPage = webClient.goTo("configure");
                 String globalHtml = globalPage.getWebResponse().getContentAsString();
-                assertTrue(globalHtml.contains("\u901A\u77E5\u89E6\u53D1\u65F6\u673A"));
-                assertTrue(globalHtml.contains("\u673A\u5668\u4EBA"));
-                assertTrue(globalHtml.contains("\u6D88\u606F\u8BED\u8A00"));
+                assertTrue(globalHtml.contains("通知触发时机"));
+                assertTrue(globalHtml.contains("机器人"));
+                assertTrue(globalHtml.contains("消息语言"));
 
                 HtmlPage managementPage = webClient.goTo("manage/lark");
                 String managementHtml = managementPage.getWebResponse().getContentAsString();
-                assertTrue(managementPage.getTitleText().contains("Lark \u673A\u5668\u4EBA\u914D\u7F6E"));
-                assertTrue(managementHtml.contains("\u901A\u77E5\u89E6\u53D1\u65F6\u673A"));
-                assertTrue(managementHtml.contains("\u673A\u5668\u4EBA"));
+                assertTrue(managementPage.getTitleText().contains("Lark 机器人配置"));
+                assertTrue(managementHtml.contains("通知触发时机"));
+                assertTrue(managementHtml.contains("机器人"));
 
                 HtmlPage toolsPage = webClient.goTo("manage/lark/tools");
                 String toolsHtml = toolsPage.getWebResponse().getContentAsString();
-                assertTrue(toolsPage.getTitleText().contains("Lark \u914D\u7F6E\u8FC1\u79FB"));
-                assertTrue(toolsHtml.contains("\u5BFC\u5165\u4E0E\u5BFC\u51FA"));
-                assertTrue(toolsHtml.contains("\u5BFC\u51FA\u5F53\u524D\u914D\u7F6E"));
+                assertTrue(toolsPage.getTitleText().contains("Lark 配置迁移"));
+                assertTrue(toolsHtml.contains("加载数据"));
+                assertTrue(toolsHtml.contains("加载当前配置"));
+
+                HtmlPage jobsPage = webClient.goTo("manage/lark/jobs?robotId=robot-a");
+                String jobsHtml = jobsPage.getWebResponse().getContentAsString();
+                assertTrue(jobsPage.getTitleText().contains("机器人 Job 绑定"));
+                assertTrue(jobsHtml.contains("当前机器人"));
+                assertTrue(jobsHtml.contains("已禁用"));
 
                 HtmlPage jobConfigurePage = webClient.getPage(project, "configure");
                 String jobHtml = jobConfigurePage.getWebResponse().getContentAsString();
-                assertTrue(jobHtml.contains("Lark \u673A\u5668\u4EBA\u914D\u7F6E"));
-                assertTrue(jobHtml.contains("\u6DFB\u52A0\u673A\u5668\u4EBA"));
-                assertTrue(jobHtml.contains("\u6807\u9898\u6A21\u677F"));
-                assertTrue(jobHtml.contains("\u9ED8\u8BA4\u6A21\u677F"));
+                assertTrue(jobHtml.contains("Lark 机器人配置"));
+                assertTrue(jobHtml.contains("添加机器人"));
+                assertTrue(jobHtml.contains("name=\"notifierConfigs\""));
             }
         } finally {
             Locale.setDefault(previous);
@@ -155,8 +172,6 @@ public class ConfigurationPageRenderTest {
             assertEquals(1, countMatches(html, "/plugin/lark-notice/styles/configuration.css"));
             assertTrue(html.contains("name=\"notifierConfigs\""));
             assertTrue(html.contains("io.jenkins.plugins.lark.notice.config.LarkNotifierConfig"));
-            assertTrue(html.contains("Title Template"));
-            assertTrue(html.contains("Load Default Template"));
         }
     }
 

@@ -122,7 +122,7 @@
             <j:if test="${!empty(robotIdValue)}">
                 <button
                         type="button"
-                        class="jenkins-button robot-config-copy-id-btn"
+                        class="jenkins-button robot-config-action-btn robot-config-action-btn--copy robot-config-copy-id-btn"
                         title="${robotIdValue}"
                         data-copy-default-label="${%robot.id.copy}"
                         data-copy-success-label="${%robot.id.copy.success}"
@@ -131,9 +131,17 @@
                     ${%robot.id.copy}
                 </button>
             </j:if>
+            <j:if test="${!empty(robotIdValue)}">
+                <a
+                        class="jenkins-button robot-config-action-btn robot-config-action-btn--jobs"
+                        href="${rootURL}/manage/lark/jobs?robotId=${robotIdValue}"
+                >
+                    ${%robot.jobs.button}
+                </a>
+            </j:if>
             <button
                     type="button"
-                    class="jenkins-button robot-config-validate-btn"
+                    class="jenkins-button robot-config-action-btn robot-config-action-btn--test robot-config-validate-btn"
                     data-validate-button-descriptor-url="${descriptor.descriptorFullUrl}"
                     data-validate-button-method="test"
                     data-validate-button-with="${with}"
