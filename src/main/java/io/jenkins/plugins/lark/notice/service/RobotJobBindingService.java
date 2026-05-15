@@ -174,14 +174,8 @@ public final class RobotJobBindingService {
         if (StringUtils.equals(JobBindingState.UNBOUND.getValue(), state)) {
             return 2;
         }
-        if (StringUtils.equals(JobBindingState.CONFLICT.getValue(), state)) {
+        if (StringUtils.equals(JobBindingState.READONLY.getValue(), state)) {
             return 3;
-        }
-        if (StringUtils.equals(JobBindingState.UNSUPPORTED.getValue(), state)) {
-            return 4;
-        }
-        if (StringUtils.equals(JobBindingState.FORBIDDEN.getValue(), state)) {
-            return 5;
         }
         return 6;
     }
@@ -201,38 +195,47 @@ public final class RobotJobBindingService {
     private static boolean matchesKeyword(Job<?, ?> job, String keyword) {
         return StringUtils.isBlank(keyword)
                 || StringUtils.containsIgnoreCase(job.getFullName(), keyword)
-                || StringUtils.containsIgnoreCase(job.getDisplayName(), keyword);
+                || StringUtils.containsIgnoreCase(job.getDisplayName(), keyword)
+                || StringUtils.containsIgnoreCase(job.getDescription(), keyword);
     }
 
     private static JobBindingRow describeJob(LarkRobotConfig robotConfig, Job<?, ?> job) {
-        JobBindingState state = resolveState(robotConfig, job);
-        boolean actionable = state.actionable();
+        JobBindingStatus status = resolveState(robotConfig, job);
         return new JobBindingRow(
                 job.getFullName(),
                 job.getDisplayName(),
                 StringUtils.trimToEmpty(job.getDescription()),
                 job.getClass().getSimpleName(),
-                state.getValue(),
-                state.initiallyChecked(),
-                actionable,
-                state.reason(job.getFullName())
+                status.getStateValue(),
+                status.isCurrentlySelected(),
+                status.isActionable(),
+                status.getReason()
         );
     }
 
-    private static JobBindingState resolveState(LarkRobotConfig robotConfig, Job<?, ?> job) {
+    private static JobBindingStatus resolveState(LarkRobotConfig robotConfig, Job<?, ?> job) {
         if (!job.hasPermission(Item.CONFIGURE)) {
-            return JobBindingState.FORBIDDEN;
+            return JobBindingStatus.readonly(
+                    SelectionAction.PERMISSION_DENIED,
+                    Messages.job_binding_result_permission_denied(job.getFullName())
+            );
         }
         if (job.getParent() instanceof MultiBranchProject) {
-            return JobBindingState.UNSUPPORTED;
+            return JobBindingStatus.readonly(
+                    SelectionAction.MULTIBRANCH_UNSUPPORTED,
+                    Messages.job_binding_result_multibranch_unsupported(job.getFullName())
+            );
         }
         if (hasFreestylePostBuildNotifier(job)) {
-            return JobBindingState.CONFLICT;
+            return JobBindingStatus.readonly(
+                    SelectionAction.FREESTYLE_PUBLISHER_UNSUPPORTED,
+                    Messages.job_binding_result_freestyle_publisher_unsupported(job.getFullName())
+            );
         }
 
         LarkJobProperty property = job.getProperty(LarkJobProperty.class);
         if (property == null || property.getLarkNotifierConfigs() == null) {
-            return JobBindingState.UNBOUND;
+            return JobBindingStatus.actionable(JobBindingState.UNBOUND, false, null);
         }
 
         for (LarkNotifierConfig notifierConfig : property.getLarkNotifierConfigs()) {
@@ -240,11 +243,15 @@ public final class RobotJobBindingService {
                 continue;
             }
             if (notifierConfig.isChecked() && !notifierConfig.isDisabled()) {
-                return JobBindingState.BOUND;
+                return JobBindingStatus.actionable(JobBindingState.BOUND, true, null);
             }
-            return JobBindingState.DISABLED;
+            return JobBindingStatus.actionable(
+                    JobBindingState.DISABLED,
+                    false,
+                    Messages.job_binding_state_disabled(job.getFullName())
+            );
         }
-        return JobBindingState.UNBOUND;
+        return JobBindingStatus.actionable(JobBindingState.UNBOUND, false, null);
     }
 
     private static SelectionApplyReport applySelection(SelectionRequest request) {
@@ -269,18 +276,18 @@ public final class RobotJobBindingService {
             return SelectionResult.skipped(jobFullName, SelectionAction.JOB_NOT_FOUND, Messages.job_binding_result_job_missing(jobFullName));
         }
 
-        JobBindingState state = resolveState(robotConfig, job);
-        if (!state.actionable()) {
-            return SelectionResult.skipped(job.getFullName(), state.skipAction(), state.reason(job.getFullName()));
+        JobBindingStatus status = resolveState(robotConfig, job);
+        if (!status.isActionable()) {
+            return SelectionResult.skipped(job.getFullName(), status.getSkipAction(), status.getReason());
         }
 
         try {
             if (SelectionOperation.BIND.equals(operation)) {
-                applyBind(robotConfig, job, state);
+                applyBind(robotConfig, job, status);
             } else {
-                applyUnbind(robotConfig, job, state);
+                applyUnbind(robotConfig, job, status);
             }
-            return SelectionResult.changed(job.getFullName(), operation.changedAction(state), operation.successMessage(job.getFullName(), state));
+            return SelectionResult.changed(job.getFullName(), operation.changedAction(status), operation.successMessage(job.getFullName(), status));
         } catch (IOException ex) {
             String detail = StringUtils.defaultIfBlank(ex.getMessage(), ex.getClass().getSimpleName());
             return SelectionResult.failed(
@@ -291,13 +298,13 @@ public final class RobotJobBindingService {
         }
     }
 
-    private static void applyBind(LarkRobotConfig robotConfig, Job<?, ?> job, JobBindingState state) throws IOException {
+    private static void applyBind(LarkRobotConfig robotConfig, Job<?, ?> job, JobBindingStatus status) throws IOException {
         LarkJobProperty property = job.getProperty(LarkJobProperty.class);
         List<LarkNotifierConfig> existingConfigs = property == null || property.getLarkNotifierConfigs() == null
                 ? new ArrayList<>()
                 : new ArrayList<>(property.getLarkNotifierConfigs());
 
-        if (JobBindingState.DISABLED.equals(state)) {
+        if (JobBindingState.DISABLED.equals(status.getState())) {
             for (LarkNotifierConfig notifierConfig : existingConfigs) {
                 if (StringUtils.equals(robotConfig.getId(), notifierConfig.getRobotId())) {
                     notifierConfig.setChecked(true);
@@ -312,8 +319,8 @@ public final class RobotJobBindingService {
         replaceJobProperty(job, existingConfigs);
     }
 
-    private static void applyUnbind(LarkRobotConfig robotConfig, Job<?, ?> job, JobBindingState state) throws IOException {
-        if (JobBindingState.UNBOUND.equals(state)) {
+    private static void applyUnbind(LarkRobotConfig robotConfig, Job<?, ?> job, JobBindingStatus status) throws IOException {
+        if (JobBindingState.UNBOUND.equals(status.getState())) {
             return;
         }
 
@@ -367,8 +374,7 @@ public final class RobotJobBindingService {
         ALL("all"),
         BOUND("bound"),
         DISABLED("disabled"),
-        UNBOUND("unbound"),
-        SKIPPED("skipped");
+        UNBOUND("unbound");
 
         private final String value;
 
@@ -393,7 +399,6 @@ public final class RobotJobBindingService {
                 case BOUND -> JobBindingState.BOUND.getValue().equals(row.getState());
                 case DISABLED -> JobBindingState.DISABLED.getValue().equals(row.getState());
                 case UNBOUND -> JobBindingState.UNBOUND.getValue().equals(row.getState());
-                case SKIPPED -> !row.isActionable();
                 default -> true;
             };
         }
@@ -404,52 +409,44 @@ public final class RobotJobBindingService {
     }
 
     private enum JobBindingState {
-        BOUND("bound", true, true),
-        UNBOUND("unbound", false, true),
-        DISABLED("disabled", false, true),
-        CONFLICT("conflict", false, false),
-        UNSUPPORTED("unsupported", false, false),
-        FORBIDDEN("forbidden", false, false);
+        BOUND("bound"),
+        UNBOUND("unbound"),
+        DISABLED("disabled"),
+        READONLY("readonly");
 
         private final String value;
-        private final boolean initiallyChecked;
-        private final boolean actionable;
 
-        JobBindingState(String value, boolean initiallyChecked, boolean actionable) {
+        JobBindingState(String value) {
             this.value = value;
-            this.initiallyChecked = initiallyChecked;
-            this.actionable = actionable;
         }
 
         private String getValue() {
             return value;
         }
+    }
 
-        private boolean initiallyChecked() {
-            return initiallyChecked;
+    /**
+     * Internal binding state plus the user-facing reason for readonly jobs.
+     */
+    @Getter
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    private static final class JobBindingStatus {
+        private final JobBindingState state;
+        private final boolean currentlySelected;
+        private final boolean actionable;
+        private final SelectionAction skipAction;
+        private final String reason;
+
+        private static JobBindingStatus actionable(JobBindingState state, boolean currentlySelected, String reason) {
+            return new JobBindingStatus(state, currentlySelected, true, SelectionAction.NO_CHANGE, reason);
         }
 
-        private boolean actionable() {
-            return actionable;
+        private static JobBindingStatus readonly(SelectionAction skipAction, String reason) {
+            return new JobBindingStatus(JobBindingState.READONLY, false, false, skipAction, reason);
         }
 
-        private SelectionAction skipAction() {
-            return switch (this) {
-                case FORBIDDEN -> SelectionAction.PERMISSION_DENIED;
-                case UNSUPPORTED -> SelectionAction.MULTIBRANCH_UNSUPPORTED;
-                case CONFLICT -> SelectionAction.FREESTYLE_PUBLISHER_UNSUPPORTED;
-                default -> SelectionAction.NO_CHANGE;
-            };
-        }
-
-        private String reason(String jobFullName) {
-            return switch (this) {
-                case DISABLED -> Messages.job_binding_state_disabled(jobFullName);
-                case FORBIDDEN -> Messages.job_binding_result_permission_denied(jobFullName);
-                case UNSUPPORTED -> Messages.job_binding_result_multibranch_unsupported(jobFullName);
-                case CONFLICT -> Messages.job_binding_result_freestyle_publisher_unsupported(jobFullName);
-                default -> null;
-            };
+        private String getStateValue() {
+            return state.getValue();
         }
     }
 
@@ -457,9 +454,9 @@ public final class RobotJobBindingService {
         BIND,
         UNBIND;
 
-        private SelectionAction changedAction(JobBindingState state) {
+        private SelectionAction changedAction(JobBindingStatus status) {
             if (BIND.equals(this)) {
-                return JobBindingState.DISABLED.equals(state) ? SelectionAction.ENABLE_BINDING : SelectionAction.ADD_BINDING;
+                return JobBindingState.DISABLED.equals(status.getState()) ? SelectionAction.ENABLE_BINDING : SelectionAction.ADD_BINDING;
             }
             return SelectionAction.REMOVE_BINDING;
         }
@@ -468,9 +465,9 @@ public final class RobotJobBindingService {
             return BIND.equals(this) ? SelectionAction.ADD_BINDING : SelectionAction.REMOVE_BINDING;
         }
 
-        private String successMessage(String jobFullName, JobBindingState state) {
+        private String successMessage(String jobFullName, JobBindingStatus status) {
             if (BIND.equals(this)) {
-                return JobBindingState.DISABLED.equals(state)
+                return JobBindingState.DISABLED.equals(status.getState())
                         ? Messages.job_binding_result_will_enable(jobFullName)
                         : Messages.job_binding_result_will_bind(jobFullName);
             }

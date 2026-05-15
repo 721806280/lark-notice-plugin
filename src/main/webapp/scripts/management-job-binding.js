@@ -7,7 +7,8 @@
 
         var state = {
             jobs: [],
-            pending: {}
+            pending: {},
+            applying: false
         };
 
         var applyButton = page.querySelector('[data-apply-bindings]');
@@ -32,6 +33,9 @@
 
         if (applyButton) {
             applyButton.addEventListener('click', function () {
+                if (state.applying) {
+                    return;
+                }
                 applyChanges(page, state);
             });
         }
@@ -106,7 +110,7 @@
 
     function applyChanges(page, state) {
         var pendingEntries = pendingEntriesList(state);
-        if (pendingEntries.length === 0) {
+        if (pendingEntries.length === 0 || state.applying) {
             return;
         }
 
@@ -121,7 +125,9 @@
         });
 
         var resultContainer = page.querySelector('[data-binding-result]');
-        LarkNoticeUi.renderAlertMessage(resultContainer, 'lark-robot-job-feedback', '', true);
+        state.applying = true;
+        renderPending(page, state);
+        LarkNoticeUi.renderAlertMessage(resultContainer, 'lark-robot-job-feedback', page.dataset.applyInProgressLabel || '', true);
 
         var params = new URLSearchParams();
         params.append('robotId', page.dataset.robotId || '');
@@ -133,9 +139,14 @@
             var ok = parsed.ok === null ? payload.ok : (payload.ok && parsed.ok);
             var message = parsed.message || page.dataset.applyRequestFailedMessage || 'Unable to apply job changes.';
             LarkNoticeUi.renderAlertMessage(resultContainer, 'lark-robot-job-feedback', message, ok);
+            renderApplyResultDetails(page, resultContainer, parsed.data && parsed.data.entries);
             prunePendingEntries(state, parsed.data && parsed.data.entries);
+            state.applying = false;
+            renderPending(page, state);
             loadJobs(page, state);
         }).catch(function () {
+            state.applying = false;
+            renderPending(page, state);
             LarkNoticeUi.renderAlertMessage(
                 resultContainer,
                 'lark-robot-job-feedback',
@@ -311,14 +322,19 @@
                 return page.dataset.jobStatusUnboundLabel || 'Unbound';
             case 'disabled':
                 return page.dataset.jobStatusDisabledLabel || 'Disabled';
-            case 'conflict':
-                return page.dataset.jobStatusConflictLabel || 'Conflict';
-            case 'unsupported':
-                return page.dataset.jobStatusUnsupportedLabel || 'Unsupported';
-            case 'forbidden':
-                return page.dataset.jobStatusForbiddenLabel || 'No Access';
             default:
-                return page.dataset.jobStatusNotApplicableLabel || 'N/A';
+                return page.dataset.jobStatusReadonlyLabel || 'Read-only';
+        }
+    }
+
+    function resolveResultStatusLabel(page, status) {
+        switch (status) {
+            case 'changed':
+                return page.dataset.resultChangedLabel || 'Applied';
+            case 'failed':
+                return page.dataset.resultFailedLabel || 'Failed';
+            default:
+                return page.dataset.resultSkippedLabel || 'Skipped';
         }
     }
 
@@ -355,18 +371,23 @@
         renderPendingGroup(page, unbindContainer, unbindEntries);
 
         if (applyButton) {
-            applyButton.disabled = entries.length === 0;
-            setButtonLabel(applyButton, formatApplyButtonLabel(applyButton.dataset.applyBaseLabel, entries.length));
+            applyButton.disabled = state.applying || entries.length === 0;
+            setButtonLabel(
+                applyButton,
+                state.applying
+                    ? (page.dataset.applyInProgressLabel || 'Applying...')
+                    : formatApplyButtonLabel(applyButton.dataset.applyBaseLabel, entries.length)
+            );
         }
         if (resetButton) {
-            resetButton.disabled = entries.length === 0;
+            resetButton.disabled = state.applying || entries.length === 0;
         }
         if (selectVisibleButton) {
-            selectVisibleButton.disabled = !hasVisibleJobs || allVisibleSelected;
+            selectVisibleButton.disabled = state.applying || !hasVisibleJobs || allVisibleSelected;
             selectVisibleButton.title = hasVisibleJobs ? '' : (page.dataset.selectionPageEmptyLabel || '');
         }
         if (clearVisibleButton) {
-            clearVisibleButton.disabled = !hasVisibleJobs || noVisibleSelected;
+            clearVisibleButton.disabled = state.applying || !hasVisibleJobs || noVisibleSelected;
             clearVisibleButton.title = hasVisibleJobs ? '' : (page.dataset.selectionPageEmptyLabel || '');
         }
     }
@@ -418,6 +439,46 @@
                 delete state.pending[entry.jobFullName];
             }
         });
+    }
+
+    function renderApplyResultDetails(page, container, entries) {
+        if (!container || !entries || !entries.length) {
+            return;
+        }
+
+        var details = document.createElement('div');
+        details.className = 'lark-robot-job-result-details';
+
+        var title = document.createElement('div');
+        title.className = 'lark-robot-job-result-details__title';
+        title.textContent = page.dataset.resultDetailsLabel || 'Result Details';
+        details.appendChild(title);
+
+        entries.slice(0, 12).forEach(function (entry) {
+            var item = document.createElement('div');
+            item.className = 'lark-robot-job-result-details__item is-' + (entry.status || 'skipped');
+
+            var status = document.createElement('span');
+            status.className = 'lark-robot-job-result-details__status';
+            status.textContent = resolveResultStatusLabel(page, entry.status);
+            item.appendChild(status);
+
+            var message = document.createElement('span');
+            message.className = 'lark-robot-job-result-details__message';
+            message.textContent = entry.message || entry.jobFullName || '';
+            item.appendChild(message);
+
+            details.appendChild(item);
+        });
+
+        if (entries.length > 12) {
+            var more = document.createElement('div');
+            more.className = 'lark-robot-job-result-details__more';
+            more.textContent = '+' + (entries.length - 12);
+            details.appendChild(more);
+        }
+
+        container.appendChild(details);
     }
 
     function renderLoadingState(page, container) {

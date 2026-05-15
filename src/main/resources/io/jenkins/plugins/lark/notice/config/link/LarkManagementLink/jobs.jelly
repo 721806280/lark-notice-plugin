@@ -37,18 +37,17 @@
                          data-job-status-bound-label="${%management.jobs.state.bound}"
                          data-job-status-unbound-label="${%management.jobs.state.unbound}"
                          data-job-status-disabled-label="${%management.jobs.state.disabled}"
-                         data-job-status-conflict-label="${%management.jobs.state.conflict}"
-                         data-job-status-unsupported-label="${%management.jobs.state.unsupported}"
-                         data-job-status-forbidden-label="${%management.jobs.state.forbidden}"
-                         data-job-status-not-applicable-label="${%management.jobs.state.not.applicable}"
+                         data-job-status-readonly-label="${%management.jobs.state.readonly}"
                          data-list-loading-label="${%management.jobs.list.loading}"
                          data-list-none-label="${%management.jobs.list.none}"
                          data-list-count-label="${%management.jobs.list.count}"
                          data-selection-empty-label="${%management.jobs.selection.empty}"
                          data-selection-page-empty-label="${%management.jobs.selection.page.empty}"
+                         data-apply-in-progress-label="${%management.jobs.apply.in.progress}"
+                         data-result-details-label="${%management.jobs.result.details}"
                          data-result-changed-label="${%management.jobs.result.changed}"
                          data-result-skipped-label="${%management.jobs.result.skipped}"
-                        data-result-failed-label="${%management.jobs.result.failed}"
+                         data-result-failed-label="${%management.jobs.result.failed}"
                     >
                         <div class="lark-robot-job-page__hero">
                             <div class="lark-robot-job-page__hero-main">

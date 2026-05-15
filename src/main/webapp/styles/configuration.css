@@ -1751,9 +1751,7 @@
     color: #92400e;
 }
 
-.lark-job-card__status.is-conflict,
-.lark-job-card__status.is-unsupported,
-.lark-job-card__status.is-forbidden {
+.lark-job-card__status.is-readonly {
     background: rgba(239, 68, 68, 0.13);
     color: #b91c1c;
 }
@@ -2036,6 +2034,63 @@
 .lark-robot-job-feedback {
     display: grid;
     gap: 8px;
+}
+
+.lark-robot-job-result-details {
+    display: grid;
+    gap: 6px;
+    padding: 8px;
+    border: 1px solid var(--job-line);
+    border-radius: 6px;
+    background: var(--lark-surface-soft);
+}
+
+.lark-robot-job-result-details__title {
+    color: #334155;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.lark-robot-job-result-details__item {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 6px;
+    align-items: start;
+    min-width: 0;
+}
+
+.lark-robot-job-result-details__status {
+    min-width: 42px;
+    padding: 2px 5px;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    border-radius: 4px;
+    background: var(--lark-surface);
+    color: #475569;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.lark-robot-job-result-details__item.is-changed .lark-robot-job-result-details__status {
+    border-color: rgba(22, 163, 74, 0.25);
+    background: rgba(22, 163, 74, 0.08);
+    color: #15803d;
+}
+
+.lark-robot-job-result-details__item.is-failed .lark-robot-job-result-details__status {
+    border-color: rgba(220, 38, 38, 0.25);
+    background: rgba(220, 38, 38, 0.08);
+    color: #b91c1c;
+}
+
+.lark-robot-job-result-details__message,
+.lark-robot-job-result-details__more {
+    min-width: 0;
+    color: #475569;
+    font-size: 11px;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
 }
 
 @media (max-width: 900px) {
