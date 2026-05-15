@@ -13,6 +13,8 @@
                         src="${rootURL}/plugin/lark-notice/scripts/management-job-binding.js"/>
                 <link rel="stylesheet" type="text/css"
                       href="${rootURL}/plugin/lark-notice/styles/configuration.css"/>
+                <link rel="stylesheet" type="text/css"
+                      href="${rootURL}/plugin/lark-notice/styles/management-job-binding.css"/>
             </st:once>
 
             <div class="lark-management-page-header lark-management-page-header--jobs">

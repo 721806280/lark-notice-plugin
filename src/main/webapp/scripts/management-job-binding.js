@@ -8,7 +8,8 @@
         var state = {
             jobs: [],
             pending: {},
-            applying: false
+            applying: false,
+            loadRequestId: 0
         };
 
         var applyButton = page.querySelector('[data-apply-bindings]');
@@ -84,6 +85,7 @@
 
     function loadJobs(page, state) {
         var jobList = page.querySelector('[data-job-list]');
+        var requestId = ++state.loadRequestId;
         var params = new URLSearchParams();
         params.append('robotId', page.dataset.robotId || '');
         params.append('keyword', readValue(page, 'input[name="keyword"]'));
@@ -91,9 +93,13 @@
 
         renderLoadingState(page, jobList);
         LarkNoticeRequest.postForm(page.dataset.loadUrl, params).then(function (payload) {
+            if (requestId !== state.loadRequestId) {
+                return;
+            }
             var parsed = parseResponse(payload.text);
             var ok = parsed.ok === null ? payload.ok : (payload.ok && parsed.ok);
             if (!ok || !parsed.data) {
+                clearLoadedJobs(page, state);
                 renderJobListError(page, parsed.message || page.dataset.loadRequestFailedMessage || 'Unable to load jobs.');
                 return;
             }
@@ -104,6 +110,10 @@
             renderJobs(page, state);
             renderPending(page, state);
         }).catch(function () {
+            if (requestId !== state.loadRequestId) {
+                return;
+            }
+            clearLoadedJobs(page, state);
             renderJobListError(page, page.dataset.loadRequestFailedMessage || 'Unable to load jobs.');
         });
     }
@@ -268,6 +278,9 @@
             reason.textContent = 'i';
             reason.title = job.reason;
             reason.setAttribute('aria-label', job.reason);
+            reason.addEventListener('click', function (event) {
+                event.stopPropagation();
+            });
             meta.appendChild(reason);
         }
 
@@ -504,6 +517,11 @@
         container.textContent = '';
         var alert = LarkNoticeUi.createAlert(message, false);
         container.appendChild(alert);
+    }
+
+    function clearLoadedJobs(page, state) {
+        state.jobs = [];
+        renderPending(page, state);
     }
 
     function desiredSelected(state, job) {

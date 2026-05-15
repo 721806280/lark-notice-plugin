@@ -79,6 +79,7 @@ public class ConfigurationPageRenderTest {
             HtmlPage jobsPage = webClient.goTo("manage/lark/jobs");
             String jobsHtml = jobsPage.getWebResponse().getContentAsString();
             assertEquals(1, countMatches(jobsHtml, "/plugin/lark-notice/scripts/management-job-binding.js"));
+            assertEquals(1, countMatches(jobsHtml, "/plugin/lark-notice/styles/management-job-binding.css"));
             assertTrue(jobsHtml.contains("Robot Job Bindings"));
             assertTrue(jobsHtml.contains("Select a Saved Robot"));
             assertTrue(jobsHtml.contains("/manage/lark/jobs?robotId=robot-a"));
