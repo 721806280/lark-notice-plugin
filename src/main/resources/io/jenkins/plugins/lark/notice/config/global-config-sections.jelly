@@ -29,7 +29,6 @@
                        value="${descriptor.getLarkRobotConfigDescriptor()}"/>
                 <div class="lark-bots-repeatable">
                     <f:repeatable
-                            enableTopButton="true"
                             field="robotConfigs"
                             var="item"
                             items="${robotConfigs}">
