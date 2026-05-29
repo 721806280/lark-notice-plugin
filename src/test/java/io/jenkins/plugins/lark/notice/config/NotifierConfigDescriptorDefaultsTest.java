@@ -2,7 +2,6 @@ package io.jenkins.plugins.lark.notice.config;
 
 import io.jenkins.plugins.lark.notice.config.property.LarkBranchJobProperty;
 import io.jenkins.plugins.lark.notice.config.property.LarkJobProperty;
-import jenkins.model.GlobalConfigurationCategory;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -76,12 +75,6 @@ public class NotifierConfigDescriptorDefaultsTest {
         assertEquals("disabled", merged.get(1).getTitle());
         assertEquals(2, NotifierConfigListUtils.filterEnabled(merged).size());
         assertEquals(List.of("robot-a"), extractRobotIds(NotifierConfigListUtils.filterAvailable(merged)));
-    }
-
-    @Test
-    public void globalConfigShouldUseRegisteredUnclassifiedCategory() {
-        assertEquals(GlobalConfigurationCategory.get(GlobalConfigurationCategory.Unclassified.class),
-                LarkGlobalConfig.getInstance().getCategory());
     }
 
     private static LarkRobotConfig createRobot(String id) {

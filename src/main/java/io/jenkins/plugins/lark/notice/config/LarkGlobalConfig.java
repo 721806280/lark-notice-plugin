@@ -1,13 +1,12 @@
 package io.jenkins.plugins.lark.notice.config;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
+import hudson.model.Describable;
+import hudson.model.Descriptor;
 import io.jenkins.plugins.lark.notice.config.LarkRobotConfig.LarkRobotConfigDescriptor;
 import io.jenkins.plugins.lark.notice.config.security.LarkPermissions;
 import io.jenkins.plugins.lark.notice.enums.NoticeOccasionEnum;
 import io.jenkins.plugins.lark.notice.sdk.MessageSenderRegistry;
-import jenkins.model.GlobalConfiguration;
-import jenkins.model.GlobalConfigurationCategory;
 import jenkins.model.Jenkins;
 import lombok.Getter;
 import lombok.ToString;
@@ -17,20 +16,16 @@ import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.StaplerRequest2;
 
 import java.net.ProxySelector;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Global configuration for the Lark notification plugin. This class stores settings that are global to Jenkins,
- * such as proxy configurations, verbosity level, occasions for notifications, and configurations for individual Lark robots.
+ * Persistent global settings for the Lark notification plugin.
+ *
+ * <p>This descriptor owns the saved plugin-wide settings used by jobs, pipeline steps,
+ * notification dispatch, and the dedicated {@code Manage Jenkins > Lark Notifications}
+ * page. It intentionally stays out of Jenkins' standard "Configure System" page; all UI
+ * for these settings is rendered by {@link io.jenkins.plugins.lark.notice.config.link.LarkManagementLink}.</p>
  *
  * @author xm.z
  */
@@ -38,25 +33,47 @@ import java.util.stream.Collectors;
 @ToString
 @Extension
 @SuppressWarnings("unused")
-public class LarkGlobalConfig extends GlobalConfiguration {
+public class LarkGlobalConfig extends Descriptor<LarkGlobalConfig> implements Describable<LarkGlobalConfig> {
 
+    /**
+     * The network proxy configuration for outbound connections.
+     */
     private LarkProxyConfig proxyConfig;
+
+    /**
+     * Whether verbose logging is enabled for debugging and tracing purposes.
+     */
     private boolean verbose;
+
+    /**
+     * Set of occasion names (corresponding to {@link NoticeOccasionEnum}) that trigger notifications.
+     */
     private Set<String> noticeOccasions = defaultNoticeOccasions();
+
+    /**
+     * The backing list of individual Lark robot configurations.
+     */
     private ArrayList<LarkRobotConfig> robotConfigs = new ArrayList<>();
+
+    /**
+     * In-memory cache index mapping Robot ID to its configuration for fast lookups.
+     * Marked as volatile to ensure visibility across threads under Double-Checked Locking (DCL).
+     */
     private transient volatile Map<String, LarkRobotConfig> robotConfigIndex;
 
     /**
-     * Data-bound constructor for setting up global Lark notification configurations.
+     * Data-bound constructor used by Jenkins to instantiate the global configuration
+     * when the system configuration form is submitted.
      *
-     * @param proxyConfig     Configuration for proxy if it is needed.
-     * @param verbose         Whether to enable verbose logging for the plugin.
-     * @param noticeOccasions Occasions on which notifications should be sent.
-     * @param robotConfigs    Configurations for individual Lark robots.
+     * @param proxyConfig     The proxy settings, or {@code null} if no proxy is needed.
+     * @param verbose         {@code true} to enable verbose logging.
+     * @param noticeOccasions The set of build scenarios that should trigger notifications.
+     * @param robotConfigs    The list of individual Lark robot configurations.
      */
     @DataBoundConstructor
     public LarkGlobalConfig(LarkProxyConfig proxyConfig, boolean verbose,
                             Set<String> noticeOccasions, ArrayList<LarkRobotConfig> robotConfigs) {
+        super(LarkGlobalConfig.class);
         this.proxyConfig = proxyConfig;
         this.verbose = verbose;
         setNoticeOccasions(noticeOccasions);
@@ -64,26 +81,29 @@ public class LarkGlobalConfig extends GlobalConfiguration {
     }
 
     /**
-     * Default constructor that loads saved configurations or initializes the class with default values.
+     * Default constructor.
+     * Invokes {@link #load()} to automatically deserialize previously saved configurations from disk (XML).
      */
     public LarkGlobalConfig() {
-        load(); // Load saved configuration from disk
+        super(LarkGlobalConfig.class);
+        load();
     }
 
     /**
-     * Gets the singleton instance of the LarkGlobalConfig.
+     * Retrieves the active singleton instance of this global configuration from the Jenkins context.
      *
-     * @return The singleton instance of LarkGlobalConfig.
+     * @return The active {@link LarkGlobalConfig} instance.
      */
     public static LarkGlobalConfig getInstance() {
         return Jenkins.get().getDescriptorByType(LarkGlobalConfig.class);
     }
 
     /**
-     * Retrieves a specific Lark robot configuration by its ID.
+     * Retrieves a specific Lark robot configuration by its unique ID.
+     * Utilizes the thread-safe internal index cache for rapid retrieval.
      *
-     * @param robotId The ID of the robot whose configuration is to be retrieved.
-     * @return An Optional containing the LarkRobotConfig if found, otherwise an empty Optional.
+     * @param robotId The unique identifier of the target robot.
+     * @return An {@link Optional} containing the configuration if found; otherwise {@link Optional#empty()}.
      */
     public static Optional<LarkRobotConfig> getRobot(String robotId) {
         if (robotId == null) {
@@ -93,19 +113,41 @@ public class LarkGlobalConfig extends GlobalConfiguration {
     }
 
     /**
-     * Obtains a ProxySelector based on the current proxy configuration.
+     * Provides the default baseline selection of notice occasions (all active by default).
+     */
+    private static Set<String> defaultNoticeOccasions() {
+        return Arrays.stream(NoticeOccasionEnum.values())
+                .map(Enum::name)
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * Indexes the raw list of robot configurations into a predictable, insertion-ordered {@link LinkedHashMap}.
+     * Filters out null items or items with null keys to guarantee structural reliability.
+     */
+    private static Map<String, LarkRobotConfig> buildRobotIndex(ArrayList<LarkRobotConfig> robotConfigs) {
+        Map<String, LarkRobotConfig> index = new LinkedHashMap<>();
+        for (LarkRobotConfig robotConfig : robotConfigs) {
+            if (robotConfig != null && robotConfig.getId() != null) {
+                index.put(robotConfig.getId(), robotConfig);
+            }
+        }
+        return index;
+    }
+
+    /**
+     * Obtains a standard {@link ProxySelector} based on the current proxy configurations.
      *
-     * @return A ProxySelector if proxy is configured, otherwise null.
+     * @return A valid {@link ProxySelector}, or {@code null} if proxying is disabled.
      */
     public ProxySelector obtainProxySelector() {
         return proxyConfig == null ? null : proxyConfig.obtainProxySelector();
     }
 
-
     /**
-     * Enables or disables verbose logging.
+     * Sets whether verbose logging is enabled.
      *
-     * @param verbose true to enable verbose logging
+     * @param verbose {@code true} to enable verbose outputs.
      */
     @DataBoundSetter
     public void setVerbose(boolean verbose) {
@@ -113,9 +155,9 @@ public class LarkGlobalConfig extends GlobalConfiguration {
     }
 
     /**
-     * Updates the notice occasions used for notifications.
+     * Updates the set of build occasions that trigger a notification.
      *
-     * @param noticeOccasions set of occasion names; null resets to defaults
+     * @param noticeOccasions A set of occasion names. If {@code null}, it resets to the default full-selection.
      */
     @DataBoundSetter
     public void setNoticeOccasions(Set<String> noticeOccasions) {
@@ -123,9 +165,10 @@ public class LarkGlobalConfig extends GlobalConfiguration {
     }
 
     /**
-     * Updates the proxy configuration and clears cached senders.
+     * Updates the global proxy configuration.
+     * <p>Clears cached senders in {@link MessageSenderRegistry} to force reconnection through the new proxy path.</p>
      *
-     * @param proxyConfig proxy configuration, or null to disable proxy
+     * @param proxyConfig The new proxy configuration, or {@code null} to disable proxy usage.
      */
     @DataBoundSetter
     public void setProxyConfig(LarkProxyConfig proxyConfig) {
@@ -134,9 +177,21 @@ public class LarkGlobalConfig extends GlobalConfiguration {
     }
 
     /**
-     * Updates the global robot configurations and clears cached senders.
+     * Returns a read-only snapshot of the configured Lark robots.
+     * <p>Uses {@link List#copyOf(java.util.Collection)} to ensure the returned list is immutable,
+     * preventing accidental external mutations to the underlying array.</p>
      *
-     * @param robotConfigs robot configurations, or null to clear
+     * @return An immutable {@link List} of {@link LarkRobotConfig}.
+     */
+    public List<LarkRobotConfig> getRobotConfigs() {
+        return List.copyOf(robotConfigs);
+    }
+
+    /**
+     * Updates the global list of robot configurations.
+     * <p>Clears the cached senders in {@link MessageSenderRegistry} and invalidates the internal lookup index cache.</p>
+     *
+     * @param robotConfigs The updated list of robot configurations. If {@code null}, it defaults to an empty list.
      */
     @DataBoundSetter
     public void setRobotConfigs(ArrayList<LarkRobotConfig> robotConfigs) {
@@ -146,87 +201,76 @@ public class LarkGlobalConfig extends GlobalConfiguration {
     }
 
     /**
-     * Returns a read-only snapshot of the configured robots to avoid accidental external mutation.
+     * Callback method executed when the global configuration form is saved in the Jenkins UI.
+     * Handles permission checks, form payload sanitization (filtering invalid robots), data binding, and persistence.
      *
-     * @return immutable robot configuration list
-     */
-    public List<LarkRobotConfig> getRobotConfigs() {
-        return Collections.unmodifiableList(new ArrayList<>(robotConfigs));
-    }
-
-
-    /**
-     * Customizes the behavior when the global configuration form is submitted.
-     * Filters out robot configs without a webhook URL.
-     *
-     * @param req  The StaplerRequest containing the form submission.
-     * @param json The JSONObject representing the submitted form data.
-     * @return true if successful, throwing FormException otherwise.
-     * @throws FormException If there's an error processing the form submission.
+     * @param req  The Stapler incoming request context.
+     * @param json The structured JSON payload representing the submitted form.
+     * @return Always returns {@code true} indicating a successful form processing.
+     * @throws FormException If data binding, processing, or validation rules fail.
      */
     @Override
     public boolean configure(StaplerRequest2 req, JSONObject json) throws FormException {
+        // Access Control: Ensure the current operator possesses global configuration privileges
         Jenkins.get().checkPermission(LarkPermissions.CONFIGURE);
+
+        // Data Sanitization: Filter out malformed robot data payloads (e.g., missing webhook URLs)
         json.put("robotConfigs", GlobalConfigFormDataSanitizer.normalizeRobotConfigsPayload(json.get("robotConfigs")));
 
+        // Map the sanitized JSON back into this object instance via DataBoundSetters
         req.bindJSON(this, json);
+
+        // Persist current field state into the backing XML storage file
         save();
         return super.configure(req, json);
     }
 
     /**
-     * Returns all possible notice occasions as defined in NoticeOccasionEnum.
+     * Returns all available notification occasions for UI selection rendering in Jelly files.
      *
-     * @return An array of NoticeOccasionEnum values.
+     * @return An array containing all values of {@link NoticeOccasionEnum}.
      */
     public NoticeOccasionEnum[] getAllNoticeOccasions() {
         return NoticeOccasionEnum.values();
     }
 
-    private static Set<String> defaultNoticeOccasions() {
-        return Arrays.stream(NoticeOccasionEnum.values())
-                .map(Enum::name)
-                .collect(Collectors.toSet());
-    }
-
     /**
-     * Gets the proxy config descriptor for UI binding.
+     * Returns the proxy configuration Descriptor. Used for UI binding in Jelly via {@code f:property}.
      *
-     * @return proxy config descriptor
+     * @return The descriptor instance of {@link LarkProxyConfig}.
      */
     public LarkProxyConfig getLarkProxyConfigDescriptor() {
         return Jenkins.get().getDescriptorByType(LarkProxyConfig.class);
     }
 
     /**
-     * Gets the robot config descriptor for UI binding.
+     * Returns the robot configuration Descriptor. Used for UI dynamic list rendering via {@code f:repeatable}.
      *
-     * @return robot config descriptor
+     * @return The descriptor instance of {@link LarkRobotConfigDescriptor}.
      */
     public LarkRobotConfigDescriptor getLarkRobotConfigDescriptor() {
         return Jenkins.get().getDescriptorByType(LarkRobotConfigDescriptor.class);
     }
 
     /**
-     * Exposes the shared Jelly view owner class for stable {@code st:include} lookups.
+     * Exposes a shared configuration views host class.
+     * Allows separate UI components to safely implement stable lookups via {@code st:include}.
      *
-     * @return shared view owner class
+     * @return The class token representing the shared view boundary.
      */
     public Class<?> getSharedViewsClass() {
         return SharedConfigViews.class;
     }
 
-    /**
-     * Returns the default system configuration category so that this config
-     * appears on the standard "Configure System" page instead of creating
-     * a separate card on the Manage Jenkins page.
-     */
-    @NonNull
     @Override
-    public GlobalConfigurationCategory getCategory() {
-        return GlobalConfigurationCategory.get(GlobalConfigurationCategory.Unclassified.class);
+    public Descriptor<LarkGlobalConfig> getDescriptor() {
+        return this;
     }
 
+    /**
+     * Obtains or lazily initializes the internal lookup map using Double-Checked Locking (DCL).
+     * Ensures high performance and safe thread visibility during concurrent build executions.
+     */
     private Map<String, LarkRobotConfig> robotIndex() {
         Map<String, LarkRobotConfig> index = robotConfigIndex;
         if (index != null) {
@@ -240,18 +284,11 @@ public class LarkGlobalConfig extends GlobalConfiguration {
         }
     }
 
+    /**
+     * Invalidates the volatile cache index by resetting it to null.
+     */
     private void invalidateRobotIndex() {
         robotConfigIndex = null;
-    }
-
-    private static Map<String, LarkRobotConfig> buildRobotIndex(ArrayList<LarkRobotConfig> robotConfigs) {
-        Map<String, LarkRobotConfig> index = new LinkedHashMap<>();
-        for (LarkRobotConfig robotConfig : robotConfigs) {
-            if (robotConfig != null && robotConfig.getId() != null) {
-                index.put(robotConfig.getId(), robotConfig);
-            }
-        }
-        return index;
     }
 
 }

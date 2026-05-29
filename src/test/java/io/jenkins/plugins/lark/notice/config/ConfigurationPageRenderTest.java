@@ -50,12 +50,11 @@ public class ConfigurationPageRenderTest {
 
             HtmlPage configurePage = webClient.goTo("configure");
             String configureHtml = configurePage.getWebResponse().getContentAsString();
-            assertEquals(1, countMatches(configureHtml, "/plugin/lark-notice/styles/configuration.css"));
-            assertEquals(1, countMatches(configureHtml, "/plugin/lark-notice/scripts/robot-config-validator.js"));
-            assertTrue(configureHtml.contains("name=\"robotConfigs\""));
-            assertTrue(configureHtml.contains("id=\"proxyConfigContainer\""));
-            assertTrue(configureHtml.contains("Message Language"));
-            assertTrue(configureHtml.contains("data-validate-button-method=\"test\""));
+            assertEquals(0, countMatches(configureHtml, "/plugin/lark-notice/styles/configuration.css"));
+            assertEquals(0, countMatches(configureHtml, "/plugin/lark-notice/scripts/robot-config-validator.js"));
+            assertFalse(configureHtml.contains("name=\"robotConfigs\""));
+            assertFalse(configureHtml.contains("id=\"proxyConfigContainer\""));
+            assertFalse(configureHtml.contains("data-validate-button-method=\"test\""));
 
             HtmlPage managementPage = webClient.goTo("manage/lark");
             String managementHtml = managementPage.getWebResponse().getContentAsString();
@@ -97,7 +96,7 @@ public class ConfigurationPageRenderTest {
         try (JenkinsRule.WebClient webClient = jenkins.createWebClient()) {
 
             HtmlPage configurePage = webClient.goTo("configure");
-            assertTrue(configurePage.getWebResponse().getContentAsString().contains("name=\"robotConfigs\""));
+            assertFalse(configurePage.getWebResponse().getContentAsString().contains("name=\"robotConfigs\""));
 
             HtmlPage managementPage = webClient.goTo("manage/lark");
             assertTrue(managementPage.getWebResponse().getContentAsString().contains("name=\"larkManagementLinkForm\""));
@@ -123,9 +122,8 @@ public class ConfigurationPageRenderTest {
 
                 HtmlPage globalPage = webClient.goTo("configure");
                 String globalHtml = globalPage.getWebResponse().getContentAsString();
-                assertTrue(globalHtml.contains("通知触发时机"));
-                assertTrue(globalHtml.contains("机器人"));
-                assertTrue(globalHtml.contains("消息语言"));
+                assertFalse(globalHtml.contains("通知触发时机"));
+                assertFalse(globalHtml.contains("name=\"robotConfigs\""));
 
                 HtmlPage managementPage = webClient.goTo("manage/lark");
                 String managementHtml = managementPage.getWebResponse().getContentAsString();
