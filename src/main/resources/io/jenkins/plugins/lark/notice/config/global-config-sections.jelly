@@ -42,7 +42,7 @@
 
         <div class="lark-config-page__actions">
             <f:bottomButtonBar>
-                <f:submit/>
+                <f:submit value="Save"/>
                 <f:apply/>
             </f:bottomButtonBar>
         </div>
