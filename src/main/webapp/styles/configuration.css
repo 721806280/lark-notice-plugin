@@ -42,6 +42,10 @@
     margin-bottom: 8px;
 }
 
+.lark-config-page > .jenkins-section:first-child .jenkins-section__title {
+    margin-bottom: 4px;
+}
+
 .lark-config-section__hint {
     margin: -4px 0 6px;
 }
@@ -53,6 +57,133 @@
 .lark-config-page__actions {
     margin-top: 2px;
     padding-top: 4px;
+}
+
+.lark-advanced-settings {
+    display: grid;
+    gap: 8px;
+}
+
+.lark-advanced-settings__toggles {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 10px 24px;
+}
+
+.lark-advanced-settings__toggles > .jenkins-form-item,
+.lark-advanced-settings__toggles .lark-proxy-config > .jenkins-form-item {
+    margin: 0;
+}
+
+.lark-advanced-settings__toggles > .jenkins-form-item,
+.lark-proxy-toggle {
+    flex: 0 1 auto;
+}
+
+.lark-advanced-settings__toggles .jenkins-form-label {
+    margin-bottom: 0;
+}
+
+.lark-advanced-settings__toggles .setting-main {
+    min-height: 0;
+}
+
+.lark-proxy-config {
+    display: contents;
+}
+
+.lark-proxy-details {
+    flex: 0 1 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    margin-left: 0;
+    margin-top: 0;
+    padding-left: 0;
+    min-height: 24px;
+    white-space: nowrap;
+}
+
+.lark-proxy-details[hidden] {
+    display: none !important;
+}
+
+.lark-proxy-combo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    height: 24px;
+    background: transparent;
+}
+
+.lark-proxy-type-select {
+    width: 110px !important;
+    min-width: 110px !important;
+    max-width: 110px !important;
+    height: 24px;
+    min-height: 24px;
+    border: 1px solid #d9d9d9 !important;
+    border-radius: 5px !important;
+    background: var(--lark-surface) !important;
+    box-shadow: none !important;
+    font-weight: 700;
+}
+
+.lark-proxy-type-select:focus,
+.lark-proxy-host-input:focus,
+.lark-proxy-port-input:focus {
+    border-color: rgba(31, 111, 235, 0.62) !important;
+    box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.10) !important;
+    outline: none;
+}
+
+.lark-proxy-endpoint {
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+}
+
+.lark-proxy-details[data-proxy-type="DIRECT"] .lark-proxy-endpoint,
+.lark-proxy-endpoint[hidden] {
+    display: none !important;
+}
+
+.lark-proxy-host-input {
+    width: 240px !important;
+    min-width: 240px !important;
+    max-width: 240px !important;
+    height: 24px;
+    min-height: 24px;
+    border: 1px solid #d9d9d9 !important;
+    border-radius: 5px !important;
+    box-shadow: none !important;
+}
+
+.lark-proxy-endpoint__separator {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    min-width: 8px;
+    margin: 0 10px;
+    height: 24px;
+    background: transparent;
+    color: #111827;
+    font-size: 16px;
+    line-height: 1;
+}
+
+.lark-proxy-port-input {
+    width: 65px !important;
+    min-width: 65px !important;
+    max-width: 65px !important;
+    height: 24px;
+    min-height: 24px;
+    border: 1px solid #d9d9d9 !important;
+    border-radius: 5px !important;
+    box-shadow: none !important;
+    text-align: center;
 }
 
 .lark-config-page__actions .jenkins-button-bar {
@@ -369,16 +500,61 @@
 .lark-notice-option {
     display: inline-flex;
     align-items: center;
-    margin: 0 6px 6px 0;
-    padding: 6px 10px;
+    margin: 0 6px 4px 0;
+    padding: 4px 9px;
     border: 1px solid var(--lark-border);
     border-radius: 999px;
     background: var(--lark-surface-soft);
     font-size: 12px;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.lark-notice-option:hover {
+    border-color: rgba(31, 111, 235, 0.35);
+    background: rgba(31, 111, 235, 0.05);
+    color: var(--lark-accent);
+}
+
+.lark-notice-option input {
+    margin: 0 5px 0 0;
 }
 
 .lark-notice-raw-content {
     display: none;
+}
+
+@media (max-width: 760px) {
+    .lark-advanced-settings__toggles {
+        display: grid;
+        gap: 10px;
+    }
+
+    .lark-proxy-config {
+        display: grid;
+        gap: 8px;
+    }
+
+    .lark-proxy-details {
+        display: flex;
+        flex-wrap: wrap;
+        padding-left: 0;
+        white-space: normal;
+    }
+
+    .lark-proxy-endpoint {
+        flex-wrap: nowrap;
+    }
+
+    .lark-proxy-host-input {
+        width: min(240px, 45vw) !important;
+        min-width: 160px !important;
+    }
+
+    .lark-proxy-port-input {
+        width: 65px !important;
+        min-width: 65px !important;
+    }
 }
 
 .lark-bots-repeatable .repeated-container {

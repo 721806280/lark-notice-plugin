@@ -64,8 +64,13 @@ public class ConfigurationPageRenderTest {
             assertEquals(0, countMatches(managementHtml, "/plugin/lark-notice/scripts/management-config-tools.js"));
             assertEquals(0, countMatches(managementHtml, "name=\"larkManagementImportForm\""));
             assertTrue(managementHtml.contains("Open Migration Tools"));
+            assertTrue(managementHtml.contains("Advanced Settings"));
             assertTrue(managementHtml.contains("name=\"robotConfigs\""));
             assertTrue(managementHtml.contains("id=\"proxyConfigContainer\""));
+            assertTrue(managementHtml.contains("class=\"lark-proxy-combo\""));
+            assertTrue(managementHtml.contains("class=\"jenkins-select lark-proxy-type-select\""));
+            assertTrue(managementHtml.contains("SOCKS"));
+            assertTrue(managementHtml.contains("placeholder=\"Server address (for example: proxy.com)\""));
             assertTrue(managementHtml.contains("data-validate-button-method=\"test\""));
 
             HtmlPage toolsPage = webClient.goTo("manage/lark/tools");
@@ -122,13 +127,16 @@ public class ConfigurationPageRenderTest {
 
                 HtmlPage globalPage = webClient.goTo("configure");
                 String globalHtml = globalPage.getWebResponse().getContentAsString();
-                assertFalse(globalHtml.contains("通知触发时机"));
+                assertFalse(globalHtml.contains("通知时机"));
                 assertFalse(globalHtml.contains("name=\"robotConfigs\""));
 
                 HtmlPage managementPage = webClient.goTo("manage/lark");
                 String managementHtml = managementPage.getWebResponse().getContentAsString();
                 assertTrue(managementPage.getTitleText().contains("Lark 机器人配置"));
-                assertTrue(managementHtml.contains("通知触发时机"));
+                assertTrue(managementHtml.contains("通知时机"));
+                assertTrue(managementHtml.contains("高级设置"));
+                assertTrue(managementHtml.contains("aria-label=\"代理配置：\""));
+                assertTrue(managementHtml.contains("placeholder=\"服务器地址（例如: proxy.com）\""));
                 assertTrue(managementHtml.contains("机器人"));
 
                 HtmlPage toolsPage = webClient.goTo("manage/lark/tools");

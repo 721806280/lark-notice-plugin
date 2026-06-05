@@ -1,22 +1,57 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:f="/lib/form">
+    <j:set var="proxyTypeValue" value="${instance != null &amp;&amp; instance.getType() != null ? instance.getType().name() : 'DIRECT'}"/>
+    <j:set var="proxyHostValue" value="${instance != null ? instance.getHost() : ''}"/>
+    <j:set var="proxyPortValue" value="${instance != null &amp;&amp; instance.getPort() != null &amp;&amp; instance.getPort() > 0 ? instance.getPort() : ''}"/>
 
     <div id="proxyConfigContainer" class="lark-proxy-config">
-        <f:entry title="${%proxy.enabled}" field="enabled">
+        <f:entry title="${%proxy.enabled}" field="enabled" cssClass="lark-proxy-toggle">
             <f:checkbox/>
         </f:entry>
-        <div class="lark-proxy-details">
-            <f:entry title="${%proxy.type}" field="type">
-                <f:enum>
-                    ${it.name()}
-                </f:enum>
-            </f:entry>
-            <f:entry title="${%proxy.host}" field="host">
-                <f:textbox name="host"/>
-            </f:entry>
-            <f:entry title="${%proxy.port}" field="port">
-                <f:number name="port"/>
-            </f:entry>
+        <div class="lark-proxy-details" data-proxy-type="${proxyTypeValue}">
+            <span class="lark-proxy-combo">
+                <select name="type" class="jenkins-select lark-proxy-type-select" aria-label="${%proxy.config}">
+                    <j:choose>
+                        <j:when test="${proxyTypeValue == 'DIRECT'}">
+                            <option value="DIRECT" selected="selected">DIRECT</option>
+                        </j:when>
+                        <j:otherwise>
+                            <option value="DIRECT">DIRECT</option>
+                        </j:otherwise>
+                    </j:choose>
+                    <j:choose>
+                        <j:when test="${proxyTypeValue == 'HTTP'}">
+                            <option value="HTTP" selected="selected">HTTP</option>
+                        </j:when>
+                        <j:otherwise>
+                            <option value="HTTP">HTTP</option>
+                        </j:otherwise>
+                    </j:choose>
+                    <j:choose>
+                        <j:when test="${proxyTypeValue == 'SOCKS'}">
+                            <option value="SOCKS" selected="selected">SOCKS</option>
+                        </j:when>
+                        <j:otherwise>
+                            <option value="SOCKS">SOCKS</option>
+                        </j:otherwise>
+                    </j:choose>
+                </select>
+                <span class="lark-proxy-endpoint">
+                    <input type="text"
+                           name="host"
+                           value="${proxyHostValue}"
+                           placeholder="${%proxy.host.placeholder}"
+                           class="setting-input lark-proxy-host-input"/>
+                    <strong class="lark-proxy-endpoint__separator">:</strong>
+                    <input type="number"
+                           name="port"
+                           value="${proxyPortValue}"
+                           placeholder="${%proxy.port.placeholder}"
+                           class="setting-input lark-proxy-port-input"
+                           min="0"
+                           step="1"/>
+                </span>
+            </span>
         </div>
     </div>
 

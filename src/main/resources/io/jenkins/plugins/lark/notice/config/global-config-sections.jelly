@@ -12,14 +12,16 @@
             </f:entry>
         </f:section>
 
-        <f:section title="${%global.section.logging}">
-            <f:entry field="verbose">
-                <f:checkbox title="${%global.logging.verbose}"/>
-            </f:entry>
-        </f:section>
-        <f:section title="${%global.section.proxy}">
-            <f:property field="proxyConfig"
-                        propertyDescriptor="${descriptor.getLarkProxyConfigDescriptor()}"/>
+        <f:section title="${%global.section.advanced}">
+            <div class="lark-advanced-settings">
+                <div class="lark-advanced-settings__toggles">
+                    <f:entry field="verbose">
+                        <f:checkbox title="${%global.logging.verbose}"/>
+                    </f:entry>
+                    <f:property field="proxyConfig"
+                                propertyDescriptor="${descriptor.getLarkProxyConfigDescriptor()}"/>
+                </div>
+            </div>
         </f:section>
 
         <f:section title="${%global.section.robots}">

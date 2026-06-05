@@ -610,6 +610,27 @@ function applyProxyDetailsVisibility(configRoot) {
         return;
     }
     details.hidden = !enabledInput.checked;
+    applyProxyEndpointVisibility(configRoot);
+}
+
+/**
+ * Shows host and port fields only for proxy types that need an endpoint.
+ * @param {HTMLElement} configRoot - Proxy configuration container element.
+ */
+function applyProxyEndpointVisibility(configRoot) {
+    if (!configRoot) {
+        return;
+    }
+    var typeSelect = configRoot.querySelector('select[name="type"], select[name="_.type"]');
+    var details = configRoot.querySelector('.lark-proxy-details');
+    var endpoint = configRoot.querySelector('.lark-proxy-endpoint');
+    if (!typeSelect || !endpoint) {
+        return;
+    }
+    if (details) {
+        details.dataset.proxyType = typeSelect.value;
+    }
+    endpoint.hidden = !typeSelect.value || typeSelect.value === 'DIRECT';
 }
 
 /**
@@ -625,10 +646,16 @@ function bindProxyDetailsVisibility(configRoot) {
     if (!enabledInput) {
         return;
     }
+    var typeSelect = configRoot.querySelector('select[name="type"], select[name="_.type"]');
     applyProxyDetailsVisibility(configRoot);
     enabledInput.addEventListener('change', function () {
         applyProxyDetailsVisibility(configRoot);
     });
+    if (typeSelect) {
+        typeSelect.addEventListener('change', function () {
+            applyProxyEndpointVisibility(configRoot);
+        });
+    }
 }
 
 /**
