@@ -754,7 +754,7 @@
 }
 
 .robot-provider-select {
-    min-width: 112px;
+    min-width: 80px;
     height: 100%;
     border: 0 !important;
     border-radius: 0 !important;
