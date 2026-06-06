@@ -26,8 +26,6 @@
                      data-wechat-work-webhook-prefix="https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key="
                      data-token-label="${%robot.endpoint.input.token}"
                      data-webhook-label="${%robot.endpoint.input.webhook}"
-                     data-custom-toggle-label="${%robot.endpoint.custom.toggle}"
-                     data-provider-hint="${%robot.provider.hint}"
                      data-token-hint-feishu="${%robot.endpoint.input.hint.feishu}"
                      data-token-hint-lark="${%robot.endpoint.input.hint.lark}"
                      data-token-hint-ding-talk="${%robot.endpoint.input.hint.ding.talk}"

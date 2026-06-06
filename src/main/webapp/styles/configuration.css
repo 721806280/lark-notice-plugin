@@ -14,22 +14,6 @@
     gap: 10px;
 }
 
-.lark-config-page__intro {
-    display: grid;
-    gap: 6px;
-    padding: 2px 4px 4px;
-}
-
-.lark-config-page__title {
-    color: #0f172a;
-    font-size: 16px;
-    font-weight: 700;
-}
-
-.lark-config-page__description {
-    max-width: 720px;
-}
-
 .lark-config-page > .jenkins-section {
     margin: 0;
 }
@@ -48,14 +32,6 @@
 
 .lark-config-page > .jenkins-section:first-child .jenkins-section__title {
     margin-bottom: 4px;
-}
-
-.lark-config-section__hint {
-    margin: -4px 0 6px;
-}
-
-.lark-config-field-hint {
-    margin-top: 6px;
 }
 
 .lark-config-page__actions {
@@ -258,12 +234,6 @@
     overflow-wrap: anywhere;
 }
 
-.lark-notifier-header__meta {
-    color: var(--text-color-secondary, #526173);
-    font-size: 12px;
-    line-height: 1.45;
-}
-
 .lark-notifier-status-pill {
     display: inline-flex;
     align-items: center;
@@ -297,15 +267,6 @@
     box-shadow: var(--lark-shadow);
 }
 
-.lark-notifier-panel__title {
-    margin: 0 0 12px;
-    color: #475569;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-}
-
 .lark-notifier-editor .jenkins-form-item {
     margin-bottom: 10px;
 }
@@ -329,15 +290,6 @@
 .lark-notifier-editor .setting-main .jenkins-input,
 .lark-notifier-editor .setting-main select {
     min-height: 38px;
-}
-
-.lark-locale-switch {
-    width: fit-content;
-    max-width: 100%;
-}
-
-.lark-locale-switch .lark-segmented-control__option span {
-    min-width: 64px;
 }
 
 .lark-notifier-editor textarea.jenkins-input,
@@ -405,12 +357,6 @@
     display: grid;
     gap: 8px;
     padding-top: 4px;
-}
-
-.lark-notifier-compose-section__title {
-    color: #334155;
-    font-size: 12px;
-    font-weight: 700;
 }
 
 .lark-notifier-custom-actions {
@@ -659,11 +605,6 @@
     border-radius: var(--form-input-border-radius, 10px);
 }
 
-.robot-protocol-type-select,
-.robot-endpoint-mode-select {
-    width: min(100%, 320px);
-}
-
 .robot-endpoint-workspace {
     display: grid;
     gap: 7px;
@@ -674,101 +615,11 @@
     box-shadow: var(--lark-shadow);
 }
 
-.robot-choice-group,
-.robot-choice-cluster {
-    display: grid;
-    gap: 8px;
-}
-
-.robot-inline-choice {
-    display: grid;
-    gap: 6px;
-    min-width: 0;
-}
-
-.robot-inline-choice--grow {
-    flex: 1 1 460px;
-}
-
-.robot-inline-choice__label,
-.robot-choice-group__hint,
-.robot-endpoint-composer__hint {
-    color: var(--text-color-secondary, #526173);
-}
-
-.robot-inline-choice__label {
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.robot-choice-group__hint,
-.robot-choice-cluster__hint,
 .robot-endpoint-composer__hint {
     color: var(--text-color-secondary, #526173);
     font-size: 12px;
     line-height: 1.45;
     margin: 0;
-}
-
-.lark-segmented-control,
-.robot-segmented-control {
-    display: inline-grid;
-    grid-auto-flow: column;
-    gap: 6px;
-    padding: 4px;
-    border: 1px solid var(--lark-border);
-    border-radius: 12px;
-    background: var(--lark-surface-soft);
-}
-
-.lark-segmented-control__option,
-.robot-segmented-control__option {
-    position: relative;
-    display: inline-flex;
-    min-width: 0;
-    cursor: pointer;
-}
-
-.lark-segmented-control__option input,
-.robot-segmented-control__option input {
-    position: absolute;
-    opacity: 0;
-    inset: 0;
-    pointer-events: none;
-}
-
-.lark-segmented-control__option span,
-.robot-segmented-control__option span {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 34px;
-    padding: 0 12px;
-    border-radius: 8px;
-    color: #475569;
-    font-weight: 600;
-    font-size: 12px;
-    line-height: 1.2;
-    transition: background-color 140ms ease, color 140ms ease, box-shadow 140ms ease;
-}
-
-.lark-segmented-control__option:hover span,
-.robot-segmented-control__option:hover span {
-    color: #1f2937;
-    background: rgba(255, 255, 255, 0.9);
-}
-
-.lark-segmented-control__option input:checked + span,
-.robot-segmented-control__option input:checked + span {
-    color: #12459a;
-    background: #fff;
-    box-shadow: 0 0 0 1px rgba(31, 111, 235, 0.14);
-}
-
-.lark-segmented-control__option input:focus-visible + span,
-.robot-segmented-control__option input:focus-visible + span {
-    outline: 2px solid rgba(31, 111, 235, 0.28);
-    outline-offset: 2px;
 }
 
 .robot-webhook-input,
@@ -785,18 +636,8 @@
     min-width: 0;
 }
 
-.robot-editor-field--full {
-    padding: 4px 0 0;
-}
-
 .robot-editor-field--single {
     gap: 8px;
-}
-
-.robot-editor-field__label {
-    color: var(--text-color-secondary, #526173);
-    font-size: 12px;
-    font-weight: 600;
 }
 
 .robot-custom-toggle {
@@ -973,62 +814,6 @@
     box-shadow: none !important;
     outline: none !important;
     background: transparent;
-}
-
-.robot-builder {
-    display: grid;
-    gap: 10px;
-}
-
-.robot-builder__row {
-    display: grid;
-    grid-template-columns: minmax(240px, 1.2fr) auto minmax(200px, 0.9fr);
-    gap: 10px;
-    align-items: end;
-}
-
-.robot-builder__path {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 38px;
-    padding: 0 12px;
-    border: 1px solid var(--lark-border);
-    border-radius: 10px;
-    background: var(--lark-surface-soft);
-    color: #334155;
-    font-family: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-    font-size: 12px;
-    white-space: nowrap;
-}
-
-.robot-builder__presets,
-.robot-base-url-presets {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: center;
-}
-
-.robot-base-url-presets__label {
-    color: var(--text-color-secondary, #526173);
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.robot-base-url-preset-btn {
-    min-width: auto;
-    min-height: 30px;
-    padding: 0 10px;
-    border-radius: 999px;
-    background: var(--lark-surface);
-}
-
-.robot-base-url-preset-btn.is-active {
-    border-color: rgba(31, 111, 235, 0.38);
-    color: #12459a;
-    background: #eef5ff;
-    box-shadow: inset 0 0 0 1px rgba(31, 111, 235, 0.12);
 }
 
 .robot-preview-inline {
@@ -1460,18 +1245,6 @@
 
     .robot-webhook-preview {
         word-break: break-all;
-    }
-
-    .lark-segmented-control,
-    .robot-segmented-control {
-        width: 100%;
-        grid-auto-flow: row;
-    }
-
-    .robot-builder__path {
-        justify-content: flex-start;
-        white-space: normal;
-        overflow-wrap: anywhere;
     }
 
     .robot-settings-row {

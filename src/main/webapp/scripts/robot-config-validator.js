@@ -292,11 +292,6 @@ function getRobotConfigValue(robot, selector) {
     return element ? element.value : '';
 }
 
-function getRobotCheckedValue(robot, selector) {
-    var element = robot.querySelector(selector + ':checked');
-    return element ? element.value : '';
-}
-
 function applyRobotEndpointConfig(robot) {
     if (!robot) {
         return;
