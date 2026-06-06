@@ -3,21 +3,44 @@
     <j:set var="type" value="${instance.getType()}"/>
     <j:set var="desc" value="${instance.getDesc()}"/>
 
-    <div class="security-config-container">
-        <f:entry title="${desc}" field="value"
-                 help="${type == 'KEY' ? '/descriptor/io.jenkins.plugins.lark.notice.config.LarkSecurityPolicyConfig/help/key' :
-                       type == 'NO_SSL' ? '/descriptor/io.jenkins.plugins.lark.notice.config.LarkSecurityPolicyConfig/help/no_ssl' : null}">
-            <j:choose>
-                <j:when test="${type == 'NO_SSL'}">
-                    <!-- Checkbox for NO_SSL type -->
+    <div class="security-config-container" data-security-type="${type}">
+        <j:choose>
+            <j:when test="${type == 'NO_SSL'}">
+                <f:entry title="${desc}" field="value">
                     <f:checkbox name="value" checked="${instance.getValue()}"/>
-                </j:when>
-                <j:otherwise>
-                    <!-- Textbox for other types -->
-                    <f:textbox name="value"/>
-                </j:otherwise>
-            </j:choose>
-        </f:entry>
+                </f:entry>
+            </j:when>
+            <j:when test="${type == 'KEY'}">
+                <div class="security-text-field">
+                    <label class="security-field__label">${desc}</label>
+                    <input type="text" name="value" value="${instance.getValue()}"
+                           class="setting-input security-text-input" autocomplete="off"
+                           placeholder="${%security.key.description}"/>
+                </div>
+            </j:when>
+            <j:otherwise>
+                <div class="security-secret-field">
+                    <label class="security-field__label">${desc}</label>
+                    <div class="security-secret-field__row">
+                        <input type="password" name="value" value="${instance.getValue()}"
+                               class="setting-input security-secret-input" autocomplete="off"
+                               placeholder="${%security.secret.description}"/>
+                        <button type="button"
+                                class="jenkins-button security-secret-btn security-secret-toggle-btn"
+                                data-show-label="${%security.secret.show}"
+                                data-hide-label="${%security.secret.hide}">
+                            ${%security.secret.show}
+                        </button>
+                        <button type="button"
+                                class="jenkins-button security-secret-btn security-secret-copy-btn"
+                                data-copied-label="${%security.secret.copied}"
+                                data-failure-label="${%security.secret.copy.failure}">
+                            ${%security.secret.copy}
+                        </button>
+                    </div>
+                </div>
+            </j:otherwise>
+        </j:choose>
         <f:invisibleEntry>
             <input type="hidden" name="type" value="${type}"/>
             <input type="hidden" name="desc" value="${desc}"/>

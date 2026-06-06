@@ -41,6 +41,9 @@
                     <input type="hidden" name="baseUrl" value="${baseUrlValue}" class="robot-base-url-input"/>
                     <input type="hidden" name="webhookToken" value="${webhookTokenValue}" class="robot-webhook-token-input"/>
 
+                    <input type="hidden" name="messageLocaleStrategy"
+                           value="${messageLocaleStrategyValue}"
+                           class="robot-message-locale-value"/>
                     <div class="robot-endpoint-composer">
                         <div class="robot-endpoint-composer__controls">
                             <label class="robot-endpoint-composer__provider">
@@ -57,6 +60,13 @@
                                 <span class="robot-custom-toggle__indicator" aria-hidden="true"></span>
                                 <span class="robot-custom-toggle__label">${%robot.endpoint.custom.toggle}</span>
                             </label>
+                            <label class="robot-endpoint-composer__locale">
+                                <span class="jenkins-visually-hidden">${%robot.message.language}</span>
+                                <select class="jenkins-select robot-locale-select">
+                                    <option value="ZH_CN">${%robot.message.language.short.zh_cn}</option>
+                                    <option value="EN_US">${%robot.message.language.short.en_us}</option>
+                                </select>
+                            </label>
                         </div>
                         <label class="robot-editor-field robot-editor-field--single robot-endpoint-composer__field">
                             <span class="jenkins-visually-hidden robot-endpoint-input-label">${%robot.endpoint.input.token}</span>
@@ -72,26 +82,6 @@
                     </div>
                 </div>
             </f:entry>
-            <f:entry field="messageLocaleStrategy" title="${%robot.message.language}"
-                     help="/descriptor/io.jenkins.plugins.lark.notice.config.LarkRobotConfig/help/messageLocaleStrategy">
-                <input type="hidden" name="messageLocaleStrategy"
-                       value="${messageLocaleStrategyValue}"
-                       class="robot-message-locale-value"/>
-                <div class="lark-segmented-control lark-locale-switch">
-                    <label class="lark-segmented-control__option">
-                        <input class="robot-locale-input" type="radio"
-                               name="uiRobotLocale-${robotIdValue}"
-                               value="ZH_CN"/>
-                        <span title="${%robot.message.language.zh_cn}">${%robot.message.language.short.zh_cn}</span>
-                    </label>
-                    <label class="lark-segmented-control__option">
-                        <input class="robot-locale-input" type="radio"
-                               name="uiRobotLocale-${robotIdValue}"
-                               value="EN_US"/>
-                        <span title="${%robot.message.language.en_us}">${%robot.message.language.short.en_us}</span>
-                    </label>
-                </div>
-            </f:entry>
         </f:section>
 
         <j:scope>
@@ -99,7 +89,7 @@
                    value="${descriptor.getLarkSecurityPolicyConfigDescriptor()}"/>
             <j:set var="securityPolicyConfigs"
                    value="${instance != null ? instance.getSecurityPolicyConfigs() : descriptor.getDefaultSecurityPolicyConfigs()}"/>
-            <f:section title="${%robot.security.settings}">
+            <div class="robot-settings-row">
                 <div class="robot-security-repeatable">
                     <f:repeatable
                             header=""
@@ -110,13 +100,10 @@
                         <st:include page="config.jelly" class="${securityPolicyConfigDescriptor.clazz}"/>
                     </f:repeatable>
                 </div>
-            </f:section>
+                <f:property field="retryConfig"
+                            propertyDescriptor="${descriptor.getLarkRetryConfigDescriptor()}"/>
+            </div>
         </j:scope>
-
-        <f:section title="${%robot.section.retry}">
-            <f:property field="retryConfig"
-                        propertyDescriptor="${descriptor.getLarkRetryConfigDescriptor()}"/>
-        </f:section>
 
         <div class="robot-config-actions">
             <j:if test="${!empty(robotIdValue)}">

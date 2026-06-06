@@ -87,7 +87,6 @@ function initRobotEndpointConfig(container) {
     container.dataset.endpointConfigBound = 'true';
 
     seedRobotEndpointUiState(container);
-    ensureRobotLocaleGroupName(container);
     seedRobotLocaleUiState(container);
     bindRobotLocaleFormSync(container);
 
@@ -144,20 +143,6 @@ function bindRobotLocaleFormSync(robot) {
     });
 }
 
-function ensureRobotLocaleGroupName(robot) {
-    if (!robot || robot.dataset.localeGroupAssigned === 'true') {
-        return;
-    }
-    robot.dataset.localeGroupAssigned = 'true';
-
-    // Draft repeatable entries do not have a persisted ID yet, so assign an isolated radio group name.
-    var robotIdInput = robot.querySelector('input[name="id"]');
-    var robotKey = robotIdInput && robotIdInput.value ? robotIdInput.value : 'draft-' + nextRobotLocaleGroupId();
-    var radioName = 'uiRobotLocale-' + robotKey;
-    Array.from(robot.querySelectorAll('.robot-locale-input')).forEach(function (input) {
-        input.name = radioName;
-    });
-}
 
 function seedRobotLocaleUiState(robot) {
     if (!robot || robot.dataset.localeUiSeeded === 'true') {
@@ -165,29 +150,24 @@ function seedRobotLocaleUiState(robot) {
     }
     robot.dataset.localeUiSeeded = 'true';
 
-    // Collapse any legacy or blank value to the explicit two-option UI shown in the editor.
     var localeValueField = robot.querySelector('.robot-message-locale-value');
     var localeValue = localeValueField ? localeValueField.value : '';
     var resolvedValue = localeValue === 'ZH_CN' || localeValue === 'EN_US' ? localeValue : 'ZH_CN';
-    var localeInput = robot.querySelector('.robot-locale-input[value="' + resolvedValue + '"]');
-    if (localeInput) {
-        localeInput.checked = true;
+    var localeSelect = robot.querySelector('.robot-locale-select');
+    if (localeSelect) {
+        localeSelect.value = resolvedValue;
     }
 }
 
-function nextRobotLocaleGroupId() {
-    window.LarkNoticeRobotLocaleGroupCounter = (window.LarkNoticeRobotLocaleGroupCounter || 0) + 1;
-    return window.LarkNoticeRobotLocaleGroupCounter;
-}
 
 function syncRobotLocaleValue(robot) {
     if (!robot) {
         return;
     }
     var localeValueField = robot.querySelector('.robot-message-locale-value');
-    var checkedLocale = robot.querySelector('.robot-locale-input:checked');
+    var localeSelect = robot.querySelector('.robot-locale-select');
     if (localeValueField) {
-        localeValueField.value = checkedLocale ? checkedLocale.value : 'SYSTEM_DEFAULT';
+        localeValueField.value = localeSelect ? localeSelect.value : 'SYSTEM_DEFAULT';
     }
 }
 
@@ -656,6 +636,54 @@ function bindProxyDetailsVisibility(configRoot) {
             applyProxyEndpointVisibility(configRoot);
         });
     }
+}
+
+function toggleSecuritySecretVisibility(button) {
+    var field = button.closest('.security-secret-field');
+    if (!field) {
+        return;
+    }
+    var input = field.querySelector('.security-secret-input');
+    if (!input) {
+        return;
+    }
+    var isPassword = input.type === 'password';
+    input.type = isPassword ? 'text' : 'password';
+    button.textContent = isPassword
+        ? button.getAttribute('data-hide-label')
+        : button.getAttribute('data-show-label');
+}
+
+function copySecuritySecretValue(button) {
+    var field = button.closest('.security-secret-field');
+    if (!field) {
+        return;
+    }
+    var input = field.querySelector('.security-secret-input');
+    var value = input ? input.value : '';
+    if (!value) {
+        flashSecurityCopyLabel(button, button.getAttribute('data-failure-label') || 'Copy failed');
+        return;
+    }
+    writeTextToClipboard(value).then(function () {
+        flashSecurityCopyLabel(button, button.getAttribute('data-copied-label') || 'Copied');
+    }).catch(function () {
+        flashSecurityCopyLabel(button, button.getAttribute('data-failure-label') || 'Copy failed');
+    });
+}
+
+function flashSecurityCopyLabel(button, label) {
+    var defaultLabel = button.textContent;
+    if (button.dataset.flashTimerId) {
+        window.clearTimeout(Number(button.dataset.flashTimerId));
+    }
+    button.textContent = label;
+    button.disabled = true;
+    button.dataset.flashTimerId = String(window.setTimeout(function () {
+        button.textContent = defaultLabel;
+        button.disabled = false;
+        delete button.dataset.flashTimerId;
+    }, 1200));
 }
 
 /**

@@ -5,23 +5,28 @@
             <f:checkbox/>
         </f:entry>
         <div class="lark-retry-details">
-            <f:advanced>
-                <f:entry field="maxAttempts" title="${%retry.maxAttempts}">
-                    <f:number min="1" clazz="number"/>
-                </f:entry>
-                <f:entry field="initialDelayMs" title="${%retry.initialDelayMs}">
-                    <f:number min="0" clazz="number"/>
-                </f:entry>
-                <f:entry field="maxDelayMs" title="${%retry.maxDelayMs}">
-                    <f:number min="0" clazz="number"/>
-                </f:entry>
-                <f:entry field="backoffMultiplier" title="${%retry.backoffMultiplier}">
-                    <f:number min="1" step="0.1" clazz="number"/>
-                </f:entry>
-                <f:entry field="jitterRatio" title="${%retry.jitterRatio}">
-                    <f:number min="0" max="1" step="0.05" clazz="number"/>
-                </f:entry>
-            </f:advanced>
+            <div class="lark-retry-grid">
+                <div class="lark-retry-field">
+                    <label class="lark-retry-field__label">${%retry.maxAttempts}</label>
+                    <f:number field="maxAttempts" min="1" clazz="number lark-retry-input"/>
+                </div>
+                <div class="lark-retry-field">
+                    <label class="lark-retry-field__label">${%retry.initialDelayMs}</label>
+                    <f:number field="initialDelayMs" min="0" clazz="number lark-retry-input"/>
+                </div>
+                <div class="lark-retry-field">
+                    <label class="lark-retry-field__label">${%retry.maxDelayMs}</label>
+                    <f:number field="maxDelayMs" min="0" clazz="number lark-retry-input"/>
+                </div>
+                <div class="lark-retry-field">
+                    <label class="lark-retry-field__label">${%retry.backoffMultiplier}</label>
+                    <f:number field="backoffMultiplier" min="1" step="0.1" clazz="number lark-retry-input"/>
+                </div>
+                <div class="lark-retry-field">
+                    <label class="lark-retry-field__label">${%retry.jitterRatio}</label>
+                    <f:number field="jitterRatio" min="0" max="1" step="0.05" clazz="number lark-retry-input"/>
+                </div>
+            </div>
         </div>
     </div>
 </j:jelly>

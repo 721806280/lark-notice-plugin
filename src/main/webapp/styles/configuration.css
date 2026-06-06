@@ -42,6 +42,10 @@
     margin-bottom: 8px;
 }
 
+.lark-config-page > .jenkins-section > .jenkins-form-item {
+    margin-bottom: 0;
+}
+
 .lark-config-page > .jenkins-section:first-child .jenkins-section__title {
     margin-bottom: 4px;
 }
@@ -616,11 +620,12 @@
 
 .robot-config-container {
     display: grid;
-    gap: 14px;
+    gap: 12px;
 }
 
 .robot-config-container .jenkins-section {
     margin: 0;
+    padding: 0 !important;
 }
 
 .robot-config-container .jenkins-section .jenkins-section__title {
@@ -628,11 +633,17 @@
 }
 
 .robot-config-container .jenkins-form-item {
-    margin-bottom: 12px;
+    margin-bottom: 10px;
+    max-width: none;
 }
 
 .robot-config-container .jenkins-form-item:last-child {
     margin-bottom: 0;
+}
+
+.robot-config-container > .jenkins-section .help-area,
+.robot-config-container > .jenkins-section .validation-error-area {
+    margin-right: 0;
 }
 
 .robot-config-container .jenkins-form-label,
@@ -880,10 +891,12 @@
     overflow: hidden;
 }
 
-.robot-endpoint-composer:focus-within {
-    border-color: rgba(31, 111, 235, 0.42);
-    box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.10);
+.robot-endpoint-composer select:focus,
+.robot-endpoint-composer input:focus {
+    outline: none !important;
+    box-shadow: none !important;
 }
+
 
 .robot-endpoint-composer__controls {
     display: inline-flex;
@@ -906,12 +919,46 @@
     border-radius: 0 !important;
     background: transparent !important;
     box-shadow: none !important;
+    outline: none !important;
     font-weight: 600;
+    text-align: center;
 }
 
 .robot-endpoint-composer__controls .robot-custom-toggle {
     border-left: 1px solid var(--lark-border);
     margin-left: 0;
+}
+
+.robot-endpoint-composer__locale {
+    display: inline-flex;
+    align-items: center;
+    border-left: 1px solid var(--lark-border);
+    margin-left: auto;
+}
+
+.robot-locale-select {
+    height: 100%;
+    min-width: 0;
+    padding: 0 10px;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--text-color-secondary, #526173);
+    cursor: pointer;
+}
+
+.robot-locale-select:hover {
+    background: rgba(15, 23, 42, 0.03) !important;
+    color: #334155;
+}
+
+.robot-locale-select:focus {
+    background: rgba(31, 111, 235, 0.05) !important;
+    color: #12459a;
+    outline: none;
 }
 
 .robot-endpoint-composer__field {
@@ -924,6 +971,7 @@
     border: 0 !important;
     border-radius: 0 !important;
     box-shadow: none !important;
+    outline: none !important;
     background: transparent;
 }
 
@@ -984,15 +1032,17 @@
 }
 
 .robot-preview-inline {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: 5px 8px;
-    align-items: start;
-    padding: 6px 8px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 8px;
+    padding: 6px 0 6px 10px;
     border: 1px solid var(--lark-border);
     border-radius: 10px;
     background: var(--lark-surface-soft);
     margin: 0;
+    overflow: hidden;
+    min-height: 32px;
 }
 
 .robot-preview-inline__label {
@@ -1000,17 +1050,18 @@
     font-size: 12px;
     font-weight: 600;
     white-space: nowrap;
-    line-height: 1.5;
+    line-height: 20px;
 }
 
 .robot-webhook-preview {
-    min-height: 20px;
+    flex: 1 1 0;
+    min-width: 0;
     padding: 0;
     border: 0;
     border-radius: 0;
     background: transparent;
     color: #334155;
-    line-height: 1.45;
+    line-height: 20px;
     white-space: normal;
     overflow-wrap: anywhere;
     margin: 0;
@@ -1038,6 +1089,23 @@
     color: #9a3412;
 }
 
+/* ── Settings row: flatten security + retry into one flex flow ── */
+
+.robot-settings-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.robot-settings-row > *,
+.robot-settings-row .robot-security-repeatable > .repeated-container,
+.robot-settings-row .repeated-container > .repeated-chunk,
+.robot-settings-row .repeated-chunk > .jenkins-repeated-chunk__content,
+.robot-settings-row .lark-retry-config {
+    display: contents;
+}
+
 .robot-security-repeatable .repeated-chunk {
     border: 0 !important;
     padding: 0 !important;
@@ -1045,7 +1113,6 @@
     box-shadow: none !important;
     background: transparent !important;
     outline: 0 !important;
-    display: block;
 }
 
 .robot-security-repeatable .repeated-chunk__header {
@@ -1058,25 +1125,219 @@
     display: none !important;
 }
 
-.robot-security-repeatable .repeated-container {
-    display: grid;
-    gap: 12px;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-.robot-security-repeatable .repeated-chunk {
-    padding: 0 !important;
-    margin: 0 !important;
-}
-
 .robot-security-repeatable .jenkins-repeated-chunk__content {
     padding: 0 !important;
     margin: 0 !important;
 }
 
-.robot-security-repeatable .jenkins-form-item {
+/* ── Toggle row: retry enable + NO_SSL as compact pill toggles ── */
+
+.robot-settings-row .lark-retry-config > .jenkins-form-item {
+    order: 1;
+    flex: 0 0 auto;
+}
+
+.security-config-container[data-security-type="NO_SSL"] {
+    order: 2;
+    flex: 0 0 auto;
+}
+
+.security-config-container[data-security-type="NO_SSL"] .jenkins-form-item,
+.robot-settings-row .lark-retry-config > .jenkins-form-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+.security-config-container[data-security-type="NO_SSL"] .jenkins-form-label,
+.robot-settings-row .lark-retry-config > .jenkins-form-item > .jenkins-form-label {
+    order: 1;
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: #334155;
+    white-space: nowrap;
+}
+
+.security-config-container[data-security-type="NO_SSL"] .setting-main,
+.robot-settings-row .lark-retry-config > .jenkins-form-item > .setting-main {
+    order: 0;
+    min-height: 0;
+}
+
+.security-config-container[data-security-type="NO_SSL"] .setting-main .jenkins-checkbox,
+.robot-settings-row .lark-retry-config > .jenkins-form-item .jenkins-checkbox {
+    margin: 0;
+}
+
+.security-config-container[data-security-type="NO_SSL"] .setting-main input,
+.robot-settings-row .lark-retry-config > .jenkins-form-item .setting-main input {
+    margin: 0;
+}
+
+.security-config-container[data-security-type="NO_SSL"] .jenkins-help-button,
+.security-config-container[data-security-type="NO_SSL"] .validation-error-area,
+.security-config-container[data-security-type="NO_SSL"] .help-area,
+.robot-settings-row .lark-retry-config > .jenkins-form-item > .validation-error-area,
+.robot-settings-row .lark-retry-config > .jenkins-form-item > .help-area {
+    display: none !important;
+}
+
+/* ── Security fields: KEY (text) and SECRET (masked) ── */
+
+.security-config-container:not([data-security-type="NO_SSL"]) {
+    order: 10;
+    flex-basis: 100%;
+}
+
+.security-field__label {
+    color: #1f2937;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.security-text-field {
+    display: grid;
+    gap: 4px;
+}
+
+.security-text-input {
+    width: 100% !important;
+    min-height: 36px;
+    padding: 0 10px !important;
+    border: 1px solid var(--lark-border) !important;
+    border-radius: 10px !important;
+    background: var(--lark-surface) !important;
+    box-shadow: none !important;
+    font-size: 13px;
+}
+
+.security-text-input:focus {
+    border-color: rgba(31, 111, 235, 0.42) !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.security-secret-field {
+    display: grid;
+    gap: 4px;
+}
+
+.security-secret-field__row {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    border: 1px solid var(--lark-border);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--lark-surface);
+}
+
+.security-secret-input {
+    flex: 1 1 0;
+    width: 0 !important;
+    min-height: 36px;
+    padding: 0 10px !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+    font-size: 13px;
+    font-family: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+.security-secret-btn.jenkins-button {
+    flex: 0 0 auto;
+    min-height: 36px;
+    min-width: 0;
+    padding: 0 10px;
+    border: 0;
+    border-left: 1px solid var(--lark-border);
+    border-radius: 0;
+    background: var(--lark-surface-soft);
+    color: var(--text-color-secondary, #526173);
+    font-size: 11px;
+    font-weight: 600;
+    box-shadow: none;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.security-secret-btn.jenkins-button:hover:not(:disabled) {
+    background: rgba(31, 111, 235, 0.06);
+    color: var(--lark-accent);
+}
+
+.security-secret-btn.jenkins-button:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+/* ── Retry details grid ── */
+
+.lark-retry-config .jenkins-form-item {
     margin-bottom: 0;
+}
+
+.robot-settings-row .lark-retry-details {
+    order: 5;
+    flex-basis: 100%;
+}
+
+.lark-retry-details[hidden] {
+    display: none !important;
+}
+
+.lark-retry-details {
+    padding: 10px;
+    border: 1px solid var(--lark-border);
+    border-radius: 10px;
+}
+
+.lark-retry-details .jenkins-form-item {
+    margin: 0;
+}
+
+.lark-retry-details .setting-main {
+    min-height: 0;
+}
+
+.lark-retry-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px 12px;
+}
+
+.lark-retry-field {
+    display: grid;
+    gap: 4px;
+}
+
+.lark-retry-field__label {
+    color: var(--text-color-secondary, #526173);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.lark-retry-input {
+    width: 100% !important;
+    min-height: 30px;
+    padding: 0 8px !important;
+    border: 1px solid var(--lark-border) !important;
+    border-radius: 8px !important;
+    background: var(--lark-surface) !important;
+    box-shadow: none !important;
+    font-size: 13px;
+}
+
+.lark-retry-input:focus {
+    border-color: rgba(31, 111, 235, 0.42) !important;
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 .robot-config-actions {
@@ -1141,8 +1402,18 @@
     background: rgba(31, 111, 235, 0.12);
 }
 
+.robot-config-validate-msg:empty {
+    display: none;
+}
+
 .robot-config-validate-msg {
-    margin-top: 6px;
+    margin-top: -6px;
+}
+
+.robot-config-container > script,
+.robot-config-container > link,
+.robot-config-container > style {
+    display: none;
 }
 
 .lark-management-page-header {
@@ -1165,6 +1436,10 @@
         border-radius: 14px;
     }
 
+    .robot-endpoint-workspace {
+        padding: 8px;
+    }
+
     .robot-endpoint-composer {
         grid-template-columns: 1fr;
     }
@@ -1179,9 +1454,12 @@
         border-left: 1px solid var(--lark-border);
     }
 
-    .robot-preview-inline {
-        grid-template-columns: 1fr;
-        gap: 4px;
+    .robot-provider-select {
+        min-width: 0;
+    }
+
+    .robot-webhook-preview {
+        word-break: break-all;
     }
 
     .lark-segmented-control,
@@ -1194,6 +1472,40 @@
         justify-content: flex-start;
         white-space: normal;
         overflow-wrap: anywhere;
+    }
+
+    .robot-settings-row {
+        gap: 8px;
+    }
+
+    .security-secret-input {
+        min-width: 0 !important;
+    }
+
+    .security-secret-btn.jenkins-button {
+        min-height: 28px;
+        padding: 0 8px;
+        font-size: 10px;
+    }
+
+    .lark-retry-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .robot-endpoint-composer__controls {
+        flex-direction: column;
+    }
+
+    .robot-endpoint-composer__controls .robot-custom-toggle,
+    .robot-endpoint-composer__locale {
+        border-left: 0;
+        border-top: 1px solid var(--lark-border);
+    }
+
+    .lark-retry-grid {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -1475,22 +1787,6 @@
 
     .robot-config-action-btn--copy.jenkins-button:last-child {
         grid-column: 1 / -1;
-    }
-
-    .lark-segmented-control,
-    .robot-segmented-control {
-        display: grid;
-        grid-auto-flow: row;
-    }
-
-    .robot-endpoint-composer {
-        grid-template-columns: 1fr;
-    }
-
-    .robot-endpoint-composer__path {
-        justify-content: flex-start;
-        white-space: normal;
-        overflow-wrap: anywhere;
     }
 
     .lark-management-page-header {
