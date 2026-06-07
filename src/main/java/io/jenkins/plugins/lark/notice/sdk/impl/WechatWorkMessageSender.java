@@ -7,8 +7,6 @@ import io.jenkins.plugins.lark.notice.sdk.model.wechat.WechatWorkMarkdownMessage
 import io.jenkins.plugins.lark.notice.sdk.model.wechat.WechatWorkTemplateCardMessage;
 import io.jenkins.plugins.lark.notice.sdk.model.wechat.WechatWorkTextMessage;
 import io.jenkins.plugins.lark.notice.tools.JsonUtils;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
 import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.LF;
@@ -16,14 +14,11 @@ import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.LF;
 /**
  * WeCom implementation for sending group robot messages.
  */
-@Getter
-@AllArgsConstructor
 public class WechatWorkMessageSender extends AbstractMessageSender {
 
-    /**
-     * The robot configuration information.
-     */
-    private final RobotConfigModel robotConfig;
+    public WechatWorkMessageSender(RobotConfigModel robotConfig) {
+        super(robotConfig);
+    }
 
     /**
      * Sends a text message.

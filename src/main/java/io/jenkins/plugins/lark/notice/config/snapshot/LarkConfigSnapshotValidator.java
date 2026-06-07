@@ -6,7 +6,6 @@ import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.config.LarkRetryConfig;
 import io.jenkins.plugins.lark.notice.config.RobotWebhookResolver;
 import io.jenkins.plugins.lark.notice.enums.NoticeOccasionEnum;
-import io.jenkins.plugins.lark.notice.enums.MessageLocaleStrategy;
 import io.jenkins.plugins.lark.notice.enums.RobotProtocolType;
 import io.jenkins.plugins.lark.notice.enums.RobotType;
 import io.jenkins.plugins.lark.notice.enums.SecurityPolicyEnum;
@@ -86,17 +85,6 @@ public final class LarkConfigSnapshotValidator {
         }
     }
 
-    private static void validateMessageLocaleStrategy(MessageLocaleStrategy messageLocaleStrategy) throws FormException {
-        if (messageLocaleStrategy == null) {
-            return;
-        }
-        try {
-            MessageLocaleStrategy.valueOf(messageLocaleStrategy.name());
-        } catch (Exception ex) {
-            throw new FormException(Messages.config_import_payload_invalid("Unsupported message locale strategy."), IMPORT_FIELD);
-        }
-    }
-
     private static void validateProxy(ProxySnapshot proxyConfig) throws FormException {
         if (proxyConfig == null) {
             return;
@@ -149,7 +137,6 @@ public final class LarkConfigSnapshotValidator {
                 || !RobotWebhookResolver.isSupportedWebhook(protocolType, resolvedWebhookUrl)) {
             throw new FormException(Messages.form_validation_webhook_invalid(), IMPORT_FIELD);
         }
-        validateMessageLocaleStrategy(robotConfig.getMessageLocaleStrategy());
         validateRetry(robotConfig.getRetryConfig());
         validateSecurityPolicies(robotConfig.getSecurityPolicyConfigs());
     }

@@ -41,7 +41,7 @@ public enum RobotProtocolType {
         if (robotType == null) {
             return null;
         }
-        if (RobotType.DING_TAlK.equals(robotType)) {
+        if (RobotType.DING_TALK.equals(robotType)) {
             return DING_TALK;
         }
         if (RobotType.WECHAT_WORK.equals(robotType)) {
@@ -57,7 +57,7 @@ public enum RobotProtocolType {
      */
     public RobotType toRobotType() {
         return switch (this) {
-            case DING_TALK -> RobotType.DING_TAlK;
+            case DING_TALK -> RobotType.DING_TALK;
             case WECHAT_WORK -> RobotType.WECHAT_WORK;
             case LARK_COMPATIBLE -> RobotType.LARK;
         };

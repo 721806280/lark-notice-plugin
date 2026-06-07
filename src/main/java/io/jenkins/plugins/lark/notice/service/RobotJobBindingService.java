@@ -1,13 +1,11 @@
 package io.jenkins.plugins.lark.notice.service;
 
 import hudson.BulkChange;
-import hudson.model.AbstractProject;
 import hudson.model.Descriptor.FormException;
 import hudson.model.Item;
 import hudson.model.Job;
 import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.config.LarkGlobalConfig;
-import io.jenkins.plugins.lark.notice.config.LarkNotifier;
 import io.jenkins.plugins.lark.notice.config.LarkNotifierConfig;
 import io.jenkins.plugins.lark.notice.config.LarkRobotConfig;
 import io.jenkins.plugins.lark.notice.config.property.LarkJobProperty;
@@ -211,7 +209,7 @@ public final class RobotJobBindingService {
                     Messages.job_binding_result_multibranch_unsupported(job.getFullName())
             );
         }
-        if (hasFreestylePostBuildNotifier(job)) {
+        if (NotifierConfigService.hasFreestylePostBuildNotifier(job)) {
             return JobBindingStatus.readonly(
                     SelectionAction.FREESTYLE_PUBLISHER_UNSUPPORTED,
                     Messages.job_binding_result_freestyle_publisher_unsupported(job.getFullName())
@@ -344,13 +342,6 @@ public final class RobotJobBindingService {
         notifierConfig.setChecked(true);
         notifierConfig.setDisabled(false);
         return notifierConfig;
-    }
-
-    private static boolean hasFreestylePostBuildNotifier(Job<?, ?> job) {
-        if (job instanceof AbstractProject<?, ?> project) {
-            return project.getPublishersList().get(LarkNotifier.class) != null;
-        }
-        return false;
     }
 
     private static String buildInvalidRequestMessage(Exception ex) {

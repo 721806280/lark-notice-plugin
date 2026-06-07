@@ -96,11 +96,11 @@ public class NotificationServiceLayerTest {
         FreeStyleProject project = jenkins.createFreeStyleProject("resolver");
         project.addProperty(new LarkJobProperty(List.of(createNotifierConfig(robot.getId(), true, false))));
 
-        List<LarkNotifierConfig> beforePublisher = NotifierConfigResolver.resolveForRunListener(project);
+        List<LarkNotifierConfig> beforePublisher = NotifierConfigService.resolveForRunListener(project);
         assertEquals(1, beforePublisher.size());
 
         project.getPublishersList().add(new LarkNotifier(List.of(createNotifierConfig(robot.getId(), true, false))));
-        List<LarkNotifierConfig> afterPublisher = NotifierConfigResolver.resolveForRunListener(project);
+        List<LarkNotifierConfig> afterPublisher = NotifierConfigService.resolveForRunListener(project);
         assertTrue(afterPublisher.isEmpty());
     }
 

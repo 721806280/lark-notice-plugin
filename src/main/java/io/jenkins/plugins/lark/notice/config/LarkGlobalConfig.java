@@ -6,6 +6,7 @@ import hudson.model.Descriptor;
 import io.jenkins.plugins.lark.notice.config.LarkRobotConfig.LarkRobotConfigDescriptor;
 import io.jenkins.plugins.lark.notice.config.security.LarkPermissions;
 import io.jenkins.plugins.lark.notice.enums.NoticeOccasionEnum;
+import io.jenkins.plugins.lark.notice.enums.RobotType;
 import io.jenkins.plugins.lark.notice.sdk.MessageSenderRegistry;
 import jenkins.model.Jenkins;
 import lombok.Getter;
@@ -110,6 +111,16 @@ public class LarkGlobalConfig extends Descriptor<LarkGlobalConfig> implements De
             return Optional.empty();
         }
         return Optional.ofNullable(getInstance().robotIndex().get(robotId));
+    }
+
+    /**
+     * Resolves the robot type for the given robot ID from the global config index.
+     *
+     * @param robotId robot identifier
+     * @return optional robot type, empty if robot not found
+     */
+    public static Optional<RobotType> resolveRobotType(String robotId) {
+        return getRobot(robotId).map(LarkRobotConfig::obtainRobotType);
     }
 
     /**

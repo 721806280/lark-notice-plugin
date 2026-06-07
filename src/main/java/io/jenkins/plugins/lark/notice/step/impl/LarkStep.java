@@ -1,6 +1,5 @@
 package io.jenkins.plugins.lark.notice.step.impl;
 
-import com.google.common.collect.ImmutableSet;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.EnvVars;
 import hudson.Extension;
@@ -13,25 +12,17 @@ import io.jenkins.plugins.lark.notice.model.ImgModel;
 import io.jenkins.plugins.lark.notice.model.MessageModel;
 import io.jenkins.plugins.lark.notice.sdk.model.SendResult;
 import io.jenkins.plugins.lark.notice.sdk.model.lark.support.Button;
-import io.jenkins.plugins.lark.notice.sdk.model.lark.support.form.TextElement;
-import io.jenkins.plugins.lark.notice.sdk.model.lark.support.view.img.ImgElement;
-import io.jenkins.plugins.lark.notice.sdk.model.lark.support.view.title.TitleElement;
 import io.jenkins.plugins.lark.notice.step.AbstractStep;
 import io.jenkins.plugins.lark.notice.tools.JsonUtils;
 import io.jenkins.plugins.lark.notice.tools.Utils;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
-import org.jenkinsci.plugins.workflow.steps.StepDescriptor;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.springframework.util.CollectionUtils;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.defaultTitle;
 
@@ -188,61 +179,20 @@ public class LarkStep extends AbstractStep {
     public SendResult send(Run<?, ?> run, EnvVars envVars, TaskListener listener) {
         NoticeOccasionEnum noticeOccasion = NoticeOccasionEnum.getNoticeOccasion(run.getResult());
 
+        List<Button> resolvedButtons = expandButtons(envVars, buttons);
+        if (resolvedButtons == null && MsgTypeEnum.CARD.equals(type)) {
+            String jobUrl = rootPath + run.getUrl();
+            resolvedButtons = Utils.createDefaultButtons(jobUrl);
+        }
+
         MessageModel message = MessageModel.builder().type(type)
                 .statusType(noticeOccasion.buildStatus())
                 .title(envVars.expand(StringUtils.defaultIfBlank(title, defaultTitle())))
-                .text(envVars.expand(buildText())).buttons(buildButtons(run, envVars))
+                .text(envVars.expand(buildText())).buttons(resolvedButtons)
                 .topImg(buildImg(envVars, topImg)).bottomImg(buildImg(envVars, bottomImg))
                 .build();
 
         return service.send(listener, envVars.expand(robot), message);
-    }
-
-    /**
-     * Creates an image node for the message body.
-     *
-     * @param envVars  The environment variables during the Jenkins job execution.
-     * @param imgModel The image model for the message body.
-     * @return An image node for the message body.
-     */
-    private ImgElement buildImg(EnvVars envVars, ImgModel imgModel) {
-        if (Objects.isNull(imgModel)) {
-            return null;
-        }
-        ImgElement imgElement = new ImgElement();
-        imgElement.setImgKey(expandNullable(envVars, imgModel.getImgKey()));
-        imgElement.setAlt(TextElement.of(expandNullable(envVars, imgModel.getAltContent())));
-        imgElement.setTitle(TitleElement.buildPlainText(expandNullable(envVars, imgModel.getTitle())));
-
-        imgElement.setCornerRadius(imgModel.getCornerRadius());
-        imgElement.setScaleType(imgModel.getScaleType());
-        imgElement.setSize(imgModel.getSize());
-        imgElement.setTransparent(imgModel.getTransparent());
-        imgElement.setPreview(imgModel.getPreview());
-        return imgElement;
-    }
-
-    private String expandNullable(EnvVars envVars, String value) {
-        return value == null ? null : envVars.expand(value);
-    }
-
-    /**
-     * Constructs a list of buttons to be included in the message.
-     *
-     * @param run     The context information of the Jenkins job at runtime.
-     * @param envVars The environment variables during the Jenkins job execution.
-     * @return A list of buttons to be included in the message.
-     */
-    private List<Button> buildButtons(Run<?, ?> run, EnvVars envVars) {
-        if (MsgTypeEnum.CARD.equals(type) && CollectionUtils.isEmpty(buttons)) {
-            String jobUrl = rootPath + run.getUrl();
-            return Utils.createDefaultButtons(jobUrl);
-        } else if (!CollectionUtils.isEmpty(buttons)) {
-            return buttons.stream().map(item ->
-                    new Button(envVars.expand(item.getTitle()), envVars.expand(item.getUrl()), item.getType())
-            ).collect(Collectors.toList());
-        }
-        return null;
     }
 
     /**
@@ -259,42 +209,14 @@ public class LarkStep extends AbstractStep {
         };
     }
 
-    /**
-     * Descriptor implementation for the LarkStep.
-     * This class provides Jenkins with information about the LarkStep, such as the required context,
-     * the function name to be used in Jenkinsfiles, and the display name shown in the Jenkins UI.
-     */
-    @Extension(optional = true)
-    public static class LarkStepDescriptor extends StepDescriptor implements Serializable {
+    @Extension
+    public static class LarkStepDescriptor extends AbstractStepDescriptor {
 
-        /**
-         * Returns the set of context classes that this step requires.
-         * Indicates which types of context information are needed for the execution of this step.
-         *
-         * @return A set of required context classes.
-         */
-        @Override
-        public Set<? extends Class<?>> getRequiredContext() {
-            return ImmutableSet.of(Run.class, TaskListener.class, EnvVars.class);
-        }
-
-        /**
-         * Returns the function name for this step to be used in Jenkinsfiles.
-         * This name is used by users when writing their Jenkinsfiles.
-         *
-         * @return The function name for this step.
-         */
         @Override
         public String getFunctionName() {
             return "lark";
         }
 
-        /**
-         * Returns the display name for this step in the Jenkins UI.
-         * This name is shown to users when configuring jobs in Jenkins.
-         *
-         * @return The display name for this step.
-         */
         @NonNull
         @Override
         public String getDisplayName() {

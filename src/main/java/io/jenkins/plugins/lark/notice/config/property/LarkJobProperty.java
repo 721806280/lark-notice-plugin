@@ -7,7 +7,7 @@ import hudson.model.JobProperty;
 import hudson.model.JobPropertyDescriptor;
 import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.config.LarkNotifierConfig;
-import io.jenkins.plugins.lark.notice.config.NotifierConfigListUtils;
+import io.jenkins.plugins.lark.notice.service.NotifierConfigService;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -45,7 +45,7 @@ public class LarkJobProperty extends JobProperty<Job<?, ?>> implements LarkNotif
      */
     @DataBoundConstructor
     public LarkJobProperty(List<LarkNotifierConfig> notifierConfigs) {
-        this.larkNotifierConfigs = NotifierConfigListUtils.copyOrNull(notifierConfigs);
+        this.larkNotifierConfigs = NotifierConfigService.copyOrNull(notifierConfigs);
     }
 
     /**
@@ -77,7 +77,7 @@ public class LarkJobProperty extends JobProperty<Job<?, ?>> implements LarkNotif
          * @return a list of Lark notifier configurations initialized from global settings
          */
         public List<LarkNotifierConfig> getDefaultNotifierConfigs() {
-            return NotifierConfigListUtils.fromGlobalRobots();
+            return NotifierConfigService.fromGlobalRobots();
         }
 
         /**

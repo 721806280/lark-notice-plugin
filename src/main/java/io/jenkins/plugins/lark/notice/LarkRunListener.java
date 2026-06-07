@@ -2,7 +2,6 @@ package io.jenkins.plugins.lark.notice;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
-import hudson.model.Job;
 import hudson.model.Result;
 import hudson.model.Run;
 import hudson.model.TaskListener;
@@ -12,7 +11,7 @@ import io.jenkins.plugins.lark.notice.enums.NoticeOccasionEnum;
 import io.jenkins.plugins.lark.notice.sdk.MessageDispatcher;
 import io.jenkins.plugins.lark.notice.service.NotificationOrchestrator;
 import io.jenkins.plugins.lark.notice.service.NotificationSource;
-import io.jenkins.plugins.lark.notice.service.NotifierConfigResolver;
+import io.jenkins.plugins.lark.notice.service.NotifierConfigService;
 
 import java.util.List;
 
@@ -67,20 +66,7 @@ public class LarkRunListener extends RunListener<Run<?, ?>> {
      * @param occasion the notification occasion (start, success, failure, etc.)
      */
     private void sendNotification(Run<?, ?> run, TaskListener listener, NoticeOccasionEnum occasion) {
-        List<LarkNotifierConfig> configs = getAvailableLarkNotifierConfigs(run.getParent());
+        List<LarkNotifierConfig> configs = NotifierConfigService.resolveForRunListener(run.getParent());
         NotificationOrchestrator.notify(SOURCE, run, listener, occasion, configs, messageDispatcher);
-    }
-
-    /**
-     * Retrieves available Lark notifier configurations for the given job.
-     * <p>
-     * Keep this method signature stable because tests and compatibility checks
-     * may access it reflectively.
-     *
-     * @param job the Jenkins job
-     * @return a list of Lark notifier configurations, or an empty list if none found
-     */
-    private List<LarkNotifierConfig> getAvailableLarkNotifierConfigs(Job<?, ?> job) {
-        return NotifierConfigResolver.resolveForRunListener(job);
     }
 }

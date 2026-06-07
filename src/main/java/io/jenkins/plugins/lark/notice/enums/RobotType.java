@@ -31,7 +31,7 @@ public enum RobotType {
         }
     },
 
-    DING_TAlK("钉钉", "font", "/robot/send") {
+    DING_TALK("钉钉", "font", "/robot/send") {
         /**
          * {@inheritDoc}
          */
@@ -76,8 +76,8 @@ public enum RobotType {
         if (webhook == null) {
             return null;
         }
-        if (DING_TAlK.matches(webhook)) {
-            return DING_TAlK;
+        if (DING_TALK.matches(webhook)) {
+            return DING_TALK;
         }
         if (WECHAT_WORK.matches(webhook)) {
             return WECHAT_WORK;

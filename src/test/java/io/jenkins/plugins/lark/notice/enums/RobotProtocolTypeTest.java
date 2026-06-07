@@ -36,7 +36,7 @@ public class RobotProtocolTypeTest {
 
     @Test
     public void toRobotTypeShouldMapToRuntimeType() {
-        assertEquals(RobotType.DING_TAlK, RobotProtocolType.DING_TALK.toRobotType());
+        assertEquals(RobotType.DING_TALK, RobotProtocolType.DING_TALK.toRobotType());
         assertEquals(RobotType.WECHAT_WORK, RobotProtocolType.WECHAT_WORK.toRobotType());
         assertEquals(RobotType.LARK, RobotProtocolType.LARK_COMPATIBLE.toRobotType());
     }

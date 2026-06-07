@@ -7,7 +7,6 @@ import hudson.model.TaskListener;
 import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.config.LarkGlobalConfig;
 import io.jenkins.plugins.lark.notice.config.LarkNotifierConfig;
-import io.jenkins.plugins.lark.notice.config.LarkRobotConfig;
 import io.jenkins.plugins.lark.notice.config.MessageLocaleResolver;
 import io.jenkins.plugins.lark.notice.enums.NoticeOccasionEnum;
 import io.jenkins.plugins.lark.notice.enums.RobotType;
@@ -81,8 +80,7 @@ public final class NotificationDispatchExecutor {
      * @return resolved robot type
      */
     static RobotType resolveRobotType(LarkNotifierConfig config) {
-        return LarkGlobalConfig.getRobot(config.getRobotId())
-                .map(LarkRobotConfig::obtainRobotType)
+        return LarkGlobalConfig.resolveRobotType(config.getRobotId())
                 .orElseThrow(() -> new IllegalStateException(
                         String.format(Messages.notifier_error_robot_missing(), config.getRobotId())));
     }

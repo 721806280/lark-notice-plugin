@@ -1,6 +1,7 @@
 package io.jenkins.plugins.lark.notice.config;
 
 import io.jenkins.plugins.lark.notice.config.property.LarkBranchJobProperty;
+import io.jenkins.plugins.lark.notice.service.NotifierConfigService;
 import io.jenkins.plugins.lark.notice.config.property.LarkJobProperty;
 import io.jenkins.plugins.lark.notice.enums.SecurityPolicyEnum;
 import org.junit.Test;
@@ -18,7 +19,7 @@ import static org.junit.Assert.assertNull;
  *
  * @author xm.z
  */
-public class NotifierConfigListUtilsTest {
+public class NotifierConfigCopySemanticsTest {
 
     private static LarkNotifierConfig createNotifierConfig(String robotId) {
         return new LarkNotifierConfig(
@@ -38,7 +39,7 @@ public class NotifierConfigListUtilsTest {
 
     @Test
     public void copyOrNullShouldKeepNull() {
-        assertNull(NotifierConfigListUtils.copyOrNull(null));
+        assertNull(NotifierConfigService.copyOrNull(null));
     }
 
     @Test

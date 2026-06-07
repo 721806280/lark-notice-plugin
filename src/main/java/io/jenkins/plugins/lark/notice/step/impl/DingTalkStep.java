@@ -1,6 +1,5 @@
 package io.jenkins.plugins.lark.notice.step.impl;
 
-import com.google.common.collect.ImmutableSet;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.EnvVars;
 import hudson.Extension;
@@ -16,16 +15,13 @@ import io.jenkins.plugins.lark.notice.step.AbstractStep;
 import io.jenkins.plugins.lark.notice.tools.Utils;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
-import org.jenkinsci.plugins.workflow.steps.StepDescriptor;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.springframework.util.CollectionUtils;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.defaultTitle;
 
@@ -211,10 +207,16 @@ public class DingTalkStep extends AbstractStep {
     protected SendResult send(Run<?, ?> run, EnvVars envVars, TaskListener listener) {
         NoticeOccasionEnum noticeOccasion = NoticeOccasionEnum.getNoticeOccasion(run.getResult());
 
+        List<Button> resolvedButtons = expandButtons(envVars, buttons);
+        if (resolvedButtons == null && MsgTypeEnum.CARD.equals(type) && StringUtils.isNotBlank(singleTitle)) {
+            String jobUrl = rootPath + run.getUrl();
+            resolvedButtons = Utils.createDefaultButtons(jobUrl);
+        }
+
         MessageModel message = MessageModel.builder().type(type)
                 .statusType(noticeOccasion.buildStatus())
                 .title(envVars.expand(StringUtils.defaultIfBlank(title, defaultTitle())))
-                .text(envVars.expand(Utils.join(text))).buttons(buildButtons(run, envVars))
+                .text(envVars.expand(Utils.join(text))).buttons(resolvedButtons)
                 .messageUrl(envVars.expand(messageUrl))
                 .picUrl(envVars.expand(picUrl))
                 .singleTitle(envVars.expand(singleTitle))
@@ -226,61 +228,14 @@ public class DingTalkStep extends AbstractStep {
         return service.send(listener, envVars.expand(robot), message);
     }
 
-    /**
-     * Constructs a list of buttons to be included in the message.
-     *
-     * @param run     The context information of the Jenkins job at runtime.
-     * @param envVars The environment variables during the Jenkins job execution.
-     * @return A list of buttons to be included in the message.
-     */
-    private List<Button> buildButtons(Run<?, ?> run, EnvVars envVars) {
-        if (MsgTypeEnum.CARD.equals(type) && CollectionUtils.isEmpty(buttons) && StringUtils.isNotBlank(singleTitle)) {
-            String jobUrl = rootPath + run.getUrl();
-            return Utils.createDefaultButtons(jobUrl);
-        } else if (!CollectionUtils.isEmpty(buttons)) {
-            return buttons.stream().map(item ->
-                    new Button(envVars.expand(item.getTitle()), envVars.expand(item.getUrl()), item.getType())
-            ).collect(Collectors.toList());
-        }
-        return null;
-    }
+    @Extension
+    public static class DingTalkStepDescriptor extends AbstractStepDescriptor {
 
-    /**
-     * Descriptor implementation for the DingTalkStep.
-     * This class provides Jenkins with information about the DingTalkStep, such as the required context,
-     * the function name to be used in Jenkinsfiles, and the display name shown in the Jenkins UI.
-     */
-    @Extension(optional = true)
-    public static class DingTalkStepDescriptor extends StepDescriptor implements Serializable {
-
-        /**
-         * Returns the set of context classes that this step requires.
-         * Indicates which types of context information are needed for the execution of this step.
-         *
-         * @return A set of required context classes.
-         */
-        @Override
-        public Set<? extends Class<?>> getRequiredContext() {
-            return ImmutableSet.of(Run.class, TaskListener.class, EnvVars.class);
-        }
-
-        /**
-         * Returns the function name for this step to be used in Jenkinsfiles.
-         * This name is used by users when writing their Jenkinsfiles.
-         *
-         * @return The function name for this step.
-         */
         @Override
         public String getFunctionName() {
             return "dingTalk";
         }
 
-        /**
-         * Returns the display name for this step in the Jenkins UI.
-         * This name is shown to users when configuring jobs in Jenkins.
-         *
-         * @return The display name for this step.
-         */
         @NonNull
         @Override
         public String getDisplayName() {

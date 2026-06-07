@@ -27,7 +27,7 @@ public class RobotTypeTest {
 
     @Test
     public void fromUrlShouldResolveDingTalkWebhook() {
-        assertEquals(RobotType.DING_TAlK, RobotType.fromUrl("https://api.dingtalk.com/robot/send?access_token=token"));
+        assertEquals(RobotType.DING_TALK, RobotType.fromUrl("https://api.dingtalk.com/robot/send?access_token=token"));
     }
 
     @Test

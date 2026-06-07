@@ -1,16 +1,30 @@
 package io.jenkins.plugins.lark.notice.step;
 
+import com.google.common.collect.ImmutableSet;
 import hudson.EnvVars;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import io.jenkins.plugins.lark.notice.enums.MsgTypeEnum;
+import io.jenkins.plugins.lark.notice.model.ButtonModel;
+import io.jenkins.plugins.lark.notice.model.ImgModel;
 import io.jenkins.plugins.lark.notice.sdk.MessageDispatcher;
 import io.jenkins.plugins.lark.notice.sdk.model.SendResult;
+import io.jenkins.plugins.lark.notice.sdk.model.lark.support.Button;
+import io.jenkins.plugins.lark.notice.sdk.model.lark.support.form.TextElement;
+import io.jenkins.plugins.lark.notice.sdk.model.lark.support.view.img.ImgElement;
+import io.jenkins.plugins.lark.notice.sdk.model.lark.support.view.title.TitleElement;
 import jenkins.model.Jenkins;
 import lombok.Getter;
 import org.jenkinsci.plugins.workflow.steps.Step;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
+import org.jenkinsci.plugins.workflow.steps.StepDescriptor;
 import org.jenkinsci.plugins.workflow.steps.StepExecution;
+import org.springframework.util.CollectionUtils;
+
+import java.io.Serializable;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * AbstractStep is an abstract class that extends the Step class.
@@ -21,57 +35,63 @@ import org.jenkinsci.plugins.workflow.steps.StepExecution;
 @Getter
 public abstract class AbstractStep extends Step {
 
-    /**
-     * An instance of the service class.
-     */
     protected final MessageDispatcher service = MessageDispatcher.getInstance();
 
-    /**
-     * The absolute URL of Jenkins, such as {@code http://localhost/jenkins/}.
-     */
     protected final String rootPath = Jenkins.get().getRootUrl();
 
-    /**
-     * The name of the robot.
-     */
     protected String robot;
 
-    /**
-     * The type of the message.
-     */
     protected MsgTypeEnum type;
 
-    /**
-     * Constructs a new AbstractStep with the specified robot name and message type.
-     *
-     * @param robot The name of the robot.
-     * @param type  The type of the message.
-     */
     public AbstractStep(String robot, MsgTypeEnum type) {
         this.robot = robot;
         this.type = type;
     }
 
-    /**
-     * Sends the message to the specified run, environment variables, and task listener.
-     *
-     * @param run      The run to send the message to.
-     * @param envVars  The environment variables.
-     * @param listener The task listener.
-     * @return The SendResult indicating the success or failure of the message sending.
-     */
     protected abstract SendResult send(Run<?, ?> run, EnvVars envVars, TaskListener listener);
 
-    /**
-     * Overrides the start method of the Step interface to create and return a new StepExecution object instance,
-     * which is used to execute the actual logic of sending messages for the current step.
-     *
-     * @param context The context information for the step.
-     * @return A StepExecution object instance for executing the sending of messages.
-     * @throws Exception If an error occurs during execution.
-     */
     @Override
     public StepExecution start(StepContext context) throws Exception {
         return new GenericStepExecution<>(this, context);
+    }
+
+    protected String expandNullable(EnvVars envVars, String value) {
+        return value == null ? null : envVars.expand(value);
+    }
+
+    protected ImgElement buildImg(EnvVars envVars, ImgModel imgModel) {
+        if (imgModel == null) {
+            return null;
+        }
+        ImgElement imgElement = new ImgElement();
+        imgElement.setImgKey(expandNullable(envVars, imgModel.getImgKey()));
+        imgElement.setAlt(TextElement.of(expandNullable(envVars, imgModel.getAltContent())));
+        imgElement.setTitle(TitleElement.buildPlainText(expandNullable(envVars, imgModel.getTitle())));
+        imgElement.setCornerRadius(imgModel.getCornerRadius());
+        imgElement.setScaleType(imgModel.getScaleType());
+        imgElement.setSize(imgModel.getSize());
+        imgElement.setTransparent(imgModel.getTransparent());
+        imgElement.setPreview(imgModel.getPreview());
+        return imgElement;
+    }
+
+    protected List<Button> expandButtons(EnvVars envVars, List<ButtonModel> buttons) {
+        if (CollectionUtils.isEmpty(buttons)) {
+            return null;
+        }
+        return buttons.stream().map(item ->
+                new Button(envVars.expand(item.getTitle()), envVars.expand(item.getUrl()), item.getType())
+        ).collect(Collectors.toList());
+    }
+
+    /**
+     * Base StepDescriptor that provides the shared required-context set.
+     */
+    public abstract static class AbstractStepDescriptor extends StepDescriptor implements Serializable {
+
+        @Override
+        public Set<? extends Class<?>> getRequiredContext() {
+            return ImmutableSet.of(Run.class, TaskListener.class, EnvVars.class);
+        }
     }
 }

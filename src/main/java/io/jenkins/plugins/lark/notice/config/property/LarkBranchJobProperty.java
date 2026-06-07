@@ -6,7 +6,7 @@ import hudson.model.Job;
 import hudson.model.Run;
 import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.config.LarkNotifierConfig;
-import io.jenkins.plugins.lark.notice.config.NotifierConfigListUtils;
+import io.jenkins.plugins.lark.notice.service.NotifierConfigService;
 import jenkins.branch.BranchProperty;
 import jenkins.branch.BranchPropertyDescriptor;
 import jenkins.branch.JobDecorator;
@@ -47,7 +47,7 @@ public class LarkBranchJobProperty extends BranchProperty implements LarkNotifie
      */
     @DataBoundConstructor
     public LarkBranchJobProperty(List<LarkNotifierConfig> notifierConfigs) {
-        this.larkNotifierConfigs = NotifierConfigListUtils.copyOrNull(notifierConfigs);
+        this.larkNotifierConfigs = NotifierConfigService.copyOrNull(notifierConfigs);
     }
 
     /**
@@ -92,7 +92,7 @@ public class LarkBranchJobProperty extends BranchProperty implements LarkNotifie
          * @return a list of Lark notifier configurations initialized from global settings
          */
         public List<LarkNotifierConfig> getDefaultNotifierConfigs() {
-            return NotifierConfigListUtils.fromGlobalRobots();
+            return NotifierConfigService.fromGlobalRobots();
         }
 
         /**

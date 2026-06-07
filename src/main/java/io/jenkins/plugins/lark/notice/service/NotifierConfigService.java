@@ -130,7 +130,7 @@ public final class NotifierConfigService {
      * @param job Jenkins job
      * @return {@code true} if Post-build notifier exists and listener notifications should be skipped
      */
-    private static boolean hasFreestylePostBuildNotifier(Job<?, ?> job) {
+    static boolean hasFreestylePostBuildNotifier(Job<?, ?> job) {
         if (job instanceof AbstractProject<?, ?> project) {
             return project.getPublishersList().get(LarkNotifier.class) != null;
         }

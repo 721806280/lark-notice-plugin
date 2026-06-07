@@ -1,6 +1,5 @@
 package io.jenkins.plugins.lark.notice.step.impl;
 
-import com.google.common.collect.ImmutableSet;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.EnvVars;
 import hudson.Extension;
@@ -15,19 +14,14 @@ import io.jenkins.plugins.lark.notice.model.MessageModel;
 import io.jenkins.plugins.lark.notice.model.RunUser;
 import io.jenkins.plugins.lark.notice.sdk.model.SendResult;
 import io.jenkins.plugins.lark.notice.sdk.model.lark.support.Button;
-import io.jenkins.plugins.lark.notice.sdk.model.lark.support.form.TextElement;
-import io.jenkins.plugins.lark.notice.sdk.model.lark.support.view.img.ImgElement;
-import io.jenkins.plugins.lark.notice.sdk.model.lark.support.view.title.TitleElement;
 import io.jenkins.plugins.lark.notice.step.AbstractStep;
 import io.jenkins.plugins.lark.notice.tools.Utils;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
-import org.jenkinsci.plugins.workflow.steps.StepDescriptor;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.springframework.util.CollectionUtils;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -198,6 +192,11 @@ public class WechatWorkStep extends AbstractStep {
         String jobUrl = rootPath + run.getUrl();
         RunUser executor = RunUser.getExecutor(run, listener);
 
+        List<Button> resolvedButtons = expandButtons(envVars, buttons);
+        if (resolvedButtons == null && MsgTypeEnum.CARD.equals(type)) {
+            resolvedButtons = Utils.createDefaultButtons(jobUrl, locale);
+        }
+
         return MessageModel.builder()
                 .type(type)
                 .statusType(noticeOccasion.buildStatus())
@@ -214,38 +213,10 @@ public class WechatWorkStep extends AbstractStep {
                 .messageUrl(expandNullable(envVars, messageUrl))
                 .picUrl(expandNullable(envVars, picUrl))
                 .topImg(buildImg(envVars, topImg))
-                .buttons(buildButtons(jobUrl, envVars, locale))
+                .buttons(resolvedButtons)
                 .atAll(atAll)
                 .atUserIds(expandAts(envVars))
                 .build();
-    }
-
-    private ImgElement buildImg(EnvVars envVars, ImgModel imgModel) {
-        if (imgModel == null) {
-            return null;
-        }
-        ImgElement imgElement = new ImgElement();
-        imgElement.setImgKey(expandNullable(envVars, imgModel.getImgKey()));
-        imgElement.setAlt(TextElement.of(expandNullable(envVars, imgModel.getAltContent())));
-        imgElement.setTitle(TitleElement.buildPlainText(expandNullable(envVars, imgModel.getTitle())));
-        imgElement.setCornerRadius(imgModel.getCornerRadius());
-        imgElement.setScaleType(imgModel.getScaleType());
-        imgElement.setSize(imgModel.getSize());
-        imgElement.setTransparent(imgModel.getTransparent());
-        imgElement.setPreview(imgModel.getPreview());
-        return imgElement;
-    }
-
-    private List<Button> buildButtons(String jobUrl, EnvVars envVars, Locale locale) {
-        if (MsgTypeEnum.CARD.equals(type) && CollectionUtils.isEmpty(buttons)) {
-            return Utils.createDefaultButtons(jobUrl, locale);
-        }
-        if (!CollectionUtils.isEmpty(buttons)) {
-            return buttons.stream().map(item ->
-                    new Button(envVars.expand(item.getTitle()), envVars.expand(item.getUrl()), item.getType())
-            ).collect(Collectors.toList());
-        }
-        return null;
     }
 
     private Set<String> expandAts(EnvVars envVars) {
@@ -258,41 +229,14 @@ public class WechatWorkStep extends AbstractStep {
                 .collect(Collectors.toSet());
     }
 
-    private String expandNullable(EnvVars envVars, String value) {
-        return value == null ? null : envVars.expand(value);
-    }
+    @Extension
+    public static class WechatWorkStepDescriptor extends AbstractStepDescriptor {
 
-    /**
-     * Descriptor implementation for the WeCom pipeline step.
-     */
-    @Extension(optional = true)
-    public static class WechatWorkStepDescriptor extends StepDescriptor implements Serializable {
-
-        /**
-         * Returns the set of context classes required by this step.
-         *
-         * @return required pipeline context classes
-         */
-        @Override
-        public Set<? extends Class<?>> getRequiredContext() {
-            return ImmutableSet.of(Run.class, TaskListener.class, EnvVars.class);
-        }
-
-        /**
-         * Returns the function name used in Jenkinsfiles.
-         *
-         * @return pipeline function name
-         */
         @Override
         public String getFunctionName() {
             return "wechatWork";
         }
 
-        /**
-         * Returns the display name shown in Jenkins.
-         *
-         * @return display name
-         */
         @NonNull
         @Override
         public String getDisplayName() {

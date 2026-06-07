@@ -8,8 +8,6 @@ import io.jenkins.plugins.lark.notice.sdk.model.ding.DingLinkMessage;
 import io.jenkins.plugins.lark.notice.sdk.model.ding.DingMdMessage;
 import io.jenkins.plugins.lark.notice.sdk.model.ding.DingTextMessage;
 import io.jenkins.plugins.lark.notice.tools.JsonUtils;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -21,14 +19,11 @@ import java.util.stream.Collectors;
  *
  * @author xm.z
  */
-@Getter
-@AllArgsConstructor
 public class DingMessageSender extends AbstractMessageSender {
 
-    /**
-     * The robot configuration information.
-     */
-    private final RobotConfigModel robotConfig;
+    public DingMessageSender(RobotConfigModel robotConfig) {
+        super(robotConfig);
+    }
 
     protected String[] signHeaders() {
         String[] headers = new String[]{};

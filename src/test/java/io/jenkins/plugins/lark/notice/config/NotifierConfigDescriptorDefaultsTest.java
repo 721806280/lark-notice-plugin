@@ -2,6 +2,7 @@ package io.jenkins.plugins.lark.notice.config;
 
 import io.jenkins.plugins.lark.notice.config.property.LarkBranchJobProperty;
 import io.jenkins.plugins.lark.notice.config.property.LarkJobProperty;
+import io.jenkins.plugins.lark.notice.service.NotifierConfigService;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -66,15 +67,15 @@ public class NotifierConfigDescriptorDefaultsTest {
         LarkNotifierConfig duplicateLocal = createNotifierConfig(robotA.getId(), false, true, "second");
         LarkNotifierConfig disabledLocal = createNotifierConfig(robotB.getId(), true, true, "disabled");
 
-        List<LarkNotifierConfig> merged = NotifierConfigListUtils.mergeWithGlobalRobots(
+        List<LarkNotifierConfig> merged = NotifierConfigService.mergeWithGlobalRobots(
                 List.of(firstLocal, duplicateLocal, disabledLocal)
         );
 
         assertEquals(List.of("robot-a", "robot-b"), extractRobotIds(merged));
         assertEquals("first", merged.get(0).getTitle());
         assertEquals("disabled", merged.get(1).getTitle());
-        assertEquals(2, NotifierConfigListUtils.filterEnabled(merged).size());
-        assertEquals(List.of("robot-a"), extractRobotIds(NotifierConfigListUtils.filterAvailable(merged)));
+        assertEquals(2, NotifierConfigService.filterEnabled(merged).size());
+        assertEquals(List.of("robot-a"), extractRobotIds(NotifierConfigService.filterAvailable(merged)));
     }
 
     private static LarkRobotConfig createRobot(String id) {

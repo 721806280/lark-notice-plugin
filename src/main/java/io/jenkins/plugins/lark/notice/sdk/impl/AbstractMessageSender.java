@@ -6,6 +6,7 @@ import io.jenkins.plugins.lark.notice.sdk.HttpClientFactory;
 import io.jenkins.plugins.lark.notice.sdk.MessageSender;
 import io.jenkins.plugins.lark.notice.sdk.model.SendResult;
 import io.jenkins.plugins.lark.notice.tools.JsonUtils;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -21,7 +22,6 @@ import java.util.Optional;
 /**
  * Abstract class for sending Lark messages.
  * Provides common methods for sending messages via Lark API.
- * Extending classes need to implement the getRobotConfig() method to retrieve the robot configuration.
  *
  * @author xm.z
  */
@@ -30,12 +30,12 @@ public abstract class AbstractMessageSender implements MessageSender {
 
     private static final Duration DEFAULT_TIMEOUT = Duration.ofMinutes(3);
 
-    /**
-     * Retrieves the robot configuration information.
-     *
-     * @return The robot configuration information.
-     */
-    protected abstract RobotConfigModel getRobotConfig();
+    @Getter
+    protected final RobotConfigModel robotConfig;
+
+    protected AbstractMessageSender(RobotConfigModel robotConfig) {
+        this.robotConfig = robotConfig;
+    }
 
     /**
      * Sends a message to the Lark API using the provided JSON body and optional headers.
@@ -45,7 +45,7 @@ public abstract class AbstractMessageSender implements MessageSender {
      * @return A SendResult object containing either the response from the Lark API or error details.
      */
     protected SendResult sendMessage(String jsonBody, String... headers) {
-        RobotConfigModel robotConfig = this.getRobotConfig();
+        RobotConfigModel robotConfig = this.robotConfig;
         Boolean noSsl = robotConfig.getNoSsl();
         try {
             HttpResponse<String> response = HttpClientFactory
@@ -98,7 +98,7 @@ public abstract class AbstractMessageSender implements MessageSender {
             return;
         }
 
-        if (RobotType.DING_TAlK.equals(robotConfig.getRobotType()) && headers.length >= 4) {
+        if (RobotType.DING_TALK.equals(robotConfig.getRobotType()) && headers.length >= 4) {
             // Assuming headers are in key=value pairs and appending them to the webhook URL for DingTalk.
             String updatedWebhook = robotConfig.getWebhook() + String.format("&%s=%s&%s=%s", headers[0], headers[1], headers[2], headers[3]);
             requestBuilder.uri(URI.create(updatedWebhook));

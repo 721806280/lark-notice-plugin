@@ -97,7 +97,7 @@ public class RobotConfigModel {
      */
     public String createSign(long timestamp) {
         try {
-            boolean hasDing = RobotType.DING_TAlK.equals(robotType);
+            boolean hasDing = RobotType.DING_TALK.equals(robotType);
             String seed = timestamp + Constants.LF + sign;
             Mac mac = Mac.getInstance("HmacSHA256");
             mac.init(new SecretKeySpec((hasDing ? sign : seed).getBytes(UTF_8), "HmacSHA256"));

@@ -105,7 +105,7 @@ public class BuildJobModel {
      * @return Markdown string containing the build job details
      */
     public String toMarkdown(RobotType robotType, Locale locale) {
-        boolean hasDingTask = RobotType.DING_TAlK.equals(robotType);
+        boolean hasDingTask = RobotType.DING_TALK.equals(robotType);
         String tagName = robotType.getStatusTagName();
         List<String> lines = new ArrayList<>();
         // DingTalk cards expect a title block and separator before the shared body.

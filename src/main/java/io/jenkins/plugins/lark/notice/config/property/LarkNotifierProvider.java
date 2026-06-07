@@ -1,7 +1,7 @@
 package io.jenkins.plugins.lark.notice.config.property;
 
 import io.jenkins.plugins.lark.notice.config.LarkNotifierConfig;
-import io.jenkins.plugins.lark.notice.config.NotifierConfigListUtils;
+import io.jenkins.plugins.lark.notice.service.NotifierConfigService;
 
 import java.util.List;
 
@@ -29,7 +29,7 @@ public interface LarkNotifierProvider {
      * @return merged notifier configurations
      */
     default List<LarkNotifierConfig> getMergedNotifierConfigs() {
-        return NotifierConfigListUtils.mergeWithGlobalRobots(getLarkNotifierConfigs());
+        return NotifierConfigService.mergeWithGlobalRobots(getLarkNotifierConfigs());
     }
 
     /**
@@ -38,7 +38,7 @@ public interface LarkNotifierProvider {
      * @return enabled notifier configurations
      */
     default List<LarkNotifierConfig> getEnabledNotifierConfigs() {
-        return NotifierConfigListUtils.filterEnabled(getMergedNotifierConfigs());
+        return NotifierConfigService.filterEnabled(getMergedNotifierConfigs());
     }
 
     /**
@@ -48,7 +48,7 @@ public interface LarkNotifierProvider {
      * @return available notifier configurations
      */
     default List<LarkNotifierConfig> getAvailableNotifierConfigs() {
-        return NotifierConfigListUtils.filterAvailable(getMergedNotifierConfigs());
+        return NotifierConfigService.filterAvailable(getMergedNotifierConfigs());
     }
 
 }

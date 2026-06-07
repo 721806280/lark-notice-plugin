@@ -7,8 +7,6 @@ import io.jenkins.plugins.lark.notice.sdk.model.SendResult;
 import io.jenkins.plugins.lark.notice.sdk.model.lark.*;
 import io.jenkins.plugins.lark.notice.sdk.model.lark.support.Card;
 import io.jenkins.plugins.lark.notice.tools.JsonUtils;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -16,14 +14,11 @@ import org.apache.commons.lang3.StringUtils;
  *
  * @author xm.z
  */
-@Getter
-@AllArgsConstructor
 public class LarkMessageSender extends AbstractMessageSender {
 
-    /**
-     * The robot configuration information.
-     */
-    private final RobotConfigModel robotConfig;
+    public LarkMessageSender(RobotConfigModel robotConfig) {
+        super(robotConfig);
+    }
 
     /**
      * Constructs the request parameters for the Lark API.

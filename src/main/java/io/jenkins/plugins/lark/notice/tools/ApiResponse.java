@@ -46,13 +46,6 @@ public final class ApiResponse {
         return this;
     }
 
-    public ApiResponse put(String key, Object value) {
-        if (key != null && value != null) {
-            payload.put(key, value);
-        }
-        return this;
-    }
-
     public JSONObject toJson() {
         return JSONObject.fromObject(payload);
     }

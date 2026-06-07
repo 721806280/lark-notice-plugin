@@ -13,6 +13,7 @@ import io.jenkins.plugins.lark.notice.config.property.LarkNotifierProvider;
 import io.jenkins.plugins.lark.notice.enums.NoticeOccasionEnum;
 import io.jenkins.plugins.lark.notice.sdk.MessageDispatcher;
 import io.jenkins.plugins.lark.notice.service.NotificationOrchestrator;
+import io.jenkins.plugins.lark.notice.service.NotifierConfigService;
 import io.jenkins.plugins.lark.notice.service.NotificationSource;
 import jenkins.tasks.SimpleBuildStep;
 import lombok.Getter;
@@ -21,7 +22,6 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * A Jenkins Notifier (Post-build Action) that sends notifications to Lark
@@ -50,7 +50,7 @@ public class LarkNotifier extends Notifier implements SimpleBuildStep, LarkNotif
      */
     @DataBoundConstructor
     public LarkNotifier(List<LarkNotifierConfig> notifierConfigs) {
-        this.larkNotifierConfigs = NotifierConfigListUtils.copyOrNull(notifierConfigs);
+        this.larkNotifierConfigs = NotifierConfigService.copyOrNull(notifierConfigs);
     }
 
     /**
@@ -146,7 +146,7 @@ public class LarkNotifier extends Notifier implements SimpleBuildStep, LarkNotif
          * @return default notifier configurations
          */
         public List<LarkNotifierConfig> getDefaultNotifierConfigs() {
-            return NotifierConfigListUtils.fromGlobalRobots();
+            return NotifierConfigService.fromGlobalRobots();
         }
 
         /**

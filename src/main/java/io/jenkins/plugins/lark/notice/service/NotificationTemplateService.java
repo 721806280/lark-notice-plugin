@@ -2,7 +2,6 @@ package io.jenkins.plugins.lark.notice.service;
 
 import io.jenkins.plugins.lark.notice.config.LarkGlobalConfig;
 import io.jenkins.plugins.lark.notice.config.LarkNotifierConfig;
-import io.jenkins.plugins.lark.notice.config.LarkRobotConfig;
 import io.jenkins.plugins.lark.notice.config.MessageLocaleResolver;
 import io.jenkins.plugins.lark.notice.context.NoticeEnvVars;
 import io.jenkins.plugins.lark.notice.enums.BuildStatusEnum;
@@ -43,10 +42,10 @@ public final class NotificationTemplateService {
         String titleTemplate = NotificationTemplateTextResolver.resolveTitleTemplate(config.getTitle(), locale);
         String contentTemplate = NotificationTemplateTextResolver.normalizeContent(config.getContent());
         String tagName = robotType.getStatusTagName();
-        String separator = RobotType.DING_TAlK.equals(robotType) ? "  " + LF : LF;
+        String separator = RobotType.DING_TALK.equals(robotType) ? "  " + LF : LF;
         List<String> lines = new ArrayList<>();
 
-        if (RobotType.DING_TAlK.equals(robotType)) {
+        if (RobotType.DING_TALK.equals(robotType)) {
             lines.add(String.format("## <%s color='%s'>%s</%s>",
                     tagName, BuildStatusEnum.SUCCESS.getColor(), titleTemplate, tagName));
             lines.add("---");
@@ -70,8 +69,7 @@ public final class NotificationTemplateService {
     }
 
     private static RobotType resolveRobotType(LarkNotifierConfig config) {
-        return LarkGlobalConfig.getRobot(config.getRobotId())
-                .map(LarkRobotConfig::obtainRobotType)
+        return LarkGlobalConfig.resolveRobotType(config.getRobotId())
                 .orElse(RobotType.LARK);
     }
 }
