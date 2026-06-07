@@ -120,7 +120,7 @@ public class LarkGlobalConfig extends Descriptor<LarkGlobalConfig> implements De
      * @return optional robot type, empty if robot not found
      */
     public static Optional<RobotType> resolveRobotType(String robotId) {
-        return getRobot(robotId).map(LarkRobotConfig::obtainRobotType);
+        return getRobot(robotId).flatMap(LarkRobotConfig::obtainRobotType);
     }
 
     /**

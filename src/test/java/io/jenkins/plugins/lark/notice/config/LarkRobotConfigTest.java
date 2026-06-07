@@ -7,7 +7,7 @@ import org.junit.Test;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests for robot config defaults and derived values.
@@ -41,7 +41,7 @@ public class LarkRobotConfigTest {
     }
 
     @Test
-    public void obtainRobotTypeShouldReturnNullWhenProtocolMismatchesWebhook() {
+    public void obtainRobotTypeShouldReturnEmptyWhenProtocolMismatchesWebhook() {
         LarkRobotConfig robotConfig = new LarkRobotConfig(
                 "robot-a",
                 "Robot A",
@@ -50,7 +50,7 @@ public class LarkRobotConfigTest {
         );
         robotConfig.setProtocolType(RobotProtocolType.DING_TALK);
 
-        assertNull(robotConfig.obtainRobotType());
+        assertTrue(robotConfig.obtainRobotType().isEmpty());
     }
 
     @Test

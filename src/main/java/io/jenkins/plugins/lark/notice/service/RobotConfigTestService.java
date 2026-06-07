@@ -65,10 +65,11 @@ public final class RobotConfigTestService {
             robotConfig.setMessageLocaleStrategy(MessageLocaleStrategy.parse(messageLocaleStrategy));
             ProxySelector proxySelector = parseProxySelector(proxy);
 
-            RobotType robotType = robotConfig.obtainRobotType();
-            if (Objects.isNull(robotType)) {
+            Optional<RobotType> robotTypeOpt = robotConfig.obtainRobotType();
+            if (robotTypeOpt.isEmpty()) {
                 return ApiResponse.fail(Messages.form_validation_webhook_invalid());
             }
+            RobotType robotType = robotTypeOpt.get();
 
             MessageSender sender = robotType.obtainInstance(RobotConfigModel.of(robotConfig, proxySelector));
             SendResult sendResult = Objects.requireNonNull(MessageDispatcher.getInstance()

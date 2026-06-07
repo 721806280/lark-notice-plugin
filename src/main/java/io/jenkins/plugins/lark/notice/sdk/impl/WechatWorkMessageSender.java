@@ -7,6 +7,7 @@ import io.jenkins.plugins.lark.notice.sdk.model.wechat.WechatWorkMarkdownMessage
 import io.jenkins.plugins.lark.notice.sdk.model.wechat.WechatWorkTemplateCardMessage;
 import io.jenkins.plugins.lark.notice.sdk.model.wechat.WechatWorkTextMessage;
 import io.jenkins.plugins.lark.notice.tools.JsonUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.LF;
@@ -14,6 +15,7 @@ import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.LF;
 /**
  * WeCom implementation for sending group robot messages.
  */
+@Slf4j
 public class WechatWorkMessageSender extends AbstractMessageSender {
 
     public WechatWorkMessageSender(RobotConfigModel robotConfig) {
@@ -67,6 +69,7 @@ public class WechatWorkMessageSender extends AbstractMessageSender {
      */
     @Override
     public SendResult sendLink(MessageModel msg) {
+        log.debug("WeCom does not support link messages; falling back to markdown");
         return sendMarkdown(msg);
     }
 
@@ -78,6 +81,7 @@ public class WechatWorkMessageSender extends AbstractMessageSender {
      */
     @Override
     public SendResult sendPost(MessageModel msg) {
+        log.debug("WeCom does not support post messages; falling back to markdown");
         return sendMarkdown(msg);
     }
 

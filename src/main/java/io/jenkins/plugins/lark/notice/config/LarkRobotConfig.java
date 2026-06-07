@@ -172,17 +172,17 @@ public class LarkRobotConfig implements Describable<LarkRobotConfig> {
     /**
      * Infers the robot type from the configured webhook URL.
      *
-     * @return resolved robot type, or {@code null} when the webhook is blank or unsupported
+     * @return resolved robot type, or empty when the webhook is blank or unsupported
      */
-    public RobotType obtainRobotType() {
+    public Optional<RobotType> obtainRobotType() {
         String webhook = getWebhook();
         if (StringUtils.isBlank(webhook)) {
-            return null;
+            return Optional.empty();
         }
         RobotProtocolType resolvedProtocol = getProtocolType();
         return RobotWebhookResolver.isSupportedWebhook(resolvedProtocol, webhook)
-                ? resolvedProtocol.toRobotType()
-                : null;
+                ? Optional.of(resolvedProtocol.toRobotType())
+                : Optional.empty();
     }
 
     /**

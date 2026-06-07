@@ -77,17 +77,13 @@ public class MessageSenderRegistry {
      */
     private MessageSender createSender(String robotId) {
         return LarkGlobalConfig.getRobot(robotId)
-                .map(robotConfig -> {
-                    RobotType robotType = robotConfig.obtainRobotType();
-                    if (robotType == null) {
-                        return null;
-                    }
+                .flatMap(robotConfig -> robotConfig.obtainRobotType().map(robotType -> {
                     RobotConfigModel robotConfigModel = RobotConfigModel.of(
                             robotConfig,
                             LarkGlobalConfig.getInstance().obtainProxySelector()
                     );
                     return robotType.obtainInstance(robotConfigModel);
-                })
+                }))
                 .orElse(null);
     }
 

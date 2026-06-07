@@ -68,7 +68,7 @@ public class RobotConfigModel {
         Objects.requireNonNull(robotConfig, "robotConfig must not be null");
 
         RobotConfigModel meta = new RobotConfigModel();
-        meta.setRobotType(robotConfig.obtainRobotType());
+        meta.setRobotType(robotConfig.obtainRobotType().orElse(null));
         meta.setProxySelector(proxySelector);
         meta.setWebhook(robotConfig.getWebhook());
 
