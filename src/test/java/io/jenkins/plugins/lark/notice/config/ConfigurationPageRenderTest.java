@@ -10,6 +10,7 @@ import jenkins.branch.BranchSource;
 import jenkins.branch.DefaultBranchPropertyStrategy;
 import jenkins.scm.impl.SingleSCMSource;
 import org.htmlunit.html.HtmlForm;
+import org.htmlunit.html.HtmlInput;
 import org.htmlunit.Page;
 import org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject;
 import org.junit.Before;
@@ -22,6 +23,7 @@ import org.jvnet.hudson.test.JenkinsRule;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -179,6 +181,69 @@ public class ConfigurationPageRenderTest {
             assertEquals(1, countMatches(html, "/plugin/lark-notice/styles/configuration.css"));
             assertTrue(html.contains("name=\"notifierConfigs\""));
             assertTrue(html.contains("io.jenkins.plugins.lark.notice.config.LarkNotifierConfig"));
+        }
+    }
+
+    @Test
+    public void jobConfigPageShouldPreserveCustomMessageModeOnReload() throws Exception {
+        FreeStyleProject project = jenkins.createFreeStyleProject("ui-custom-message-mode");
+        LarkNotifierConfig notifierConfig = new LarkNotifierConfig(
+                true,
+                false,
+                true,
+                "robot-a",
+                "Robot-robot-a",
+                false,
+                "",
+                "custom-title",
+                "default-content",
+                "custom-message",
+                Set.of("START")
+        );
+        project.addProperty(new LarkJobProperty(List.of(notifierConfig)));
+
+        try (JenkinsRule.WebClient webClient = jenkins.createWebClient()) {
+            webClient.getOptions().setJavaScriptEnabled(false);
+
+            HtmlPage configurePage = webClient.getPage(project, "configure");
+            String html = configurePage.getWebResponse().getContentAsString();
+
+            HtmlInput rawInput = configurePage.getFirstByXPath("//input[@name='_.raw']");
+            HtmlInput robotIdInput = configurePage.getFirstByXPath("//input[@name='_.robotId']");
+            assertNotNull(rawInput);
+            assertNotNull(robotIdInput);
+            assertEquals("true", rawInput.getValueAttribute());
+            assertEquals("robot-a", robotIdInput.getValueAttribute());
+            assertTrue(html.contains("custom-message"));
+        }
+    }
+
+    @Test
+    public void jobConfigPageShouldPreserveAtAllOnReload() throws Exception {
+        FreeStyleProject project = jenkins.createFreeStyleProject("ui-at-all");
+        LarkNotifierConfig notifierConfig = new LarkNotifierConfig(
+                false,
+                false,
+                true,
+                "robot-a",
+                "Robot-robot-a",
+                true,
+                "",
+                "title",
+                "content",
+                "",
+                Set.of("START")
+        );
+        project.addProperty(new LarkJobProperty(List.of(notifierConfig)));
+
+        try (JenkinsRule.WebClient webClient = jenkins.createWebClient()) {
+            webClient.getOptions().setJavaScriptEnabled(false);
+
+            HtmlPage configurePage = webClient.getPage(project, "configure");
+
+            HtmlInput atAllInput = configurePage.getFirstByXPath("//input[@name='_.atAll' and @type='checkbox']");
+            assertNotNull(atAllInput);
+            assertTrue(atAllInput.isChecked());
         }
     }
 

@@ -9,7 +9,7 @@
                 <div class="lark-notifier-editor__title">${instance.getRobotDisplayName()}</div>
             </div>
             <label class="lark-notifier-status-pill">
-                <f:checkbox field="disabled" checked="${instance.getDisabled()}"/>
+                <f:checkbox field="disabled" checked="${instance.isDisabled()}"/>
                 <span>${%notifier.disabled}</span>
             </label>
         </div>
@@ -59,7 +59,7 @@
                         <f:entry title="${%notifier.mentions}" field="at">
                             <div class="lark-notifier-mentions">
                                 <label class="lark-notifier-inline-toggle">
-                                    <input type="checkbox" name="_.atAll" checked="${instance.getAtAll()}"/>
+                                    <f:checkbox field="atAll" checked="${instance.isAtAll()}"/>
                                     <span>${%notifier.mentions.all}</span>
                                 </label>
                                 <div class="lark-notifier-mentions__editor">
@@ -114,15 +114,15 @@
     </div>
 
     <f:invisibleEntry>
-        <input type="hidden" name="robotId" value="${instance.getRobotId()}"/>
+        <input type="hidden" name="_.robotId" value="${instance.getRobotId()}"/>
     </f:invisibleEntry>
     <f:invisibleEntry>
-        <input type="hidden" name="robotName" value="${instance.getRobotName()}"/>
+        <input type="hidden" name="_.robotName" value="${instance.getRobotName()}"/>
     </f:invisibleEntry>
     <f:invisibleEntry>
-        <input type="hidden" name="checked" value="true"/>
+        <input type="hidden" name="_.checked" value="true"/>
     </f:invisibleEntry>
     <f:invisibleEntry>
-        <input type="hidden" name="raw" value="${instance.getRaw() ? 'true' : 'false'}" class="lark-notifier-raw-value"/>
+        <input type="hidden" name="_.raw" value="${instance.isRaw() ? 'true' : 'false'}" class="lark-notifier-raw-value"/>
     </f:invisibleEntry>
 </j:jelly>

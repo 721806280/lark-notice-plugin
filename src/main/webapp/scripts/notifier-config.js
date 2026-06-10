@@ -46,7 +46,7 @@
 
     function collectTemplatePayload(root) {
         var params = new URLSearchParams();
-        var robotId = root.querySelector('input[name="robotId"]');
+        var robotId = root.querySelector('input[name="_.robotId"], input[name="robotId"]');
         var title = root.querySelector('input[name="_.title"]');
         var content = root.querySelector('textarea[name="_.content"]');
 

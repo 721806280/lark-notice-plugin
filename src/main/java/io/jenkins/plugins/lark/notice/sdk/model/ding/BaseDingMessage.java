@@ -31,11 +31,21 @@ public abstract class BaseDingMessage implements Serializable {
      * @return 包含 at 信息的内容
      */
     protected static String addAtInfo(String content, At at, boolean markdown) {
+        if (at == null) {
+            return content;
+        }
+        if (Boolean.TRUE.equals(at.getIsAtAll())) {
+            return appendAtContent(content, "@all", markdown);
+        }
         List<String> allAts = at.getAllAts();
         if (CollectionUtils.isEmpty(allAts)) {
             return content;
         }
         String atContent = "@" + StringUtils.join(allAts, " @");
+        return appendAtContent(content, atContent, markdown);
+    }
+
+    private static String appendAtContent(String content, String atContent, boolean markdown) {
         if (markdown) {
             return content + LF + LF + "<font color='#1890FF'>" + atContent + "</font>" + LF;
         }
