@@ -2,6 +2,7 @@ package io.jenkins.plugins.lark.notice;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
+import hudson.model.Job;
 import hudson.model.Result;
 import hudson.model.Run;
 import hudson.model.TaskListener;
@@ -66,7 +67,11 @@ public class LarkRunListener extends RunListener<Run<?, ?>> {
      * @param occasion the notification occasion (start, success, failure, etc.)
      */
     private void sendNotification(Run<?, ?> run, TaskListener listener, NoticeOccasionEnum occasion) {
-        List<LarkNotifierConfig> configs = NotifierConfigService.resolveForRunListener(run.getParent());
+        List<LarkNotifierConfig> configs = getAvailableLarkNotifierConfigs(run.getParent());
         NotificationOrchestrator.notify(SOURCE, run, listener, occasion, configs, messageDispatcher);
+    }
+
+    private List<LarkNotifierConfig> getAvailableLarkNotifierConfigs(Job<?, ?> job) {
+        return NotifierConfigService.resolveForRunListener(job);
     }
 }

@@ -12,6 +12,7 @@ import io.jenkins.plugins.lark.notice.model.ImgModel;
 import io.jenkins.plugins.lark.notice.model.MessageModel;
 import io.jenkins.plugins.lark.notice.sdk.model.SendResult;
 import io.jenkins.plugins.lark.notice.sdk.model.lark.support.Button;
+import io.jenkins.plugins.lark.notice.sdk.model.lark.support.view.img.ImgElement;
 import io.jenkins.plugins.lark.notice.step.AbstractStep;
 import io.jenkins.plugins.lark.notice.tools.JsonUtils;
 import io.jenkins.plugins.lark.notice.tools.Utils;
@@ -207,6 +208,11 @@ public class LarkStep extends AbstractStep {
             case POST -> JsonUtils.toJson(post);
             default -> Utils.join(text);
         };
+    }
+
+    @Override
+    protected ImgElement buildImg(EnvVars envVars, ImgModel imgModel) {
+        return super.buildImg(envVars, imgModel);
     }
 
     @Extension
