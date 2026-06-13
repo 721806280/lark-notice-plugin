@@ -1,0 +1,88 @@
+name: GitHub Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag, for example v2.1.9-rc.5"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve tag
+        id: release
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            tag="${{ inputs.tag }}"
+          else
+            tag="${GITHUB_REF_NAME}"
+          fi
+          version="${tag#v}"
+          prerelease=false
+          if [[ "$version" =~ (rc|RC|M|SNAPSHOT) ]]; then
+            prerelease=true
+          fi
+          {
+            echo "tag=$tag"
+            echo "version=$version"
+            echo "prerelease=$prerelease"
+          } >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ steps.release.outputs.tag }}
+
+      - uses: actions/checkout@v6
+        with:
+          repository: 721806280/lark-notice-plugin-doc
+          path: release-docs
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Verify and Build HPI
+        run: mvn -B -Pjenkins-rule-tests verify
+
+      - name: Verify artifact version
+        shell: bash
+        run: |
+          unzip -p target/lark-notice.hpi META-INF/MANIFEST.MF | grep -q "Plugin-Version: ${{ steps.release.outputs.version }}"
+
+      - name: Extract release notes
+        id: notes
+        shell: bash
+        run: |
+          version="${{ steps.release.outputs.version }}"
+          awk -v heading="## [$version]" '
+            index($0, heading) == 1 { found=1; next }
+            found && /^## \[/ { exit }
+            found { print }
+          ' release-docs/docs/guide/CHANGELOG.md > release-notes.md
+
+          if [[ ! -s release-notes.md ]]; then
+            echo "Release notes for ${{ steps.release.outputs.version }} were not found." >&2
+            exit 1
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release.outputs.tag }}
+          name: Lark Notice Plugin ${{ steps.release.outputs.version }}
+          prerelease: ${{ steps.release.outputs.prerelease }}
+          draft: false
+          body_path: release-notes.md
+          files: target/lark-notice.hpi

@@ -37,8 +37,6 @@
 - 快速测试集: `mvn test`
 - 包含 JenkinsRule 页面与集成测试的完整测试集: `mvn test failsafe:integration-test failsafe:verify -Pjenkins-rule-tests`
 
-在 `IDEA` 右侧 `maven` 控制面板中添加 `hpi:run` 到启动配置：
-
 ### 远程调试(Remote JVM DEBUG)
 
 #### 1. 命令行模式启动
