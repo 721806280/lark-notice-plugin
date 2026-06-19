@@ -18,6 +18,9 @@
                     <f:entry field="verbose">
                         <f:checkbox title="${%global.logging.verbose}"/>
                     </f:entry>
+                    <f:entry field="failBuildOnNotificationFailure">
+                        <f:checkbox title="${%global.notification.failBuild}" default="true"/>
+                    </f:entry>
                     <f:property field="proxyConfig"
                                 propertyDescriptor="${descriptor.getLarkProxyConfigDescriptor()}"/>
                 </div>

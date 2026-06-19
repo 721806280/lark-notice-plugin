@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -47,6 +48,7 @@ public class LarkConfigSnapshotTest {
         assertEquals(MessageLocaleStrategy.ZH_CN, snapshot.getRobotConfigs().get(0).getMessageLocaleStrategy());
 
         assertTrue(imported.isVerbose());
+        assertTrue(imported.isFailBuildOnNotificationFailure());
         assertEquals(Set.of("SUCCESS", "FAILURE"), imported.getNoticeOccasions());
         assertEquals(1, imported.getRobotConfigs().size());
         assertEquals("robot-a", imported.getRobotConfigs().get(0).getId());
@@ -57,6 +59,18 @@ public class LarkConfigSnapshotTest {
         assertEquals(MessageLocaleStrategy.ZH_CN, imported.getRobotConfigs().get(0).getMessageLocaleStrategy());
         assertTrue(imported.getRobotConfigs().get(0).getRetryConfig().isEnabled());
         assertEquals(Proxy.Type.HTTP, imported.getProxyConfig().getType());
+    }
+
+    @Test
+    public void snapshotShouldRoundTripFailBuildOnNotificationFailureFlag() {
+        LarkGlobalConfig globalConfig = new LarkGlobalConfig(null, false, Set.of("SUCCESS"), new ArrayList<>());
+        globalConfig.setFailBuildOnNotificationFailure(false);
+
+        LarkConfigSnapshot snapshot = LarkConfigSnapshotMapper.toSnapshot(globalConfig);
+        assertFalse(snapshot.isFailBuildOnNotificationFailure());
+
+        LarkConfigSnapshotMapper.ImportedGlobalConfig imported = LarkConfigSnapshotMapper.fromSnapshot(snapshot);
+        assertFalse(imported.isFailBuildOnNotificationFailure());
     }
 
     @Test
@@ -157,6 +171,7 @@ public class LarkConfigSnapshotTest {
         );
 
         assertTrue(merged.isVerbose());
+        assertTrue(merged.isFailBuildOnNotificationFailure());
         assertEquals(Set.of("FAILURE"), merged.getNoticeOccasions());
         assertNull(merged.getProxyConfig());
         assertEquals(3, merged.getRobotConfigs().size());

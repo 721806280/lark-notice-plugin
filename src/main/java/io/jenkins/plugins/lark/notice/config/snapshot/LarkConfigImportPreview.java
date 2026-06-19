@@ -48,7 +48,8 @@ public class LarkConfigImportPreview {
     private int retainedRobotCount;
 
     /**
-     * Whether proxy, verbose logging, and notice occasions would be overwritten.
+     * Whether global settings (proxy, verbose logging, notification failure handling, and notice occasions)
+     * would be overwritten.
      */
     private boolean globalSettingsOverwritten = true;
 }

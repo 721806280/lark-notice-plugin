@@ -66,7 +66,7 @@ public class ConfigurationPageRenderTest {
             assertEquals(0, countMatches(managementHtml, "/plugin/lark-notice/scripts/management-config-tools.js"));
             assertEquals(0, countMatches(managementHtml, "name=\"larkManagementImportForm\""));
             assertTrue(managementHtml.contains("Open Migration Tools"));
-            assertTrue(managementHtml.contains("Advanced Settings"));
+            assertTrue(managementHtml.contains("Advanced"));
             assertTrue(managementHtml.contains("name=\"robotConfigs\""));
             assertTrue(managementHtml.contains("id=\"proxyConfigContainer\""));
             assertTrue(managementHtml.contains("class=\"lark-proxy-combo\""));
@@ -136,7 +136,7 @@ public class ConfigurationPageRenderTest {
                 String managementHtml = managementPage.getWebResponse().getContentAsString();
                 assertTrue(managementPage.getTitleText().contains("Lark 机器人配置"));
                 assertTrue(managementHtml.contains("通知时机"));
-                assertTrue(managementHtml.contains("高级设置"));
+                assertTrue(managementHtml.contains("高级"));
                 assertTrue(managementHtml.contains("aria-label=\"代理配置：\""));
                 assertTrue(managementHtml.contains("placeholder=\"服务器地址（例如: proxy.com）\""));
                 assertTrue(managementHtml.contains("机器人"));

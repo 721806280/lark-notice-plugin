@@ -50,6 +50,12 @@ public class LarkConfigSnapshot {
     private boolean verbose;
 
     /**
+     * Global default controlling whether a notification send failure marks the build as failed.
+     * Defaults to {@code true} so snapshots produced before this field existed import as the historical behavior.
+     */
+    private boolean failBuildOnNotificationFailure = true;
+
+    /**
      * Globally enabled notice occasions.
      */
     private Set<String> noticeOccasions = new LinkedHashSet<>();

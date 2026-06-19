@@ -137,10 +137,6 @@ public class MessageDispatcher {
                 NoticeLog.field(NoticeLogKey.ATTEMPT, attempt),
                 NoticeLog.field(NoticeLogKey.MAX_ATTEMPTS, maxAttempts));
 
-        if (!sendResult.isOk()) {
-            NoticeLog.error(listener, sendResult.getMsg());
-        }
-
         return sendResult;
     }
 

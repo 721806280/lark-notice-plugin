@@ -47,6 +47,7 @@ public class NotificationServiceLayerTest {
     @Before
     public void setUp() {
         LarkGlobalConfig.getInstance().setRobotConfigs(new ArrayList<>());
+        LarkGlobalConfig.getInstance().setFailBuildOnNotificationFailure(true);
         MessageSenderRegistry.getInstance().clear();
         PipelineEnvContext.reset();
     }
@@ -151,6 +152,16 @@ public class NotificationServiceLayerTest {
         assertEquals(Result.FAILURE, build.getResult());
     }
 
+    @Test
+    public void dispatchExecutorShouldKeepBuildResultWhenPolicyDisabled() throws Exception {
+        FreeStyleProject project = jenkins.createFreeStyleProject("dispatch-keep-result");
+        project.getBuildersList().add(new KeepResultBuilder());
+
+        FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
+
+        assertEquals(Result.SUCCESS, build.getResult());
+    }
+
     private static LarkRobotConfig createRobot(String id) {
         return new LarkRobotConfig(
                 id,
@@ -200,7 +211,24 @@ public class NotificationServiceLayerTest {
                     listener,
                     NoticeOccasionEnum.SUCCESS,
                     "robot-fail",
-                    SendResult.fail("mock failed"));
+                    SendResult.fail("mock failed"),
+                    true);
+            return true;
+        }
+    }
+
+    private static final class KeepResultBuilder extends Builder {
+
+        @Override
+        public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
+            NotificationDispatchExecutor.handleSendResult(
+                    "test-source",
+                    build,
+                    listener,
+                    NoticeOccasionEnum.SUCCESS,
+                    "robot-keep",
+                    SendResult.fail("mock failed"),
+                    false);
             return true;
         }
     }

@@ -84,6 +84,7 @@ public final class LarkConfigImportPlanner {
 
         LarkConfigSnapshotMapper.ImportedGlobalConfig merged = new LarkConfigSnapshotMapper.ImportedGlobalConfig();
         merged.setVerbose(imported.isVerbose());
+        merged.setFailBuildOnNotificationFailure(imported.isFailBuildOnNotificationFailure());
         merged.setNoticeOccasions(new LinkedHashSet<>(imported.getNoticeOccasions()));
         merged.setProxyConfig(LarkConfigSnapshotMapper.copyProxyConfig(imported.getProxyConfig()));
 
@@ -104,6 +105,7 @@ public final class LarkConfigImportPlanner {
     ) {
         LarkConfigSnapshotMapper.ImportedGlobalConfig copy = new LarkConfigSnapshotMapper.ImportedGlobalConfig();
         copy.setVerbose(imported.isVerbose());
+        copy.setFailBuildOnNotificationFailure(imported.isFailBuildOnNotificationFailure());
         copy.setNoticeOccasions(new LinkedHashSet<>(imported.getNoticeOccasions()));
         copy.setProxyConfig(LarkConfigSnapshotMapper.copyProxyConfig(imported.getProxyConfig()));
 

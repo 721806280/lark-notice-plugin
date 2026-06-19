@@ -56,6 +56,23 @@ public final class NoticeLog {
     }
 
     /**
+     * Emits one always-visible warning line that does not carry the {@code ERROR} annotation.
+     *
+     * <p>Use for non-fatal problems that should stay visible even when verbose logging is off,
+     * for example a notification send failure that is intentionally not failing the build.</p>
+     *
+     * @param listener target listener
+     * @param template message template
+     * @param args     template arguments
+     */
+    public static void warning(TaskListener listener, String template, Object... args) {
+        if (listener == null) {
+            return;
+        }
+        write(listener, "%s %s", PREFIX, String.format(template, args));
+    }
+
+    /**
      * Emits one verbose plain-text line when verbose logging is enabled.
      *
      * @param listener target listener

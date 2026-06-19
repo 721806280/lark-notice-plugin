@@ -70,7 +70,8 @@ public final class NotificationDispatchExecutor {
         MessageModel messageModel = buildMessageModel(model, config, atUserIds, messageText, locale);
 
         SendResult result = messageDispatcher.send(listener, config.getRobotId(), messageModel);
-        handleSendResult(source, run, listener, occasion, config.getRobotId(), result);
+        boolean failBuild = LarkGlobalConfig.getInstance().isFailBuildOnNotificationFailure();
+        handleSendResult(source, run, listener, occasion, config.getRobotId(), result, failBuild);
     }
 
     /**
@@ -150,17 +151,19 @@ public final class NotificationDispatchExecutor {
     }
 
     /**
-     * Handles send result logging and build-result fallback.
+     * Handles send result logging and the configurable build-result fallback.
      *
-     * @param source     logical trigger source
-     * @param run        build run
-     * @param listener   Jenkins task listener
-     * @param occasion   current notice occasion
-     * @param robotId    robot identifier
-     * @param sendResult send result returned by dispatcher
+     * @param source             logical trigger source
+     * @param run                build run
+     * @param listener           Jenkins task listener
+     * @param occasion           current notice occasion
+     * @param robotId            robot identifier
+     * @param sendResult         send result returned by dispatcher
+     * @param failBuild whether a send failure should mark the build as {@code FAILURE}
      */
     static void handleSendResult(String source, Run<?, ?> run, TaskListener listener,
-                                 NoticeOccasionEnum occasion, String robotId, SendResult sendResult) {
+                                 NoticeOccasionEnum occasion, String robotId, SendResult sendResult,
+                                 boolean failBuild) {
         NoticeLog.trace(listener, NoticeTrace.NOTIFICATION_RESULT,
                 NoticeLog.field(NoticeLogKey.SOURCE, source),
                 NoticeLog.field(NoticeLogKey.JOB, run.getParent().getFullName()),
@@ -171,13 +174,51 @@ public final class NotificationDispatchExecutor {
                 NoticeLog.field(NoticeLogKey.RESULT_CODE, sendResult == null ? "<null>" : sendResult.getCode()),
                 NoticeLog.field(NoticeLogKey.MESSAGE, sendResult == null ? "<null>" : NoticeLog.abbreviate(sendResult.getMsg(), 200)));
 
-        if (sendResult == null || !sendResult.isOk()) {
+        boolean sendFailed = sendResult == null || !sendResult.isOk();
+        if (!sendFailed) {
+            return;
+        }
+
+        String failureMessage = sendFailureMessage(sendResult);
+
+        if (shouldFailBuild(sendFailed, failBuild)) {
             run.setResult(Result.FAILURE);
+            NoticeLog.error(listener, "%s", failureMessage);
             NoticeLog.trace(listener, NoticeTrace.NOTIFICATION_MARK_BUILD_FAILURE,
                     NoticeLog.field(NoticeLogKey.SOURCE, source),
                     NoticeLog.field(NoticeLogKey.JOB, run.getParent().getFullName()),
                     NoticeLog.field(NoticeLogKey.BUILD, run.getNumber()),
                     NoticeLog.field(NoticeLogKey.ROBOT_ID, robotId));
+        } else {
+            NoticeLog.warning(listener, "%s", failureMessage);
+            NoticeLog.trace(listener, NoticeTrace.NOTIFICATION_KEEP_BUILD_RESULT,
+                    NoticeLog.field(NoticeLogKey.SOURCE, source),
+                    NoticeLog.field(NoticeLogKey.JOB, run.getParent().getFullName()),
+                    NoticeLog.field(NoticeLogKey.BUILD, run.getNumber()),
+                    NoticeLog.field(NoticeLogKey.ROBOT_ID, robotId));
         }
+    }
+
+    /**
+     * Resolves the log message for a failed send.
+     *
+     * @param sendResult send result returned by dispatcher; {@code null} counts as a failure
+     * @return visible failure message
+     */
+    private static String sendFailureMessage(SendResult sendResult) {
+        return sendResult == null
+                ? Messages.dispatcher_error_send_result_missing()
+                : StringUtils.defaultIfBlank(sendResult.getMsg(), Messages.dispatcher_error_send_result_missing());
+    }
+
+    /**
+     * Pure decision helper: whether a failed send should fail the build.
+     *
+     * @param sendFailed whether sending failed
+     * @param failBuild  effective policy flag
+     * @return {@code true} only when sending failed and the policy requires failing the build
+     */
+    static boolean shouldFailBuild(boolean sendFailed, boolean failBuild) {
+        return sendFailed && failBuild;
     }
 }

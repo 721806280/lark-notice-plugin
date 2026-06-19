@@ -16,6 +16,7 @@ import java.util.Set;
 import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.LF;
 import static io.jenkins.plugins.lark.notice.sdk.constant.Constants.defaultTitle;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -105,6 +106,14 @@ public class NotificationDispatchExecutorTest {
         NotificationDispatchExecutor.applyModelTemplateValues(config, model, envVars, Locale.US);
 
         assertEquals("📢 Jenkins Build Notice", model.getTitle());
+    }
+
+    @Test
+    public void shouldFailBuildOnlyWhenSendFailedAndPolicyEnabled() {
+        assertFalse(NotificationDispatchExecutor.shouldFailBuild(false, true));
+        assertFalse(NotificationDispatchExecutor.shouldFailBuild(false, false));
+        assertTrue(NotificationDispatchExecutor.shouldFailBuild(true, true));
+        assertFalse(NotificationDispatchExecutor.shouldFailBuild(true, false));
     }
 
     private static BuildJobModel createModel() {

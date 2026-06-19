@@ -40,6 +40,7 @@ public final class LarkConfigSnapshotMapper {
         snapshot.setPluginVersion(resolvePluginVersion());
         snapshot.setExportedAt(OffsetDateTime.now(ZoneOffset.UTC).toString());
         snapshot.setVerbose(globalConfig.isVerbose());
+        snapshot.setFailBuildOnNotificationFailure(globalConfig.isFailBuildOnNotificationFailure());
         snapshot.setNoticeOccasions(new LinkedHashSet<>(globalConfig.getNoticeOccasions()));
         snapshot.setProxyConfig(toProxySnapshot(globalConfig.getProxyConfig()));
         snapshot.setRobotConfigs(mapRobotSnapshots(globalConfig.getRobotConfigs()));
@@ -55,6 +56,7 @@ public final class LarkConfigSnapshotMapper {
     public static ImportedGlobalConfig fromSnapshot(LarkConfigSnapshot snapshot) {
         ImportedGlobalConfig imported = new ImportedGlobalConfig();
         imported.setVerbose(snapshot.isVerbose());
+        imported.setFailBuildOnNotificationFailure(snapshot.isFailBuildOnNotificationFailure());
         imported.setNoticeOccasions(snapshot.getNoticeOccasions() == null
                 ? new LinkedHashSet<>()
                 : new LinkedHashSet<>(snapshot.getNoticeOccasions()));
@@ -200,6 +202,7 @@ public final class LarkConfigSnapshotMapper {
     public static class ImportedGlobalConfig {
         private LarkProxyConfig proxyConfig;
         private boolean verbose;
+        private boolean failBuildOnNotificationFailure = true;
         private Set<String> noticeOccasions = new LinkedHashSet<>();
         private ArrayList<LarkRobotConfig> robotConfigs = new ArrayList<>();
 
@@ -237,6 +240,24 @@ public final class LarkConfigSnapshotMapper {
          */
         public void setVerbose(boolean verbose) {
             this.verbose = verbose;
+        }
+
+        /**
+         * Returns the imported "fail build on notification failure" default.
+         *
+         * @return {@code true} when notification send failures should mark the build as failed
+         */
+        public boolean isFailBuildOnNotificationFailure() {
+            return failBuildOnNotificationFailure;
+        }
+
+        /**
+         * Sets the imported "fail build on notification failure" default.
+         *
+         * @param failBuildOnNotificationFailure imported flag
+         */
+        public void setFailBuildOnNotificationFailure(boolean failBuildOnNotificationFailure) {
+            this.failBuildOnNotificationFailure = failBuildOnNotificationFailure;
         }
 
         /**

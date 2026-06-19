@@ -8,6 +8,7 @@ import io.jenkins.plugins.lark.notice.logging.NoticeLog;
 import io.jenkins.plugins.lark.notice.logging.NoticeLogKey;
 import io.jenkins.plugins.lark.notice.logging.NoticeTrace;
 import io.jenkins.plugins.lark.notice.sdk.model.SendResult;
+import org.apache.commons.lang3.StringUtils;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
 import org.jenkinsci.plugins.workflow.steps.StepExecution;
 
@@ -81,7 +82,14 @@ public class GenericStepExecution<T extends AbstractStep> extends StepExecution 
                         NoticeLog.field(NoticeLogKey.SUCCESS, false),
                         NoticeLog.field(NoticeLogKey.RESULT_CODE, sendResult.getCode()),
                         NoticeLog.field(NoticeLogKey.MESSAGE, NoticeLog.abbreviate(sendResult.getMsg(), 200)));
-                context.onFailure(new IllegalStateException(NoticeLog.failureMessage(sendResult.getMsg())));
+                String failureMessage = StringUtils.defaultIfBlank(
+                        sendResult.getMsg(), Messages.dispatcher_error_send_result_missing());
+                if (step.isFailOnError()) {
+                    context.onFailure(new IllegalStateException(NoticeLog.failureMessage(failureMessage)));
+                } else {
+                    NoticeLog.warning(listener, "%s", failureMessage);
+                    context.onSuccess(failureMessage);
+                }
             }
             return true;
         } catch (Exception e) {

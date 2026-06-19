@@ -64,6 +64,7 @@ public final class ConfigSnapshotImportService {
                     importRequest.getMode()
             );
             globalConfig.setVerbose(planned.isVerbose());
+            globalConfig.setFailBuildOnNotificationFailure(planned.isFailBuildOnNotificationFailure());
             globalConfig.setNoticeOccasions(planned.getNoticeOccasions());
             globalConfig.setProxyConfig(planned.getProxyConfig());
             globalConfig.setRobotConfigs(planned.getRobotConfigs());

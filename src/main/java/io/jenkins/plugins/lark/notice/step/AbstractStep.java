@@ -19,6 +19,7 @@ import org.jenkinsci.plugins.workflow.steps.Step;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
 import org.jenkinsci.plugins.workflow.steps.StepDescriptor;
 import org.jenkinsci.plugins.workflow.steps.StepExecution;
+import org.kohsuke.stapler.DataBoundSetter;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
@@ -43,9 +44,26 @@ public abstract class AbstractStep extends Step {
 
     protected MsgTypeEnum type;
 
+    /**
+     * Whether a notification send failure should fail this pipeline step.
+     * Defaults to {@code true} to preserve historical behavior; set to {@code false}
+     * to keep the build green and only log a warning when sending fails.
+     */
+    protected boolean failOnError = true;
+
     public AbstractStep(String robot, MsgTypeEnum type) {
         this.robot = robot;
         this.type = type;
+    }
+
+    /**
+     * Sets whether a send failure should fail this pipeline step.
+     *
+     * @param failOnError {@code true} to fail the step on send failure
+     */
+    @DataBoundSetter
+    public void setFailOnError(boolean failOnError) {
+        this.failOnError = failOnError;
     }
 
     protected abstract SendResult send(Run<?, ?> run, EnvVars envVars, TaskListener listener);

@@ -47,6 +47,12 @@ public class LarkGlobalConfig extends Descriptor<LarkGlobalConfig> implements De
     private boolean verbose;
 
     /**
+     * Whether a notification send failure marks the build as {@code FAILURE}.
+     * Defaults to {@code true} to preserve historical behavior.
+     */
+    private boolean failBuildOnNotificationFailure = true;
+
+    /**
      * Set of occasion names (corresponding to {@link NoticeOccasionEnum}) that trigger notifications.
      */
     private Set<String> noticeOccasions = defaultNoticeOccasions();
@@ -163,6 +169,16 @@ public class LarkGlobalConfig extends Descriptor<LarkGlobalConfig> implements De
     @DataBoundSetter
     public void setVerbose(boolean verbose) {
         this.verbose = verbose;
+    }
+
+    /**
+     * Sets the global default for whether notification send failures mark the build as failed.
+     *
+     * @param failBuildOnNotificationFailure {@code true} to mark the build as {@code FAILURE} on send failure.
+     */
+    @DataBoundSetter
+    public void setFailBuildOnNotificationFailure(boolean failBuildOnNotificationFailure) {
+        this.failBuildOnNotificationFailure = failBuildOnNotificationFailure;
     }
 
     /**
