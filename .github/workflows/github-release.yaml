@@ -38,11 +38,11 @@ jobs:
             echo "prerelease=$prerelease"
           } >> "$GITHUB_OUTPUT"
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ steps.release.outputs.tag }}
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           repository: 721806280/lark-notice-plugin-doc
           path: release-docs
