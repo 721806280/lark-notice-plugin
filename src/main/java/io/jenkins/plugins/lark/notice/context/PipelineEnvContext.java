@@ -1,57 +1,98 @@
 package io.jenkins.plugins.lark.notice.context;
 
 import hudson.EnvVars;
+import hudson.model.InvisibleAction;
+import hudson.model.Run;
 
 /**
- * A utility class for managing environment variables within a pipeline's execution context.
- * It leverages a {@link ThreadLocal} store to maintain environment variables specific to the current thread,
- * allowing for thread-safe modifications and access to the environment variables during a pipeline's execution.
+ * Stores environment variables collected from Pipeline step contexts for one Jenkins build.
+ *
+ * <p>The state is attached to the owning {@link Run}, rather than to a worker thread. Jenkins
+ * may resume Pipeline steps on another thread, and one thread may process multiple builds.</p>
  *
  * @author xm.z
  */
-public class PipelineEnvContext {
+public final class PipelineEnvContext {
+
+    private PipelineEnvContext() {
+        throw new UnsupportedOperationException("Utility class cannot be instantiated");
+    }
 
     /**
-     * Thread-local storage for environment variables. This ensures that each thread has its own
-     * copy of environment variables, preventing conflicts in concurrent environments.
-     */
-    private static final ThreadLocal<EnvVars> STORE = new ThreadLocal<>();
-
-    /**
-     * Merges the given environment variables with the current thread's environment variables.
-     * If the current thread does not have any environment variables set, it initializes them with the given value.
-     * If environment variables are already present, it overrides them with the values from the given environment variables.
+     * Merges variables collected from a Pipeline step into the specified build context.
      *
-     * @param value The environment variables to merge into the current thread's environment variables.
+     * @param run   build that owns the variables
+     * @param value variables collected from the Pipeline step
      */
-    public static void merge(EnvVars value) {
-        if (value == null) {
+    public static void merge(Run<?, ?> run, EnvVars value) {
+        if (run == null || value == null) {
             return;
         }
-        EnvVars current = STORE.get();
-        if (current == null) {
-            STORE.set(value);
-        } else {
-            current.overrideAll(value);
+        getOrCreate(run).merge(value);
+    }
+
+    /**
+     * Returns a defensive copy of the variables collected for a build.
+     *
+     * @param run build whose variables should be read
+     * @return a snapshot, never {@code null}
+     */
+    public static EnvVars get(Run<?, ?> run) {
+        PipelineEnvAction action = run == null ? null : run.getAction(PipelineEnvAction.class);
+        return action == null ? new EnvVars() : action.snapshot();
+    }
+
+    /**
+     * Removes the transient Pipeline context attached to a build.
+     *
+     * @param run build whose context should be removed
+     */
+    public static void reset(Run<?, ?> run) {
+        if (run == null) {
+            return;
+        }
+        synchronized (run) {
+            PipelineEnvAction action = run.getAction(PipelineEnvAction.class);
+            if (action != null) {
+                run.removeAction(action);
+            }
         }
     }
 
     /**
-     * Retrieves the current thread's environment variables. If no environment variables are set for the current thread,
-     * it returns an empty {@link EnvVars} instance.
-     *
-     * @return The current thread's environment variables, never {@code null}.
+     * Finds or atomically attaches the transient action for a build.
      */
-    public static EnvVars get() {
-        EnvVars current = STORE.get();
-        return current == null ? new EnvVars() : current;
+    private static PipelineEnvAction getOrCreate(Run<?, ?> run) {
+        synchronized (run) {
+            PipelineEnvAction action = run.getAction(PipelineEnvAction.class);
+            if (action == null) {
+                action = new PipelineEnvAction();
+                run.addAction(action);
+            }
+            return action;
+        }
     }
 
     /**
-     * Resets the environment variables for the current thread. This effectively clears any environment variables
-     * that were previously set or merged into the thread's environment variable store.
+     * Runtime-only action; environment values must not be persisted into {@code build.xml}.
      */
-    public static void reset() {
-        STORE.remove();
+    private static final class PipelineEnvAction extends InvisibleAction {
+
+        private transient EnvVars envVars;
+
+        private synchronized void merge(EnvVars value) {
+            values().overrideAll(value);
+        }
+
+        private synchronized EnvVars snapshot() {
+            return new EnvVars(values());
+        }
+
+        private EnvVars values() {
+            if (envVars == null) {
+                envVars = new EnvVars();
+            }
+            return envVars;
+        }
     }
 }

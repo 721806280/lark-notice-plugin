@@ -2,6 +2,7 @@ package io.jenkins.plugins.lark.notice;
 
 import hudson.EnvVars;
 import hudson.Extension;
+import hudson.model.Run;
 import io.jenkins.plugins.lark.notice.context.PipelineEnvContext;
 import lombok.extern.slf4j.Slf4j;
 import org.jenkinsci.plugins.workflow.flow.StepListener;
@@ -32,7 +33,7 @@ public class LarkStepListener implements StepListener {
     public void notifyOfNewStep(@NonNull Step step, @NonNull StepContext context) {
         try {
             EnvVars envVars = context.get(EnvVars.class);
-            PipelineEnvContext.merge(envVars);
+            PipelineEnvContext.merge(context.get(Run.class), envVars);
         } catch (Exception e) {
             log.error("[lark] An exception occurred while retrieving environment variables from the pipeline", e);
         }

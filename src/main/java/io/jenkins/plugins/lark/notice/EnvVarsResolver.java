@@ -58,8 +58,10 @@ public final class EnvVarsResolver {
     private static EnvVars getBuildEnvironment(Run<?, ?> run, TaskListener listener) {
         EnvVars envVars = new EnvVars();
         try {
-            envVars = run.getEnvironment(listener);
-            envVars.overrideAll(PipelineEnvContext.get());
+            // Pipeline context may contain variables unavailable from Run, but the current Run's
+            // environment must win for build parameters when contexts are reused across builds.
+            envVars.putAll(PipelineEnvContext.get(run));
+            envVars.overrideAll(run.getEnvironment(listener));
         } catch (IOException | InterruptedException e) {
             if (e instanceof InterruptedException) {
                 Thread.currentThread().interrupt();

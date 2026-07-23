@@ -80,7 +80,7 @@ public final class NotificationOrchestrator {
                     NoticeLog.field(NoticeLogKey.ERROR, e.getMessage()));
             NoticeLog.verbose(listener, Messages.notifier_log_send_failure(), e.getMessage());
         } finally {
-            PipelineEnvContext.reset();
+            PipelineEnvContext.reset(run);
         }
     }
 }

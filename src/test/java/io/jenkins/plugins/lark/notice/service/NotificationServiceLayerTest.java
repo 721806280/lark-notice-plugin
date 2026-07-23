@@ -6,7 +6,11 @@ import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
+import hudson.model.ParametersAction;
+import hudson.model.ParametersDefinitionProperty;
 import hudson.model.Result;
+import hudson.model.StringParameterValue;
+import hudson.model.StringParameterDefinition;
 import hudson.model.TaskListener;
 import hudson.tasks.Builder;
 import io.jenkins.plugins.lark.notice.config.LarkGlobalConfig;
@@ -49,7 +53,6 @@ public class NotificationServiceLayerTest {
         LarkGlobalConfig.getInstance().setRobotConfigs(new ArrayList<>());
         LarkGlobalConfig.getInstance().setFailBuildOnNotificationFailure(true);
         MessageSenderRegistry.getInstance().clear();
-        PipelineEnvContext.reset();
     }
 
     @Test
@@ -120,14 +123,41 @@ public class NotificationServiceLayerTest {
     }
 
     @Test
+    public void buildEnvironmentShouldPreferCurrentRunParametersOverPipelineContext() throws Exception {
+        String parameterName = "TEST_PARAMETER";
+        FreeStyleProject project = jenkins.createFreeStyleProject("context-run-parameters");
+        project.addProperty(new ParametersDefinitionProperty(
+                new StringParameterDefinition(parameterName, "")));
+        FreeStyleBuild firstBuild = project.scheduleBuild2(
+                0,
+                new ParametersAction(new StringParameterValue(parameterName, "run-one")))
+                .get();
+        FreeStyleBuild secondBuild = project.scheduleBuild2(
+                0,
+                new ParametersAction(new StringParameterValue(parameterName, "run-two")))
+                .get();
+
+        PipelineEnvContext.merge(firstBuild, new EnvVars(parameterName, "context-two"));
+        PipelineEnvContext.merge(secondBuild, new EnvVars(parameterName, "context-one"));
+
+        BuildNotificationContext releaseContext = BuildNotificationContextFactory.create(
+                firstBuild, TaskListener.NULL, NoticeOccasionEnum.SUCCESS);
+        BuildNotificationContext debugContext = BuildNotificationContextFactory.create(
+                secondBuild, TaskListener.NULL, NoticeOccasionEnum.SUCCESS);
+
+        assertEquals("run-one", releaseContext.envVars().get(parameterName));
+        assertEquals("run-two", debugContext.envVars().get(parameterName));
+    }
+
+    @Test
     public void orchestratorShouldResetPipelineEnvContextWhenNoConfigs() throws Exception {
         FreeStyleProject project = jenkins.createFreeStyleProject("orchestrator-reset");
         FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
 
         EnvVars envVars = new EnvVars();
         envVars.put("TEMP_FLAG", "1");
-        PipelineEnvContext.merge(envVars);
-        assertTrue(PipelineEnvContext.get().containsKey("TEMP_FLAG"));
+        PipelineEnvContext.merge(build, envVars);
+        assertTrue(PipelineEnvContext.get(build).containsKey("TEMP_FLAG"));
 
         NotificationOrchestrator.notify(
                 "test-source",
@@ -138,7 +168,7 @@ public class NotificationServiceLayerTest {
                 MessageDispatcher.getInstance()
         );
 
-        assertFalse(PipelineEnvContext.get().containsKey("TEMP_FLAG"));
+        assertFalse(PipelineEnvContext.get(build).containsKey("TEMP_FLAG"));
         assertEquals(Result.SUCCESS, build.getResult());
     }
 
