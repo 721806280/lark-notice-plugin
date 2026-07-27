@@ -21,7 +21,7 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
           cache: maven
       - name: Run fast unit tests
         run: mvn -B test
@@ -34,7 +34,7 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
           cache: maven
       - name: Run JenkinsRule test profile
         run: mvn -B test failsafe:integration-test failsafe:verify -Pjenkins-rule-tests
