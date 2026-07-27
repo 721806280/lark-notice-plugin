@@ -79,7 +79,3 @@ download [intellij-java-google-style.xml](https://github.com/google/styleguide/b
 - [Plugin tutorial](https://wiki.jenkins.io/display/JENKINS/Plugin+tutorial#Plugintutorial-SettingUpEnvironment)
 - [Jenkins plug-in development journey: from idea to release in two days (Part 1)](https://jenkins-zh.cn/wechat/articles/2019/05/2019-05-06-jenkins-plugin-develop-within-two-days-part01/)
 - [Jenkins plug-in development journey: from idea to release in two days (Part 2)](https://jenkins-zh.github.io/wechat/articles/2019/05/2019-05-08-jenkins-plugin-develop-within-two-days-part02/)
-
-## ⭐ Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=721806280/lark-notice-plugin&type=Date)](https://www.star-history.com/#721806280/lark-notice-plugin&Date)
