@@ -3,11 +3,7 @@ package io.jenkins.plugins.lark.notice.config.snapshot;
 import io.jenkins.plugins.lark.notice.config.LarkGlobalConfig;
 import io.jenkins.plugins.lark.notice.config.LarkRobotConfig;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Plans and materializes snapshot imports for different import modes.

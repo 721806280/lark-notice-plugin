@@ -2,16 +2,8 @@ package io.jenkins.plugins.lark.notice.service;
 
 import hudson.model.User;
 import io.jenkins.plugins.lark.notice.Messages;
-import io.jenkins.plugins.lark.notice.config.LarkProxyConfig;
-import io.jenkins.plugins.lark.notice.config.LarkRobotConfig;
-import io.jenkins.plugins.lark.notice.config.LarkSecurityPolicyConfig;
-import io.jenkins.plugins.lark.notice.config.MessageLocaleResolver;
-import io.jenkins.plugins.lark.notice.config.RobotWebhookResolver;
-import io.jenkins.plugins.lark.notice.enums.BuildStatusEnum;
-import io.jenkins.plugins.lark.notice.enums.MessageLocaleStrategy;
-import io.jenkins.plugins.lark.notice.enums.RobotProtocolType;
-import io.jenkins.plugins.lark.notice.enums.RobotType;
-import io.jenkins.plugins.lark.notice.enums.WebhookEndpointMode;
+import io.jenkins.plugins.lark.notice.config.*;
+import io.jenkins.plugins.lark.notice.enums.*;
 import io.jenkins.plugins.lark.notice.i18n.NoticeI18n;
 import io.jenkins.plugins.lark.notice.model.BuildJobModel;
 import io.jenkins.plugins.lark.notice.model.MessageModel;

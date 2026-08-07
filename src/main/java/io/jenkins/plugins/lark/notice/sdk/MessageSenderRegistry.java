@@ -2,7 +2,6 @@ package io.jenkins.plugins.lark.notice.sdk;
 
 import io.jenkins.plugins.lark.notice.config.LarkGlobalConfig;
 import io.jenkins.plugins.lark.notice.config.LarkRobotConfig;
-import io.jenkins.plugins.lark.notice.enums.RobotType;
 import io.jenkins.plugins.lark.notice.model.RobotConfigModel;
 
 import java.util.Map;

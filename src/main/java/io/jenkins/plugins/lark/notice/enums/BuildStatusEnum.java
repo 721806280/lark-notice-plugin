@@ -1,6 +1,5 @@
 package io.jenkins.plugins.lark.notice.enums;
 
-import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.i18n.NoticeI18n;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,6 +1,5 @@
 package io.jenkins.plugins.lark.notice.tools;
 
-import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.i18n.NoticeI18n;
 import io.jenkins.plugins.lark.notice.sdk.model.lark.support.Button;
 

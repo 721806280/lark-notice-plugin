@@ -1,12 +1,12 @@
 package io.jenkins.plugins.lark.notice.i18n;
 
 import io.jenkins.plugins.lark.notice.Messages;
+import org.apache.commons.lang3.StringUtils;
 import org.jvnet.localizer.ResourceBundleHolder;
 
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Locale-aware accessors for message strings used by runtime notification rendering.

@@ -17,7 +17,6 @@ import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
-import org.springframework.util.CollectionUtils;
 
 import java.util.HashSet;
 import java.util.List;

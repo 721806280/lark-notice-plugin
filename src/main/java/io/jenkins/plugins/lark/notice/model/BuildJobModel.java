@@ -1,6 +1,5 @@
 package io.jenkins.plugins.lark.notice.model;
 
-import io.jenkins.plugins.lark.notice.Messages;
 import io.jenkins.plugins.lark.notice.enums.BuildStatusEnum;
 import io.jenkins.plugins.lark.notice.enums.RobotType;
 import io.jenkins.plugins.lark.notice.service.BuildMessageLineFormatter;

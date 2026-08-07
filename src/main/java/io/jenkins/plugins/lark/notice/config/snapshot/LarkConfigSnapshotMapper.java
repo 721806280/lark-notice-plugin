@@ -1,11 +1,7 @@
 package io.jenkins.plugins.lark.notice.config.snapshot;
 
 import hudson.PluginWrapper;
-import io.jenkins.plugins.lark.notice.config.LarkGlobalConfig;
-import io.jenkins.plugins.lark.notice.config.LarkProxyConfig;
-import io.jenkins.plugins.lark.notice.config.LarkRetryConfig;
-import io.jenkins.plugins.lark.notice.config.LarkRobotConfig;
-import io.jenkins.plugins.lark.notice.config.LarkSecurityPolicyConfig;
+import io.jenkins.plugins.lark.notice.config.*;
 import jenkins.model.Jenkins;
 import org.apache.commons.lang3.StringUtils;
 
