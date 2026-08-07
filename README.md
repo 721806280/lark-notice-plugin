@@ -5,8 +5,8 @@
       </a>
    </p>
    <p align="center">
-      <img src="https://img.shields.io/badge/JDK-17-success" alt="JDK">
-      <img src="https://img.shields.io/badge/Jenkins-2.541.3-blue.svg" alt="Jenkins">
+      <img src="https://img.shields.io/badge/JDK-21-success" alt="JDK">
+      <img src="https://img.shields.io/badge/Jenkins-2.555.3-blue.svg" alt="Jenkins">
       <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License">
       <img src="https://img.shields.io/badge/Author-xm.z-success" alt="Author">
    </p>
