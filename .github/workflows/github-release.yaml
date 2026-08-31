@@ -47,7 +47,7 @@ jobs:
           repository: 721806280/lark-notice-plugin-doc
           path: release-docs
 
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "21"
